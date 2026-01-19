@@ -14,11 +14,14 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-# Cargar variables de entorno desde .env
-load_dotenv()
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# 1. Primero definimos la ruta base (BASE_DIR)
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# 2. Ahora construimos la ruta exacta al archivo .env
+env_path = BASE_DIR / '.env'
+
+# 3. Y finalmente cargamos ese archivo específico
+load_dotenv(env_path)
 
 
 # Quick-start development settings - unsuitable for production
