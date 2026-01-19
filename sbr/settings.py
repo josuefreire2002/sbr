@@ -28,14 +28,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_ENV', 'development') == 'development'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -79,23 +80,22 @@ WSGI_APPLICATION = 'sbr.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
-#        'NAME': os.getenv('DB_NAME', 'sbr_db'),
-#        'USER': os.getenv('DB_USER', 'root'),
-#        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-#        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-#        'PORT': os.getenv('DB_PORT', '3306'),
-#    }
-#}
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'sbr_db',
+if os.getenv('DJANGO_ENV') == 'production':
+    # Ruta de producción en PythonAnywhere
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/home/bienesraices2026/sbr/sbr_db.sqlite3',
+        }
     }
-}
+else:
+    # Ruta local para desarrollo
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'sbr_db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -143,3 +143,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Configuración de Login
 LOGIN_REDIRECT_URL = 'dashboard'  # A donde va al iniciar sesión
 LOGOUT_REDIRECT_URL = 'login'     # A donde va al salir
+
+# Configuraciones de seguridad para producción
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    csrf_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+    if csrf_origins:
+        CSRF_TRUSTED_ORIGINS = csrf_origins.split(',')
