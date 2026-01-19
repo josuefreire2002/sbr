@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SBR Gestión{% endblock %}</title>
+
+    <!-- Bootstrap 5 & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 70px;
+            --primary-color: #1e40af;
+            --primary-gradient: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            --accent-color: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --success-gradient: linear-gradient(135deg, #059669 0%, #34d399 100%);
+            --warning-gradient: linear-gradient(135deg, #d97706 0%, #fbbf24 100%);
+            --bg-light: #f8fafc;
+            --header-height: 64px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom, #f8fafc 0%, #e0e7ff 100%);
+            color: #1e293b;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        #sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: calc(-1 * var(--sidebar-width));
+            background: var(--primary-gradient);
+            color: white;
+            transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 2000;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+        }
+
+        #sidebar.show {
+            left: 0;
+        }
+
+        #sidebar .sidebar-text,
+        #sidebar .sidebar-header h5,
+        #sidebar .menu-category {
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        #sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            margin: 0.15rem 0.75rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        #sidebar .nav-link:hover::before {
+            left: 100%;
+        }
+
+        #sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        #sidebar .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #sidebar .nav-link i {
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+            min-width: 24px;
+        }
+
+        #sidebar .sidebar-header {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Toggle Button */
+        .sidebar-toggle {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-toggle:hover {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Content Area */
+        #main-content {
+            margin-left: 0;
+            min-height: 100vh;
+            transition: margin-left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #main-content.pushed {
+            margin-left: var(--sidebar-width);
+        }
+
+        #top-navbar {
+            height: var(--header-height);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 991.98px) {
+            #main-content.pushed {
+                margin-left: 0;
+                /* Don't push content on mobile, overlay instead */
+            }
+
+            #sidebar {
+                z-index: 3000;
+                /* Above navbar on mobile */
+            }
+
+            /* Overlay when sidebar is open on mobile */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(2px);
+                z-index: 2500;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+                opacity: 1;
+            }
+        }
+
+        /* Vibrant Cards */
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            border: none;
+        }
+
+        .badge {
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+        }
+
+        .text-primary {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Alerts with gradient borders */
+        .alert {
+            border-left: 4px solid transparent;
+            border-image: var(--accent-gradient) 1;
+        }
+
+        /* Animated backgrounds */
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .bg-gradient-animated {
+            background: linear-gradient(-45deg, #1e40af, #2563eb, #3b82f6, #60a5fa);
+            background-size: 400% 400%;
+            animation: gradient-shift 15s ease infinite;
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Buttons Manager */
+        .btn {
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        /* Alerts Custom */
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Scrollbar Premium */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Table Hover Smoothness */
+        .table-hover tbody tr {
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .table-hover tbody tr:hover {
+            transform: scale(1.005);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            z-index: 1;
+            position: relative;
+        }
+
+        /* Custom Placeholder Styling */
+        ::placeholder {
+            color: #94a3b8 !important;
+            opacity: 0.5 !important;
+            font-weight: 400;
+        }
+
+        ::-webkit-input-placeholder {
+            color: #94a3b8 !important;
+            opacity: 0.5 !important;
+        }
+
+        ::-moz-placeholder {
+            color: #94a3b8 !important;
+            opacity: 0.5 !important;
+        }
+
+        :-ms-input-placeholder {
+            color: #94a3b8 !important;
+            opacity: 0.5 !important;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <h5 class="fw-bold mb-0 sidebar-text">SBR Gestión</h5>
+            <button class="sidebar-toggle d-lg-none" onclick="toggleSidebar()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="py-2">
+            <div class="px-4 mb-1 text-uppercase small fw-bold text-white-50 menu-category">Menú Principal</div>
+            <nav class="nav flex-column h-100">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                    href="{% url 'dashboard' %}">
+                    <i class="bi bi-speedometer2"></i> <span class="sidebar-text">Dashboard</span>
+                </a>
+
+                <div class="px-4 mt-2 mb-1 text-uppercase small fw-bold text-white-50 menu-category">Operaciones
+                </div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'crear_venta' %}active{% endif %}"
+                    href="{% url 'crear_venta' %}">
+                    <i class="bi bi-plus-circle"></i> <span class="sidebar-text">Nueva Venta</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}"
+                    href="{% url 'lista_clientes' %}">
+                    <i class="bi bi-people"></i> <span class="sidebar-text">Clientes</span>
+                </a>
+
+                <div class="px-4 mt-2 mb-1 text-uppercase small fw-bold text-white-50 menu-category">Inventario
+                </div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'gestion_lotes' %}active{% endif %}"
+                    href="{% url 'gestion_lotes' %}">
+                    <i class="bi bi-grid-3x3-gap"></i> <span class="sidebar-text">Lotes</span>
+                </a>
+
+                <div class="px-4 mt-2 mb-1 text-uppercase small fw-bold text-white-50 menu-category">
+                    Configuración</div>
+                <a class="nav-link" href="/admin">
+                    <i class="bi bi-gear"></i> <span class="sidebar-text">Panel Admin</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div id="main-content">
+        <!-- Top Navbar -->
+        <header id="top-navbar">
+            <button class="btn btn-light me-3" id="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <div class="breadcrumb mb-0 d-none d-md-flex">
+                <span class="text-muted small">SBR Gestión</span>
+                <span class="mx-2 text-muted small">/</span>
+                <span class="small fw-medium">{% block breadcrumb %}Principal{% endblock %}</span>
+            </div>
+
+            <div class="ms-auto d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button"
+                        data-bs-toggle="dropdown">
+                        <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center text-white"
+                            style="width: 32px; height: 32px;">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <span class="d-none d-sm-inline">{{ user.username }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
+                        <li><a class="dropdown-item py-2" href="#"><i class="bi bi-person me-2"></i> Perfil</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}"><i
+                                    class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="p-4 overflow-x-hidden">
+            {% if messages %}
+            <div class="container-fluid mb-4 px-0">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex align-items-center"
+                    role="alert">
+                    <i class="bi bi-info-circle-fill me-3 fs-5"></i>
+                    <div>{{ message }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="p-4 mt-auto border-top bg-white">
+            <p class="text-center text-muted small mb-0">&copy; 2024 SBR Gestión de Lotes. Todos los derechos
+                reservados.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        // Sidebar Toggle Function
+        function toggleSidebar() {
+            const sidebar = $('#sidebar');
+            const mainContent = $('#main-content');
+            const overlay = $('#sidebarOverlay');
+            const isDesktop = window.innerWidth >= 992;
+
+            sidebar.toggleClass('show');
+
+            if (isDesktop) {
+                mainContent.toggleClass('pushed');
+                overlay.removeClass('show'); // Overlay never shown on desktop
+            } else {
+                overlay.toggleClass('show');
+                mainContent.removeClass('pushed'); // Never push on mobile
+            }
+        }
+
+        $(document).ready(function () {
+            const isDashboard = "{{ request.resolver_match.url_name }}" === 'dashboard';
+
+            function initSidebar() {
+                const isDesktop = window.innerWidth >= 992;
+                const sidebar = $('#sidebar');
+                const mainContent = $('#main-content');
+                const overlay = $('#sidebarOverlay');
+
+                if (isDashboard && isDesktop) {
+                    sidebar.addClass('show');
+                    mainContent.addClass('pushed');
+                    overlay.removeClass('show');
+                } else {
+                    sidebar.removeClass('show');
+                    mainContent.removeClass('pushed');
+                    overlay.removeClass('show');
+                }
+            }
+
+            // Run on load
+            initSidebar();
+
+            // Run on resize with debounce
+            let resizeTimer;
+            $(window).on('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(initSidebar, 250);
+            });
+
+            // Click outside to close (only if NOT on dashboard OR on mobile)
+            $(document).on('click', function (e) {
+                const isDashboard = "{{ request.resolver_match.url_name }}" === 'dashboard';
+                const isMobile = window.innerWidth < 992;
+                const sidebar = $('#sidebar');
+
+                if (sidebar.hasClass('show') && (isMobile || !isDashboard)) {
+                    if (!$(e.target).closest('#sidebar').length &&
+                        !$(e.target).closest('#sidebar-toggle').length &&
+                        !$(e.target).closest('.sidebar-toggle').length) {
+                        toggleSidebar();
+                    }
+                }
+            });
+
+            // Universal Select2 Initialization
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%'
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

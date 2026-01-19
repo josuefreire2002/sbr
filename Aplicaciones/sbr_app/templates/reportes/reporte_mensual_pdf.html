@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Reporte Mensual - SBR Gestión</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+        }
+
+        h1 {
+            color: #1e40af;
+            margin-bottom: 5px;
+            font-size: 22px;
+        }
+
+        h2 {
+            color: #1e40af;
+            font-size: 16px;
+            border-bottom: 2px solid #1e40af;
+            padding-bottom: 5px;
+            margin-top: 25px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .period {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .summary {
+            margin: 20px 0;
+        }
+
+        .summary-box {
+            display: inline-block;
+            width: 30%;
+            padding: 15px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        .summary-box.green {
+            background-color: #f0fdf4;
+            border: 2px solid #22c55e;
+        }
+
+        .summary-box.red {
+            background-color: #fef2f2;
+            border: 2px solid #ef4444;
+        }
+
+        .summary-box.blue {
+            background-color: #eff6ff;
+            border: 2px solid #3b82f6;
+        }
+
+        .summary-box .label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .summary-box .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .summary-box.green .value {
+            color: #22c55e;
+        }
+
+        .summary-box.red .value {
+            color: #ef4444;
+        }
+
+        .summary-box.blue .value {
+            color: #3b82f6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: #f3f4f6;
+            text-align: left;
+            padding: 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-success {
+            color: #22c55e;
+        }
+
+        .text-danger {
+            color: #ef4444;
+        }
+
+        .badge {
+            background-color: #ef4444;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 10px;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Reporte Mensual de Ingresos y Mora</h1>
+        <div class="period">Período: {{ fecha_inicio|date:"d/m/Y" }} al {{ fecha_fin|date:"d/m/Y" }}</div>
+    </div>
+
+    <div class="summary">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 33%; padding: 10px;">
+                    <div class="summary-box green">
+                        <div class="label">Ingresos por Clientes al Día</div>
+                        <div class="value">${{ total_ingresos }}</div>
+                    </div>
+                </td>
+                <td style="width: 33%; padding: 10px;">
+                    <div class="summary-box red">
+                        <div class="label">Pendiente por Mora</div>
+                        <div class="value">${{ total_mora }}</div>
+                    </div>
+                </td>
+                <td style="width: 33%; padding: 10px;">
+                    <div class="summary-box blue">
+                        <div class="label">Ingresos Totales Netos</div>
+                        <div class="value">${{ ingreso_neto }}</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>Detalle de Ingresos ({{ ingresos_lista|length }} clientes)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Cédula</th>
+                <th>Lote</th>
+                <th class="text-right">Monto Pagado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in ingresos_lista %}
+            <tr>
+                <td>{{ item.cliente.apellidos }} {{ item.cliente.nombres }}</td>
+                <td>{{ item.cliente.cedula }}</td>
+                <td>Mz {{ item.contrato.lote.manzana }} - Lote {{ item.contrato.lote.numero_lote }}</td>
+                <td class="text-right text-success"><strong>${{ item.total_pagado }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No hay pagos registrados este mes.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Detalle de Mora ({{ mora_lista|length }} clientes)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Cédula</th>
+                <th>Lote</th>
+                <th class="text-center">Cuotas Vencidas</th>
+                <th class="text-right">Deuda Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in mora_lista %}
+            <tr>
+                <td>{{ item.cliente.apellidos }} {{ item.cliente.nombres }}</td>
+                <td>{{ item.cliente.cedula }}</td>
+                <td>Mz {{ item.contrato.lote.manzana }} - Lote {{ item.contrato.lote.numero_lote }}</td>
+                <td class="text-center"><span class="badge">{{ item.cuotas_vencidas }}</span></td>
+                <td class="text-right text-danger"><strong>${{ item.deuda_total }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No hay clientes en mora. ¡Excelente!</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Generado automáticamente por SBR Gestión - {{ fecha_fin|date:"d/m/Y" }}
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Detalle Contrato | SBR Gestión{% endblock %}
+{% block breadcrumb %}Detalle de Contrato{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Header Section -->
+    <div class="col-12">
+        <div class="card border-0 bg-white shadow-sm overflow-hidden mt-n2">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <div class="col-lg-8 p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary-subtle rounded-circle p-3 me-3">
+                                <i class="bi bi-person-vcard text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold mb-0 text-uppercase">
+                                    {{ contrato.cliente.apellidos }} {{contrato.cliente.nombres }}</h4>
+                                <div class="d-flex gap-3 text-muted small mt-1">
+                                    <span><i class="bi bi-card-text me-1"></i> {{ contrato.cliente.cedula }}</span>
+                                    <span><i class="bi bi-geo-alt me-1"></i>
+                                        Mz {{ contrato.lote.manzana }} - Lote {{contrato.lote.numero_lote }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 bg-light bg-opacity-50 p-4 d-flex align-items-center justify-content-lg-end">
+                        <div class="d-flex gap-2">
+                            {% if contrato.estado == 'ACTIVO' %}
+                            <form action="{% url 'cerrar_contrato' contrato.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger d-flex align-items-center bg-white"
+                                    {% if not puede_cerrar %}disabled title="Debe pagar todas las cuotas primero"
+                                    {%endif %}
+                                    onclick="return confirm('¿Estás seguro de cerrar este contrato? Esta acción es irreversible.');">
+
+                                    <i class="bi bi-lock-fill me-2"></i> Cerrar Contrato
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <a href="{% url 'descargar_pdf' contrato.id %}"
+                                class="btn btn-outline-secondary d-flex align-items-center">
+                                <i class="bi bi-file-earmark-pdf me-2"></i> PDF
+                            </a>
+                            <a href="{% url 'registrar_pago' contrato.id %}"
+                                class="btn btn-primary d-flex align-items-center shadow-sm">
+                                <i class="bi bi-cash-stack me-2"></i> Registrar Pago
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="col-md-4">
+        <div class="card border-0 border-top border-primary border-4 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase x-small fw-bold mb-1">Deuda Pendiente</h6>
+                        <h2 class="fw-bold mb-0 text-primary">${{ saldo_pendiente_total|intcomma }}</h2>
+                    </div>
+                    <i class="bi bi-bank text-primary opacity-25 fs-1"></i>
+                </div>
+                <div class="p-2 bg-light rounded-3 small">
+                    <span class="text-muted">Incluye capital + moras</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div
+            class="card border-0 border-top border-4 {% if hay_vencidas %}border-danger{% else %}border-success{% endif %} shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase x-small fw-bold mb-1">Estado de Mora</h6>
+                        <h2 class="fw-bold mb-0 {% if hay_vencidas %}text-danger{% else %}text-success{% endif %}">
+                            ${{ total_mora|intcomma }}
+                        </h2>
+                    </div>
+                    {% if hay_vencidas %}
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-1 opacity-25"></i>
+                    {% else %}
+                    <i class="bi bi-check-circle-fill text-success fs-1 opacity-25"></i>
+                    {% endif %}
+                </div>
+                <div
+                    class="p-2 {% if hay_vencidas %}bg-danger-subtle text-danger{% else %}bg-success-subtle text-success{% endif %} rounded-3 small fw-medium">
+                    {% if hay_vencidas %}
+                    <i class="bi bi-info-circle me-1"></i>
+                    {% if total_mora > 0 %}Recargo pendiente{% else %}Cuota vencida detectada{% endif %}
+                    {% else %}
+                    <i class="bi bi-shield-check me-1"></i> Cliente al día
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 border-top border-4 border-warning shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase x-small fw-bold mb-1">Próximo Vencimiento</h6>
+                        <h2 class="fw-bold mb-0">
+                            {% if proxima_cuota %}
+                            {{ proxima_cuota.fecha_vencimiento|date:"d M Y" }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </h2>
+                    </div>
+                    <i class="bi bi-calendar-event text-warning opacity-25 fs-1"></i>
+                </div>
+                <div class="p-2 bg-warning-subtle text-warning-emphasis rounded-3 small fw-medium">
+                    {% if proxima_cuota %}
+                    Cuota N° {{ proxima_cuota.numero_cuota }} de {{ contrato.numero_cuotas }}
+                    {% else %}
+                    Contrato finalizado
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Amortization Table -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Tabla de Amortización</h5>
+                <span class="badge bg-light text-muted fw-normal border">Vista de pagos</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="text-uppercase x-small text-muted fw-bold">
+                            <th class="ps-4 text-center">#</th>
+                            <th>Vencimiento</th>
+                            <th class="text-end">Cuota Base</th>
+                            <th class="text-end">Mora</th>
+                            <th class="text-end">A Pagar</th>
+                            <th class="text-end">Abonado</th>
+                            <th class="text-end">Pendiente</th>
+                            <th class="text-center pe-4">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                        {% for cuota in cuotas %}
+                        <tr
+                            class="{% if cuota.estado == 'VENCIDO' %}bg-danger bg-opacity-10{% elif cuota.estado == 'PAGADO' %}bg-success bg-opacity-10 opacity-75{% endif %}">
+                            <td class="ps-4 text-center fw-medium text-muted">{{ cuota.numero_cuota }}</td>
+                            <td class="fw-medium">
+                                {{ cuota.fecha_vencimiento|date:"d/m/Y" }}
+                                {% if cuota.estado == 'VENCIDO' %}
+                                <i class="bi bi-exclamation-circle text-danger ms-1" title="Vencido"></i>
+                                {% endif %}
+                            </td>
+                            <td class="text-end text-muted">${{ cuota.valor_capital|intcomma }}</td>
+                            <td
+                                class="text-end {% if cuota.valor_mora > 0 %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                {% if cuota.valor_mora > 0 %}+${{ cuota.valor_mora|intcomma }}
+                                {% else %}
+                                $0.00
+                                {% endif %}
+                            </td>
+                            <td class="text-end fw-bold">${{ cuota.total_a_pagar|intcomma }}</td>
+                            <td class="text-end text-success fw-medium">${{ cuota.valor_pagado|intcomma }}</td>
+                            <td class="text-end fw-bold text-dark">${{ cuota.saldo_pendiente|intcomma }}</td>
+                            <td class="text-center pe-4">
+                                {% if cuota.estado == 'PAGADO' %}
+                                <span class="badge bg-success py-1 px-3">PAGADO</span>
+                                {% elif cuota.estado == 'VENCIDO' %}
+                                <span class="badge bg-danger py-1 px-3 shadow-sm">MORA</span>
+                                {% elif cuota.estado == 'PARCIAL' %}
+                                <span class="badge bg-warning text-dark py-1 px-3 shadow-sm">PARCIAL</span>
+                                {% else %}
+                                <span
+                                    class="badge bg-secondary-subtle text-secondary py-1 px-3 fw-normal">PENDIENTE</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small {
+        font-size: 0.7rem;
+    }
+
+    .mt-n2 {
+        margin-top: -0.5rem;
+    }
+
+    .bg-danger-subtle {
+        background-color: #fef2f2;
+    }
+
+    .bg-success-subtle {
+        background-color: #f0fdf4;
+    }
+
+    .bg-warning-subtle {
+        background-color: #fffbeb;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Venta | SBR Gestión{% endblock %}
+{% block breadcrumb %}Registro de Contrato{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-primary-subtle rounded-3 p-2 me-3">
+                <i class="bi bi-file-earmark-plus text-primary fs-3"></i>
+            </div>
+            <div>
+                <h3 class="fw-bold mb-0">Nueva Venta / Contrato</h3>
+                <p class="text-muted mb-0">Complete los datos para generar un nuevo contrato de lote.</p>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{% url 'crear_venta' %}" id="formVenta" class="col-12">
+        {% csrf_token %}
+        <div class="row g-4">
+            <!-- Step 1: Client Information -->
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow-sm">
+                    <div class="card-header border-0 bg-transparent pt-4 px-4">
+                        <div class="d-flex align-items-center">
+                            <span
+                                class="badge bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                style="width: 24px; height: 24px;">1</span>
+                            <h5 class="fw-bold mb-0">Datos del Cliente</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Fecha del Contrato</label>
+                            <input type="date" name="fecha_contrato" class="form-control" required
+                                value="{% now 'Y-m-d' %}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Cédula / RUC</label>
+                            <input type="text" name="cedula" class="form-control" placeholder="0000000000" required>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Apellidos</label>
+                                <input type="text" name="apellidos" class="form-control text-uppercase"
+                                    placeholder="APELLIDOS" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Nombres</label>
+                                <input type="text" name="nombres" class="form-control text-uppercase"
+                                    placeholder="NOMBRES" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Celular</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted"><i
+                                        class="bi bi-phone"></i></span>
+                                <input type="text" name="celular" class="form-control border-start-0 ps-0"
+                                    placeholder="0900000000" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Email (Opcional)</label>
+                            <input type="email" name="email" class="form-control" placeholder="cliente@ejemplo.com">
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Dirección</label>
+                            <textarea name="direccion" class="form-control" rows="2"
+                                placeholder="Ciudad, Barrio, Calle..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Lote Assignment -->
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow-sm">
+                    <div class="card-header border-0 bg-transparent pt-4 px-4">
+                        <div class="d-flex align-items-center">
+                            <span
+                                class="badge bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                style="width: 24px; height: 24px;">2</span>
+                            <h5 class="fw-bold mb-0">Asignación de Lote</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 text-center d-flex flex-column">
+                        <div class="mb-4 text-start">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Lotes Disponibles</label>
+                            <select class="form-select select2" name="lote_id" id="select_lote" required>
+                                <option value="">-- Buscar Manzana / Lote --</option>
+                                {% for lote in lotes_disponibles %}
+                                <option value="{{ lote.id }}" data-precio="{{ lote.precio_contado }}"
+                                    data-dim="{{ lote.dimensiones }}">
+                                    Mz {{ lote.manzana }} - Lote {{ lote.numero_lote }} ({{ lote.dimensiones }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div id="lote_preview"
+                            class="mt-2 flex-grow-1 d-flex flex-column justify-content-center border border-dashed rounded-4 p-4"
+                            style="border-style: dashed !important; border-width: 2px !important;">
+                            <div class="empty-selection py-4">
+                                <i class="bi bi-map text-muted opacity-25" style="font-size: 80px;"></i>
+                                <p class="text-muted mt-3">Seleccione un lote para ver sus especificaciones.</p>
+                            </div>
+
+                            <div class="lote-details d-none text-start">
+                                <div class="text-center mb-4">
+                                    <div class="bg-success-subtle d-inline-block rounded-circle p-3 mb-2">
+                                        <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-0" id="preview_title">Mz 0 - Lote 0</h5>
+                                    <span class="badge bg-success rounded-pill x-small">DISPONIBLE</span>
+                                </div>
+
+                                <div class="bg-light rounded-3 p-3 mb-3">
+                                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                                        <span class="text-muted small">Dimensiones:</span>
+                                        <span class="fw-bold" id="lbl_dimensiones">-</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted small">Precio de Lista:</span>
+                                        <span class="fw-bold text-primary" id="lbl_precio_lista">$0.00</span>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="p-2 border border-info-subtle bg-info-subtle bg-opacity-10 rounded-3 d-flex">
+                                    <i class="bi bi-info-circle text-info me-2"></i>
+                                    <small class="text-info-emphasis">Este lote está disponible para financiamiento
+                                        inmediato.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Financial Plan -->
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow-sm border-top border-primary border-4">
+                    <div class="card-header border-0 bg-transparent pt-4 px-4">
+                        <div class="d-flex align-items-center">
+                            <span
+                                class="badge bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                style="width: 24px; height: 24px;">3</span>
+                            <h5 class="fw-bold mb-0">Plan Financiero</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 bg-light bg-opacity-25">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Precio de Venta
+                                ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">$</span>
+                                <input type="number" step="0.01" name="precio_final" id="input_precio_final"
+                                    class="form-control border-start-0 ps-0 fw-bold fs-5" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Entrada / Abono
+                                ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-success">$</span>
+                                <input type="number" step="0.01" name="entrada" id="input_entrada"
+                                    class="form-control border-start-0 ps-0" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Día de Cobro
+                                Mensual</label>
+                            <input type="date" name="fecha_primer_pago" class="form-control" required>
+                            <div class="form-text x-small">Define el vencimiento de todas las cuotas.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Plazo (Meses)</label>
+                            <div class="input-group">
+                                <input type="number" name="plazo" id="input_plazo" class="form-control"
+                                    placeholder="12, 24, 36..." required>
+                                <span class="input-group-text bg-white">meses</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Observaciones</label>
+                            <textarea name="observacion" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <div class="bg-white rounded-3 p-4 shadow-sm mb-4 border border-primary border-dashed"
+                            style="border-style: dashed !important;">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small fw-medium">Saldo a Financiar:</span>
+                                <span class="fw-bold" id="lbl_saldo">$0.00</span>
+                                <input type="hidden" name="saldo" id="input_saldo">
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small fw-medium">Cuota Estimada:</span>
+                                <h4 class="mb-0 text-primary fw-bold" id="lbl_cuota">$0.00</h4>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="btn btn-primary w-100 py-3 shadow-sm d-flex justify-content-center align-items-center">
+                            <i class="bi bi-file-earmark-check fs-5 me-2"></i>
+                            <span class="fw-bold">GENERAR CONTRATO</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectLote = document.getElementById('select_lote');
+        const inputPrecioFinal = document.getElementById('input_precio_final');
+        const inputEntrada = document.getElementById('input_entrada');
+        const inputPlazo = document.getElementById('input_plazo');
+        const lblPrecioLista = document.getElementById('lbl_precio_lista');
+        const lblDimensiones = document.getElementById('lbl_dimensiones');
+        const lblSaldo = document.getElementById('lbl_saldo');
+        const inputSaldo = document.getElementById('input_saldo');
+        const lblCuota = document.getElementById('lbl_cuota');
+        const preview_title = document.getElementById('preview_title');
+
+        const empty_selection = document.querySelector('.empty-selection');
+        const lote_details = document.querySelector('.lote-details');
+
+        // 1. Al cambiar lote, llenar precio y dimensiones
+        $('#select_lote').on('select2:select', function (e) {
+            const data = e.params.data.element.dataset;
+            const text = e.params.data.text.split('(')[0]; // Solo MZ y LOTE
+
+            lblPrecioLista.innerText = `$${parseFloat(data.precio).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            lblDimensiones.innerText = data.dim;
+            preview_title.innerText = text;
+
+            // Show details
+            empty_selection.classList.add('d-none');
+            lote_details.classList.remove('d-none');
+
+            // Auto-llenar el precio final con el precio del lote (siempre)
+            // Convertir formato de coma a punto para input type="number"
+            const precioFormateado = data.precio.toString().replace(',', '.');
+            inputPrecioFinal.value = precioFormateado;
+
+            calcular();
+        });
+
+        // 2. Función de cálculo
+        function calcular() {
+            const precio = parseFloat(inputPrecioFinal.value) || 0;
+            const entrada = parseFloat(inputEntrada.value) || 0;
+            const plazo = parseInt(inputPlazo.value) || 0;
+
+            const saldo = Math.max(0, precio - entrada);
+
+            lblSaldo.innerText = `$${saldo.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            inputSaldo.value = saldo.toFixed(2);
+
+            if (plazo > 0 && saldo > 0) {
+                const cuota = saldo / plazo;
+                lblCuota.innerText = `$${cuota.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            } else {
+                lblCuota.innerText = "$0.00";
+            }
+        }
+
+        // Event Listeners
+        inputPrecioFinal.addEventListener('input', calcular);
+        inputEntrada.addEventListener('input', calcular);
+        inputPlazo.addEventListener('input', calcular);
+    });
+</script>
+<style>
+    .border-dashed {
+        border-style: dashed !important;
+    }
+
+    .x-small {
+        font-size: 0.75rem;
+    }
+
+    .bg-primary-subtle {
+        background-color: #ebf5ff;
+    }
+</style>
+{% endblock %}

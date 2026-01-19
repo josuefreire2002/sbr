@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Pago | SBR Gestión{% endblock %}
+{% block breadcrumb %}Caja > Registrar Pago{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-xl-5">
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-success bg-gradient text-white py-4 px-4 border-0">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white bg-opacity-20 rounded-3 p-2 me-3">
+                        <i class="bi bi-cash-coin fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-0">Registrar Pago</h4>
+                        <p class="mb-0 opacity-75 small text-uppercase fw-medium">{{ contrato.cliente.apellidos }} {{
+                            contrato.cliente.nombres }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <div class="alert bg-light border-0 d-flex align-items-center mb-4">
+                    <i class="bi bi-info-circle text-primary fs-5 me-3"></i>
+                    <div class="small">
+                        <span class="text-muted">Referencia:</span>
+                        <span class="fw-bold">
+                            Mz {{ contrato.lote.manzana }} - Lote {{ contrato.lote.numero_lote }}
+                        </span>
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" id="paymentForm">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Monto a Recibir ($)</label>
+                        <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                            <span class="input-group-text bg-white border-end-0 text-success fw-bold">$</span>
+                            <input type="number" name="monto" id="montoInput" step="0.01"
+                                class="form-control border-start-0 ps-0 fw-bold text-success" placeholder="0.00"
+                                required>
+                        </div>
+                        <div class="form-text x-small mt-2">
+                            <i class="bi bi-info-circle-fill me-1"></i> El sistema prorrateará automáticamente el pago
+                            entre cuotas vencidas y capital.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Método de Pago</label>
+                        <div class="row g-2" id="metodoGrid">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="metodo_pago" id="metodoEfectivo"
+                                    value="EFECTIVO" checked autocomplete="off" onchange="toggleEvidencia()">
+                                <label
+                                    class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center"
+                                    for="metodoEfectivo">
+                                    <i class="bi bi-cash fs-4 mb-1"></i>
+                                    <span class="small fw-bold">Efectivo</span>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="metodo_pago" id="metodoTransf"
+                                    value="TRANSFERENCIA" autocomplete="off" onchange="toggleEvidencia()">
+                                <label
+                                    class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center"
+                                    for="metodoTransf">
+                                    <i class="bi bi-bank fs-4 mb-1"></i>
+                                    <span class="small fw-bold">Transferencia</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 d-none" id="div_evidencia">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Comprobante / Captura</label>
+                        <div class="p-3 border rounded-3 bg-light bg-opacity-50">
+                            <input type="file" name="comprobante" class="form-control" accept="image/*">
+                            <div class="form-text x-small mt-2">Sube una imagen clara del comprobante bancario.</div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="btn btn-success btn-lg w-100 py-3 shadow-sm fw-bold mb-3">
+                            <i class="bi bi-check2-circle me-2"></i> PROCESAR PAGO
+                        </button>
+                        <a href="{% url 'detalle_contrato' contrato.id %}" class="btn btn-light w-100 py-2 text-muted">
+                            Volver al detalle
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleEvidencia() {
+        const isTransferencia = document.getElementById('metodoTransf').checked;
+        const div = document.getElementById('div_evidencia');
+        if (isTransferencia) {
+            div.classList.remove('d-none');
+            div.style.animation = 'fadeIn 0.3s ease-out';
+        } else {
+            div.classList.add('d-none');
+        }
+    }
+
+    // Add some visual polish to inputs
+    document.getElementById('montoInput').addEventListener('focus', function () {
+        this.parentElement.classList.add('ring-success');
+    });
+    document.getElementById('montoInput').addEventListener('blur', function () {
+        this.parentElement.classList.remove('ring-success');
+    });
+</script>
+
+<style>
+    .x-small {
+        font-size: 0.75rem;
+    }
+
+    .ring-success {
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1);
+        border-radius: 8px;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .btn-check:checked+.btn-outline-secondary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+</style>
+{% endblock %}

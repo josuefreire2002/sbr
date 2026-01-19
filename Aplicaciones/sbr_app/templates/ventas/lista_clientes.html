@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Clientes | SBR Gestión{% endblock %}
+{% block breadcrumb %}Cartera de Clientes{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card border-0 bg-white p-4">
+            <div
+                class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-4 gap-3">
+                <div>
+                    <h4 class="fw-bold mb-1">Cartera de Clientes</h4>
+                    <p class="text-muted mb-0">Listado de todos los clientes vinculados a su cuenta.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'reporte_mensual' %}" class="btn btn-outline-success">
+                        <i class="bi bi-file-earmark-bar-graph me-2"></i>Reporte Mensual
+                    </a>
+                    <a href="{% url 'crear_venta' %}" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-2"></i>Nuevo Cliente / Venta
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-lg-4">
+                    <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="bi bi-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0"
+                            placeholder="Buscar por nombre o cédula..." id="clienteSearch">
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-auto">
+                    <div class="btn-group shadow-sm rounded-3 overflow-hidden w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary active filter-btn"
+                            data-filter="all">Todos</button>
+                        <button type="button" class="btn btn-outline-primary filter-btn" data-filter="con-contrato">Con
+                            Contrato</button>
+                        <button type="button" class="btn btn-outline-primary filter-btn" data-filter="sin-contrato">Sin
+                            Contrato</button>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-auto">
+                    <div class="btn-group shadow-sm rounded-3 overflow-hidden w-100" role="group">
+                        <button type="button" class="btn btn-outline-danger active mora-btn"
+                            data-mora="all">Todos</button>
+                        <button type="button" class="btn btn-outline-danger mora-btn" data-mora="en-mora">En
+                            Mora</button>
+                        <button type="button" class="btn btn-outline-danger mora-btn" data-mora="al-dia">Al Día</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="list-group list-group-flush">
+                {% for cliente in clientes %}
+                {% with contrato=cliente.contrato_set.first %}
+                <div class="list-group-item list-group-item-action border-0 rounded-3 mb-3 p-3 bg-light-subtle client-item shadow-sm"
+                    data-status="{% if contrato and contrato.estado == 'ACTIVO' %}con-contrato{% else %}sin-contrato{% endif %}"
+                    data-mora="{% if contrato and contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}en-mora{% else %}al-dia{% endif %}">
+                    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-4">
+                        <div class="flex-grow-1 w-100">
+                            <h6 class="fw-bold mb-1">
+                                <span class="text-primary-emphasis opacity-50 small font-monospace mb-0 me-1">
+                                    #{{ cliente.id }}
+                                </span>
+                                {{ cliente.apellidos }} {{ cliente.nombres }}
+                            </h6>
+
+                            <div class="info-grid mt-1">
+                                <span class="text-muted x-small d-flex align-items-center">
+                                    <i class="bi bi-card-text me-1"></i> {{ cliente.cedula }}
+                                </span>
+                                <a href="https://wa.me/{{ cliente.celular }}" target="_blank"
+                                    class="text-success text-decoration-none x-small d-flex align-items-center">
+                                    <i class="bi bi-whatsapp me-1"></i> {{ cliente.celular }}
+                                </a>
+                                {% if cliente.email %}
+                                <span class="text-muted x-small d-flex align-items-center text-truncate max-w-200">
+                                    <i class="bi bi-envelope me-1"></i> {{ cliente.email }}
+                                </span>
+                                {% endif %}
+                                <span class="text-muted x-small d-flex align-items-center text-truncate">
+                                    <i class="bi bi-geo-alt me-1"></i> {{ cliente.direccion|truncatechars:40 }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="ms-md-auto w-100 w-md-auto mt-2 mt-md-0">
+                            <div class="d-flex flex-row flex-md-row justify-content-between align-items-center gap-2">
+                                <div class="status-badges d-flex gap-1">
+                                    {% if contrato and contrato.estado == 'ACTIVO' %}
+                                    <span class="badge bg-success-subtle text-success x-small">Activo</span>
+                                    {% if contrato.esta_en_mora %}
+                                    <span class="badge bg-danger x-small">Mora</span>
+                                    {% endif %}
+                                    {% elif contrato and contrato.estado == 'CERRADO' %}
+                                    <span class="badge bg-secondary-subtle text-secondary x-small">Finalizado</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary x-small">Sin Venta</span>
+                                    {% endif %}
+                                </div>
+
+                                {% if contrato %}
+                                <a href="{% url 'detalle_contrato' contrato.id %}"
+                                    class="btn btn-sm btn-primary fw-medium px-3 rounded-2">
+                                    Ver Detalles <i class="bi bi-chevron-right ms-1"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+                {% empty %}
+                <div class="text-center py-5">
+                    <div class="bg-light rounded-circle p-4 d-inline-block mb-3">
+                        <i class="bi bi-people-fill text-muted fs-1"></i>
+                    </div>
+                    <h5>No hay clientes registrados</h5>
+                    <p class="text-muted">Aún no has registrado ningún cliente en el sistema.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function () {
+        let currentFilter = 'all';
+        let currentMoraFilter = 'all';
+
+        function applyFilters() {
+            const searchValue = $("#clienteSearch").val().toLowerCase();
+
+            $(".client-item").each(function () {
+                const $item = $(this);
+                const text = $item.text().toLowerCase();
+                const status = $item.data("status");
+                const mora = $item.data("mora");
+
+                const matchesSearch = text.includes(searchValue);
+                const matchesFilter = currentFilter === 'all' || status === currentFilter;
+                const matchesMora = currentMoraFilter === 'all' || mora === currentMoraFilter;
+
+                if (matchesSearch && matchesFilter && matchesMora) {
+                    $item.fadeIn(200);
+                } else {
+                    $item.hide();
+                }
+            });
+        }
+
+        $("#clienteSearch").on("keyup", applyFilters);
+
+        $(".filter-btn").on("click", function () {
+            $(".filter-btn").removeClass("active");
+            $(this).addClass("active");
+            currentFilter = $(this).data("filter");
+            applyFilters();
+        });
+
+        $(".mora-btn").on("click", function () {
+            $(".mora-btn").removeClass("active");
+            $(this).addClass("active");
+            currentMoraFilter = $(this).data("mora");
+            applyFilters();
+        });
+    });
+</script>
+<style>
+    .bg-light-subtle {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+    .client-item {
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease !important;
+    }
+
+    .client-item:hover {
+        border-color: var(--accent-color) !important;
+        background-color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .x-small {
+        font-size: 0.7rem;
+    }
+
+    .info-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+    }
+
+    .max-w-200 {
+        max-width: 200px;
+    }
+
+    .btn-xs {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        line-height: 1;
+    }
+
+    @media (max-width: 767.98px) {
+        .card {
+            padding: 1.25rem !important;
+        }
+
+        .client-item {
+            padding: 1rem !important;
+        }
+
+        .info-grid {
+            gap: 0.4rem 0.75rem;
+        }
+
+        .info-grid span,
+        .info-grid a {
+            font-size: 0.75rem !important;
+        }
+
+        .status-badges .badge {
+            font-size: 0.65rem !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+    }
+</style>
+{% endblock %}

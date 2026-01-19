@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Sesión | SBR Inmobiliaria{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+
+    <div class="card shadow-lg border-0 rounded-4" style="max-width: 400px; width: 100%;">
+        <div class="card-body p-4 p-md-5">
+
+            <div class="text-center mb-4">
+                <div class="bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                    style="width: 60px; height: 60px;">
+                    <i class="bi bi-person-fill fs-2"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Bienvenido</h4>
+                <p class="text-muted small">Ingresa tus credenciales para acceder al sistema de ventas.</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-danger py-2 text-center small mb-3">
+                    <i class="bi bi-exclamation-circle me-1"></i> Usuario o contraseña incorrectos.
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">USUARIO</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
+                        <input type="text" name="username" class="form-control bg-light border-start-0"
+                            placeholder="Ej: jfreire" required autofocus>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">CONTRASEÑA</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" class="form-control bg-light border-start-0"
+                            placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
+                        INGRESAR <i class="bi bi-arrow-right-short"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="card-footer bg-light text-center py-3 border-0 rounded-bottom-4">
+            <small class="text-muted">¿Olvidaste tu contraseña? Contacta al Admin.</small>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

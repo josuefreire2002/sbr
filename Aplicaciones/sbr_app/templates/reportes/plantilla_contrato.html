@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Contrato</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+
+            @frame footer_frame {
+                /* Numeración de página opcional */
+                -pdf-frame-content: footerContent;
+                bottom: 1cm;
+                margin-left: 2.5cm;
+                margin-right: 2.5cm;
+                height: 1cm;
+            }
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            /* Fuentes estándar PDF */
+            font-size: 11pt;
+            /* 12pt a veces es muy grande en PDF */
+            line-height: 1.5;
+            color: #000;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .titulo {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 16pt;
+            margin-bottom: 25px;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .seccion {
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+        }
+
+        /* TABLA DE PAGOS */
+        .tabla-pagos {
+            width: 100%;
+            border-collapse: collapse;
+            /* Importante para bordes finos */
+            margin-top: 15px;
+            font-size: 10pt;
+        }
+
+        .tabla-pagos th {
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            padding: 8px;
+            font-weight: bold;
+        }
+
+        .tabla-pagos td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: center;
+        }
+
+        /* FIRMAS: Usamos diseño de tabla para compatibilidad total */
+        .tabla-firmas {
+            width: 100%;
+            margin-top: 80px;
+            border: none;
+        }
+
+        .tabla-firmas td {
+            border: none;
+            /* Sin bordes para la estructura */
+            vertical-align: top;
+        }
+
+        .linea-firma {
+            border-top: 1px solid #000;
+            width: 80%;
+            /* Ancho de la línea respecto a su celda */
+            margin: 0 auto;
+            /* Centrar línea */
+            padding-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        {% if empresa.logo %}
+        <img src="{{ empresa.logo.url }}" style="height: 80px;">
+        {% else %}
+        <h1>{{ empresa.nombre_empresa }}</h1>
+        {% endif %}
+        <p><strong>RUC:</strong> {{ empresa.ruc_empresa }}</p>
+    </div>
+
+    <div class="titulo">CONTRATO DE COMPRAVENTA DE LOTE</div>
+
+    <p style="text-align: justify;">
+        En la ciudad de Pujilí, a los {{ contrato.fecha_contrato|date:"d" }} días del mes de
+        {{ contrato.fecha_contrato|date:"F" }} del año {{ contrato.fecha_contrato|date:"Y" }}, comparecen:
+    </p>
+
+    <div class="seccion">PRIMERO: LOS COMPARECIENTES</div>
+    <p style="text-align: justify;">
+        Por una parte, la empresa <strong>{{ empresa.nombre_empresa }}</strong> (VENDEDOR), y por otra parte
+        el Sr/Sra. <strong>{{ cliente.nombres }} {{ cliente.apellidos }}</strong> con C.I. {{ cliente.cedula }}
+        (COMPRADOR).
+    </p>
+
+    <div class="seccion">SEGUNDO: EL OBJETO</div>
+    <p style="text-align: justify;">
+        El VENDEDOR vende al COMPRADOR el Lote de Terreno ubicado en la Manzana <strong>{{ lote.manzana }}</strong>,
+        Lote N° <strong>{{ lote.numero_lote }}</strong>, con dimensiones de {{ lote.dimensiones }}.
+    </p>
+
+    <div class="seccion">TERCERO: PRECIO Y FORMA DE PAGO</div>
+    <p style="text-align: justify;">
+        El precio pactado es de <strong>${{ contrato.precio_venta_final }} USD</strong>.
+        El COMPRADOR entrega la suma de <strong>${{ contrato.valor_entrada }}</strong> como entrada.
+        El saldo de <strong>${{ contrato.saldo_a_financiar }}</strong> será pagado en {{ contrato.numero_cuotas }}
+        cuotas mensuales detalladas a continuación:
+    </p>
+
+    <table class="tabla-pagos">
+        <thead>
+            <tr>
+                <th width="15%">Cuota N°</th>
+                <th width="40%">Fecha Vencimiento</th>
+                <th width="45%">Valor ($)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cuota in cuotas %}
+            <tr>
+                <td>{{ cuota.numero_cuota }}</td>
+                <td>{{ cuota.fecha_vencimiento|date:"d/m/Y" }}</td>
+                <td>{{ cuota.valor_capital }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="tabla-firmas">
+        <tr>
+            <td width="45%" align="center">
+                <div class="linea-firma">
+                    <strong>VENDEDOR</strong><br>
+                    {{ empresa.nombre_empresa }}<br>
+                    <span style="font-size: 10pt;">RUC: {{ empresa.ruc_empresa }}</span>
+                </div>
+            </td>
+
+            <td width="10%"></td>
+
+            <td width="45%" align="center">
+                <div class="linea-firma">
+                    <strong>COMPRADOR</strong><br>
+                    {{ cliente.nombres }} {{ cliente.apellidos }}<br>
+                    <span style="font-size: 10pt;">C.I. {{ cliente.cedula }}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div id="footerContent" style="text-align: right; font-size: 9pt; color: gray;">
+        Página <pdf:pagenumber> de <pdf:pagecount>
+    </div>
+
+</body>
+
+</html>

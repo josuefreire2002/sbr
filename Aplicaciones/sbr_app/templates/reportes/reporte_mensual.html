@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Reporte Mensual | SBR Gestión{% endblock %}
+{% block breadcrumb %}Reporte Mensual{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Header -->
+    <div class="col-12">
+        <div
+            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+            <div>
+                <h4 class="fw-bold mb-1">Reporte de Ingresos y Mora</h4>
+                <p class="text-muted mb-0">
+                    Período: <strong>
+                        {{ fecha_inicio|date:"d/m/Y" }}</strong> al <strong>{{ fecha_fin|date:"d/m/Y"}}
+                    </strong>
+                </p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'lista_clientes' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Volver
+                </a>
+                <a href="{% url 'reporte_mensual_pdf' %}" class="btn btn-danger">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Descargar PDF
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="col-12 col-md-4">
+        <div class="card border-0 border-top border-4 border-success shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase x-small fw-bold mb-1">Ingresos por Clientes al Día</h6>
+                        <h2 class="fw-bold mb-0 text-success">${{ total_ingresos|intcomma }}</h2>
+                    </div>
+                    <i class="bi bi-cash-coin text-success opacity-25 fs-1"></i>
+                </div>
+                <div class="p-2 bg-success-subtle text-success rounded-3 small fw-medium">
+                    <i class="bi bi-check-circle me-1"></i> {{ ingresos_lista|length }} cliente(s) pagaron
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card border-0 border-top border-4 border-danger shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase x-small fw-bold mb-1">Pendiente por Mora</h6>
+                        <h2 class="fw-bold mb-0 text-danger">${{ total_mora|intcomma }}</h2>
+                    </div>
+                    <i class="bi bi-exclamation-triangle text-danger opacity-25 fs-1"></i>
+                </div>
+                <div class="p-2 bg-danger-subtle text-danger rounded-3 small fw-medium">
+                    <i class="bi bi-info-circle me-1"></i> {{ mora_lista|length }} cliente(s) en mora
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card border-0 border-top border-4 border-primary shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase x-small fw-bold mb-1">Ingresos Totales Netos</h6>
+                        <h2 class="fw-bold mb-0 text-primary">${{ ingreso_neto|intcomma }}</h2>
+                    </div>
+                    <i class="bi bi-graph-up-arrow text-primary opacity-25 fs-1"></i>
+                </div>
+                <div class="p-2 bg-primary-subtle text-primary rounded-3 small fw-medium">
+                    <i class="bi bi-calculator me-1"></i> Ingresos - Mora
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Ingresos Table -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-success text-white py-3 px-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-arrow-up-circle me-2"></i>Detalle de Ingresos</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="text-uppercase x-small text-muted fw-bold">
+                            <th class="ps-4">Cliente</th>
+                            <th>Lote</th>
+                            <th class="text-end pe-4">Monto Pagado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in ingresos_lista %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-medium">{{ item.cliente.apellidos }} {{ item.cliente.nombres }}</span>
+                                <div class="text-muted x-small">{{ item.cliente.cedula }}</div>
+                            </td>
+                            <td>Mz {{ item.contrato.lote.manzana }} - Lote {{ item.contrato.lote.numero_lote }}</td>
+                            <td class="text-end pe-4 fw-bold text-success">${{ item.total_pagado|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">No hay pagos registrados este mes.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mora Table -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-danger text-white py-3 px-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-arrow-down-circle me-2"></i>Detalle de Mora</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="text-uppercase x-small text-muted fw-bold">
+                            <th class="ps-4">Cliente</th>
+                            <th>Lote</th>
+                            <th class="text-center">Cuotas Vencidas</th>
+                            <th class="text-end pe-4">Deuda Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in mora_lista %}
+                        <tr class="bg-danger bg-opacity-10">
+                            <td class="ps-4">
+                                <span class="fw-medium">{{ item.cliente.apellidos }} {{ item.cliente.nombres }}</span>
+                                <div class="text-muted x-small">{{ item.cliente.cedula }}</div>
+                            </td>
+                            <td>Mz {{ item.contrato.lote.manzana }} - Lote {{ item.contrato.lote.numero_lote }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-danger">{{ item.cuotas_vencidas }}</span>
+                            </td>
+                            <td class="text-end pe-4 fw-bold text-danger">${{ item.deuda_total|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No hay clientes en mora. ¡Excelente!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small {
+        font-size: 0.7rem;
+    }
+
+    .bg-success-subtle {
+        background-color: #f0fdf4;
+    }
+
+    .bg-primary-subtle {
+        background-color: #eff6ff;
+    }
+
+    .bg-danger-subtle {
+        background-color: #fef2f2;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 767.98px) {
+        .card-body h2 {
+            font-size: 1.5rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .card-header h5 {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}

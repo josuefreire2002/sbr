@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-grid-3x3"></i>
+            {% if lote %}
+            Editar Lote #{{ lote.id }}
+            {% else %}
+            Registrar Nuevo Lote
+            {% endif %}
+        </div>
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Manzana / Bloque</label>
+                        <input type="text" name="manzana" class="form-control" placeholder="Ej: A, B, 1, 2..."
+                            value="{{ lote.manzana|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Número de Lote</label>
+                        <input type="text" name="numero_lote" class="form-control" placeholder="Ej: 14"
+                            value="{{ lote.numero_lote|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Dimensiones (m²)</label>
+                        <input type="text" name="dimensiones" class="form-control" placeholder="Ej: 10x20m (200m2)"
+                            value="{{ lote.dimensiones|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Precio de Lista ($)</label>
+                        <input type="number" step="0.01" name="precio" class="form-control" placeholder="0.00"
+                            value="{{ lote.precio_contado|stringformat:'.2f'|default:'' }}" required>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'gestion_lotes' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        {% if lote %}
+                        ACTUALIZAR
+                        {% else %}
+                        GUARDAR
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

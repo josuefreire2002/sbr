@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard | SBR Gestión{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Header -->
+    <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h3 class="fw-bold mb-1">Bienvenido, {{ user.username|title }}</h3>
+                <p class="text-muted mb-0">Aquí tienes un resumen del estado actual de SBR Gestión.</p>
+            </div>
+            <a href="{% url 'crear_venta' %}" class="btn btn-primary d-none d-md-flex align-items-center">
+                <i class="bi bi-plus-lg me-2"></i> Nueva Venta
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 bg-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-primary-subtle rounded-3 p-2">
+                        <i class="bi bi-file-earmark-text text-primary fs-4"></i>
+                    </div>
+                    <span class="badge bg-success-subtle text-success rounded-pill">+2% vs mes ant.</span>
+                </div>
+                <h6 class="text-muted text-uppercase small fw-bold mb-1">Total Ventas</h6>
+                <h2 class="fw-bold mb-0">{{ total_ventas }}</h2>
+                <p class="text-muted small mt-2 mb-0">Contratos registrados</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 bg-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-success-subtle rounded-3 p-2">
+                        <i class="bi bi-cash-coin text-success fs-4"></i>
+                    </div>
+                </div>
+                <h6 class="text-muted text-uppercase small fw-bold mb-1">Recaudación Hoy</h6>
+                <h2 class="fw-bold mb-0">${{ pagos_hoy|intcomma }}</h2>
+                <p class="text-muted small mt-2 mb-0">Ingresos del día</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 bg-white">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center py-4">
+                <a href="{% url 'crear_venta' %}" class="text-decoration-none text-center">
+                    <div class="bg-accent rounded-circle p-3 mb-2 mx-auto"
+                        style="background-color: var(--accent-color); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-plus-lg text-white fs-3"></i>
+                    </div>
+                    <span class="fw-bold text-dark">Nueva Venta</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Activity Section -->
+    <div class="col-lg-8">
+        <div class="card border-0 bg-white h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Ventas Recientes</span>
+                <a href="{% url 'lista_clientes' %}" class="btn btn-sm btn-light">Ver todo</a>
+            </div>
+            <div class="card-body p-0">
+                {% if contratos_recientes %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 border-0 small text-muted">CLIENTE</th>
+                                <th class="border-0 small text-muted">LOTE</th>
+                                <th class="border-0 small text-muted text-center">FECHA</th>
+                                <th class="pe-4 border-0"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contrato in contratos_recientes %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                                            style="width: 40px; height: 40px;">
+                                            <i class="bi bi-person text-secondary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">
+                                                {{ contrato.cliente.apellidos }} {{ contrato.cliente.nombres }}
+                                            </div>
+                                            <div class="text-muted small">ID: #{{ contrato.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border fw-medium px-2 py-1">
+                                        Mz {{ contrato.lote.manzana }} - Lote {{ contrato.lote.numero_lote }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="text-muted small">{{ contrato.fecha_contrato|date:"d M, Y" }}</span>
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <a href="{% url 'detalle_contrato' contrato.id %}"
+                                        class="btn btn-sm btn-outline-primary py-1 px-2">
+                                        Detalle
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <img src="https://illustrations.popsy.co/amber/empty-state.svg" alt="Empty" style="width: 150px;"
+                        class="mb-3 opacity-50">
+                    <p class="text-muted">No se registran ventas recientes todavía.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links / Insights -->
+    <div class="col-lg-4">
+        <div class="card border-0 bg-white mb-4">
+            <div class="card-header">Accesos Directos</div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'lista_clientes' %}"
+                        class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-people me-2"></i> Cartera de Clientes</span>
+                        <i class="bi bi-chevron-right opacity-50"></i>
+                    </a>
+                    <a href="{% url 'gestion_lotes' %}"
+                        class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-grid-3x3-gap me-2"></i> Inventario de Lotes</span>
+                        <i class="bi bi-chevron-right opacity-50"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 bg-primary text-white overflow-hidden shadow">
+            <div class="card-body position-relative">
+                <i class="bi bi-lightning-charge position-absolute end-0 bottom-0 opacity-10"
+                    style="font-size: 120px; line-height: 0.8; margin-right: -20px; margin-bottom: -20px;"></i>
+                <h5 class="fw-bold mb-3">Consejo Pro</h5>
+                <p class="mb-0 opacity-75">Mantén la información de tus clientes actualizada para mejorar el seguimiento
+                    de los pagos vencidos.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
