@@ -8,6 +8,7 @@ charset-normalizer==3.4.4
 cryptography==46.0.3
 cssselect2==0.8.0
 Django==6.0.1
+django-jazzmin==3.0.1
 fonttools==4.61.1
 freetype-py==2.5.1
 html5lib==1.1
@@ -42,4 +43,3 @@ weasyprint==67.0
 webencodings==0.5.1
 xhtml2pdf==0.2.17
 zopfli==0.4.0
-python-dotenv==1.0.1
