@@ -157,3 +157,27 @@ if not DEBUG:
     csrf_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '')
     if csrf_origins:
         CSRF_TRUSTED_ORIGINS = csrf_origins.split(',')
+
+
+JAZZMIN_SETTINGS = {
+    # Título que sale en la pestaña del navegador
+    "site_title": "Bienes Raíces Admin",
+
+    # Título en la pantalla de login
+    "site_header": "Administración SBR",
+
+    # Enlaces del menú superior (Aquí va tu botón)
+    "topmenu_links": [
+        # Botón para ir al inicio (la parte pública)
+        {
+            "name": "Ir al Dashboard",  # Texto del botón
+            "url": "Dashboard",                 # La ruta (puede ser "/" o el nombre de la url como 'dashboard')
+            "new_window": True,         # ¿Abrir en nueva pestaña? (True/False)
+            "icon": "fas fa-home",      # Icono de FontAwesome
+            "permissions": ["auth.view_user"], # Solo mostrar a quien tenga permiso (opcional)
+        },
+    ],
+    
+    # Opcional: Para que el logo de arriba a la izquierda también lleve al inicio
+    # "site_logo": "img/logo.png", 
+}
