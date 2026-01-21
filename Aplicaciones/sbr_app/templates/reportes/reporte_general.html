@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Reporte General | SBR Gestión{% endblock %}
+{% block breadcrumb %}Reporte General de Pagos{% endblock %}
+
+{% block extra_head %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<style>
+    .table-report thead th {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        white-space: nowrap;
+        padding: 0.75rem 0.5rem;
+    }
+
+    .table-report tbody td {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .payment-cell {
+        text-align: right;
+        font-weight: 500;
+    }
+
+    .payment-cell.has-payment {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .payment-cell.no-payment {
+        color: #9ca3af;
+    }
+
+    @media print {
+        @page {
+            size: landscape;
+            margin: 0.5cm;
+        }
+
+        body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .no-print,
+        .sidebar,
+        header,
+        nav,
+        footer {
+            display: none !important;
+        }
+
+        .main-content,
+        .card,
+        .container-fluid {
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .table-report {
+            font-size: 7px !important;
+            width: 100% !important;
+        }
+
+        .table-report thead th {
+            background: #1e40af !important;
+            color: white !important;
+            font-size: 6px !important;
+            padding: 3px 2px !important;
+        }
+
+        .table-report tbody td {
+            font-size: 7px !important;
+            padding: 2px !important;
+            white-space: normal !important;
+            word-wrap: break-word;
+        }
+
+        .payment-cell.has-payment {
+            background-color: #d1fae5 !important;
+        }
+
+        h4,
+        h5 {
+            font-size: 12px !important;
+        }
+
+        p {
+            font-size: 9px !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card border-0 bg-white p-4 shadow-sm">
+            <div
+                class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-4 gap-3">
+                <div>
+                    <h4 class="fw-bold mb-1">
+                        <i class="bi bi-table me-2 text-primary"></i>Reporte General de Pagos
+                    </h4>
+                    <p class="text-muted mb-0">
+                        Período: <strong>{{ desde|date:"M Y" }}</strong> - <strong>{{ hasta|date:"M Y" }}</strong>
+                        {% if solo_activos %}<span class="badge bg-success ms-2">Solo Activos</span>{% endif %}
+                    </p>
+                </div>
+                <div class="d-flex gap-2 no-print">
+                    <a href="{% url 'lista_clientes' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Volver
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-primary">
+                        <i class="bi bi-printer me-2"></i>Imprimir
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="reporteTable" class="table table-bordered table-report align-middle mb-0" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Apellidos / Nombres</th>
+                            <th class="text-center">Cédula</th>
+                            <th class="text-center">Email</th>
+                            <th class="text-center">Celular</th>
+                            <th class="text-center">Mz</th>
+                            <th class="text-center">Lote</th>
+                            <th class="text-end">V/Total</th>
+                            <th class="text-end">Entrada</th>
+                            <th class="text-end">Cuota</th>
+                            {% for mes in meses %}
+                            <th class="text-center">{{ mes.label }}</th>
+                            {% endfor %}
+                            <th class="text-end">Total Pagado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in reporte_data %}
+                        <tr>
+                            <td class="text-center text-muted">{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ row.cliente.apellidos }}</strong> {{ row.cliente.nombres }}
+                            </td>
+                            <td class="text-center">{{ row.cliente.cedula }}</td>
+                            <td class="text-center">{{ row.cliente.email }}</td>
+                            <td class="text-center">{{ row.cliente.celular }}</td>
+                            <td class="text-center fw-bold">{{ row.lote.manzana }}</td>
+                            <td class="text-center">{{ row.lote.numero_lote }}</td>
+                            <td class="text-end">${{ row.contrato.precio_venta_final|intcomma }}</td>
+                            <td class="text-end">${{ row.contrato.valor_entrada|intcomma }}</td>
+                            <td class="text-end">
+                                {% with cuota_valor=row.contrato.saldo_a_financiar|floatformat:2 %}
+                                {% if row.contrato.numero_cuotas > 0 %}
+                                ${{ row.contrato.saldo_a_financiar|divisibleby:row.contrato.numero_cuotas|intcomma }}
+                                {% else %}
+                                -
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            {% for pago in row.pagos_mensuales %}
+                            <td class="payment-cell {% if pago > 0 %}has-payment{% else %}no-payment{% endif %}">
+                                {% if pago > 0 %}${{ pago|intcomma }}{% else %}-{% endif %}
+                            </td>
+                            {% endfor %}
+                            <td class="text-end fw-bold text-success">${{ row.total_pagado|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{{ meses|length|add:9 }}" class="text-center py-4 text-muted">
+                                No hay contratos para mostrar.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#reporteTable').DataTable({
+            paging: false,
+            searching: true,
+            ordering: true,
+            info: false,
+            scrollX: true,
+            language: {
+                search: "Buscar:",
+                zeroRecords: "No se encontraron resultados"
+            }
+        });
+    });
+</script>
+{% endblock %}

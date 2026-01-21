@@ -3,6 +3,141 @@
 {% block title %}Clientes | SBR Gestión{% endblock %}
 {% block breadcrumb %}Cartera de Clientes{% endblock %}
 
+{% block extra_head %}
+<!-- DataTables Bootstrap 5 CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<style>
+    /* Elegant Table Styling */
+    .table-container {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        /* Ensure bg is white */
+    }
+
+    #clientesTable {
+        width: 100% !important;
+        margin-bottom: 0;
+    }
+
+    #clientesTable thead th {
+        background-color: #f8fafc;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        /* Increased from 0.75rem */
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 1rem 0.75rem;
+        white-space: nowrap;
+        /* Keep headers single line if possible, or wrap if very long */
+    }
+
+    #clientesTable tbody td {
+        vertical-align: middle;
+        padding: 0.75rem;
+        color: #334155;
+        font-size: 0.95rem;
+        /* Increased from 0.875rem */
+        border-bottom: 1px solid #f1f5f9;
+        /* Force text wrapping */
+        white-space: normal !important;
+        word-wrap: break-word;
+        max-width: 250px;
+        /* Increased from 200px */
+        /* Limit width to force wrapping on long content */
+    }
+
+    /* Exceptions for specific columns */
+    #clientesTable tbody td:nth-child(4),
+    /* Cedula */
+    #clientesTable tbody td:nth-child(5) {
+        /* Celular */
+        white-space: nowrap !important;
+        /* Keep these single line */
+    }
+
+    #clientesTable tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    #clientesTable tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Subtle red background for Mora */
+    /* Subtle red background for Mora - Enhanced visibility */
+    tr.table-danger-subtle td {
+        background-color: #fee2e2 !important;
+        /* Visible light red */
+    }
+
+    tr.table-danger-subtle:hover td {
+        background-color: #fecaca !important;
+        /* Darker red on hover */
+    }
+
+    /* Yellow background for Cancelled */
+    tr.table-warning-subtle td {
+        background-color: #fef3c7 !important;
+        /* Amber-100 */
+    }
+
+    tr.table-warning-subtle:hover td {
+        background-color: #fde68a !important;
+        /* Amber-200 on hover */
+    }
+
+    /* Gray background for Devolucion */
+    tr.table-secondary-subtle td {
+        background-color: #e5e7eb !important;
+        /* Gray-200 */
+    }
+
+    tr.table-secondary-subtle:hover td {
+        background-color: #d1d5db !important;
+        /* Gray-300 on hover */
+    }
+
+    .badge-soft {
+        padding: 0.25em 0.6em;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .filter-btn.active,
+    .mora-btn.active {
+        font-weight: 600;
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    }
+
+    /* Custom DataTables Pagination */
+    .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .dataTables_filter {
+        display: none;
+        /* Hide default search to use our custom one */
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 768px) {
+
+        #clientesTable thead th,
+        #clientesTable tbody td {
+            padding: 0.5rem;
+            /* Compact padding on mobile */
+            font-size: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row g-4">
     <div class="col-12">
@@ -14,8 +149,12 @@
                     <p class="text-muted mb-0">Listado de todos los clientes vinculados a su cuenta.</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                        data-bs-target="#reporteGeneralModal">
+                        <i class="bi bi-table me-2"></i>Reporte General
+                    </button>
                     <a href="{% url 'reporte_mensual' %}" class="btn btn-outline-success">
-                        <i class="bi bi-file-earmark-bar-graph me-2"></i>Reporte Mensual
+                        <i class="bi bi-file-earmark-bar-graph me-2"></i>Reporte de Ganancias Mensual
                     </a>
                     <a href="{% url 'crear_venta' %}" class="btn btn-primary">
                         <i class="bi bi-person-plus me-2"></i>Nuevo Cliente / Venta
@@ -30,7 +169,7 @@
                         <span class="input-group-text bg-white border-end-0"><i
                                 class="bi bi-search text-muted"></i></span>
                         <input type="text" class="form-control border-start-0 ps-0"
-                            placeholder="Buscar por nombre o cédula..." id="clienteSearch">
+                            placeholder="Buscar por nombre, cédula o lote..." id="clienteSearch">
                     </div>
                 </div>
 
@@ -56,75 +195,155 @@
                 </div>
             </div>
 
-            <div class="list-group list-group-flush">
-                {% for cliente in clientes %}
-                {% with contrato=cliente.contrato_set.first %}
-                <div class="list-group-item list-group-item-action border-0 rounded-3 mb-3 p-3 bg-light-subtle client-item shadow-sm"
-                    data-status="{% if contrato and contrato.estado == 'ACTIVO' %}con-contrato{% else %}sin-contrato{% endif %}"
-                    data-mora="{% if contrato and contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}en-mora{% else %}al-dia{% endif %}">
-                    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-4">
-                        <div class="flex-grow-1 w-100">
-                            <h6 class="fw-bold mb-1">
-                                <span class="text-primary-emphasis opacity-50 small font-monospace mb-0 me-1">
-                                    #{{ cliente.id }}
-                                </span>
-                                {{ cliente.apellidos }} {{ cliente.nombres }}
-                            </h6>
+            <!-- Data Table -->
+            <div class="table-responsive table-container">
+                <table id="clientesTable" class="table align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">N°</th>
+                            <th>F/Contrato</th>
+                            <th>Apellidos/Nombre</th>
+                            <th>Cédula</th>
+                            <th>Email</th>
+                            <th>Celular</th>
+                            <th class="text-center">N°Lote</th>
+                            <th class="text-center">Manzana</th>
+                            <th class="text-center">Plazo</th>
+                            <th class="text-end">V/ Total</th>
+                            <th class="text-end">V/Entrada</th>
+                            <th class="text-end">Cuota</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                        {% with contrato=cliente.contrato_set.first %}
+                        <tr class="client-row {% if contrato and contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}table-danger-subtle{% elif contrato and contrato.estado == 'CANCELADO' %}table-warning-subtle{% elif contrato and contrato.estado == 'DEVOLUCION' %}table-secondary-subtle{% endif %}"
+                            data-status="{% if contrato and contrato.estado == 'ACTIVO' %}con-contrato{% else %}sin-contrato{% endif %}"
+                            data-mora="{% if contrato and contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}en-mora{% else %}al-dia{% endif %}">
 
-                            <div class="info-grid mt-1">
-                                <span class="text-muted x-small d-flex align-items-center">
-                                    <i class="bi bi-card-text me-1"></i> {{ cliente.cedula }}
-                                </span>
-                                <a href="https://wa.me/{{ cliente.celular }}" target="_blank"
-                                    class="text-success text-decoration-none x-small d-flex align-items-center">
-                                    <i class="bi bi-whatsapp me-1"></i> {{ cliente.celular }}
-                                </a>
-                                {% if cliente.email %}
-                                <span class="text-muted x-small d-flex align-items-center text-truncate max-w-200">
-                                    <i class="bi bi-envelope me-1"></i> {{ cliente.email }}
-                                </span>
+                            <td class="text-center fw-bold text-muted">{{ forloop.counter }}</td>
+
+                            <td>
+                                {% if contrato %}
+                                <span class="text-nowrap">{{ contrato.fecha_contrato|date:"d/m/Y" }}</span>
+                                {% else %}
+                                <span class="badge bg-light text-muted fw-normal">--</span>
                                 {% endif %}
-                                <span class="text-muted x-small d-flex align-items-center text-truncate">
-                                    <i class="bi bi-geo-alt me-1"></i> {{ cliente.direccion|truncatechars:40 }}
-                                </span>
-                            </div>
-                        </div>
+                            </td>
 
-                        <div class="ms-md-auto w-100 w-md-auto mt-2 mt-md-0">
-                            <div class="d-flex flex-row flex-md-row justify-content-between align-items-center gap-2">
-                                <div class="status-badges d-flex gap-1">
-                                    {% if contrato and contrato.estado == 'ACTIVO' %}
-                                    <span class="badge bg-success-subtle text-success x-small">Activo</span>
-                                    {% if contrato.esta_en_mora %}
-                                    <span class="badge bg-danger x-small">Mora</span>
-                                    {% endif %}
-                                    {% elif contrato and contrato.estado == 'CERRADO' %}
-                                    <span class="badge bg-secondary-subtle text-secondary x-small">Finalizado</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary-subtle text-secondary x-small">Sin Venta</span>
-                                    {% endif %}
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold text-dark">{{ cliente.apellidos }} {{ cliente.nombres }}</span>
+
                                 </div>
+                            </td>
 
+                            <td><span class="font-monospace">{{ cliente.cedula }}</span></td>
+
+                            <td>
+                                {% if cliente.email %}
+                                <span class="font-monospace">{{ cliente.email }}</span>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <a href="https://wa.me/{{ cliente.celular }}" target="_blank"
+                                    class="text-success text-decoration-none">
+                                    <i class="bi bi-whatsapp"></i> {{ cliente.celular }}
+                                </a>
+                            </td>
+
+                            <td class="text-center">
+                                {% if contrato %}
+                                <span class="badge bg-info bg-opacity-10 text-info fw-bold">
+                                    {{ contrato.lote.numero_lote }}
+                                </span>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                {% if contrato %}
+                                {{ contrato.lote.manzana }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                {% if contrato %}
+                                {{ contrato.numero_cuotas }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end font-monospace">
+                                {% if contrato %}
+                                ${{ contrato.precio_venta_final|floatformat:2 }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end font-monospace">
+                                {% if contrato %}
+                                ${{ contrato.valor_entrada|floatformat:2 }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end font-monospace">
+                                {% if contrato %}
+                                {% with primera_cuota=contrato.cuotas.first %}
+                                {% if primera_cuota %}
+                                ${{ primera_cuota.valor_capital|floatformat:2 }}
+                                {% else %}
+                                0.00
+                                {% endif %}
+                                {% endwith %}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                {% if contrato and contrato.estado == 'ACTIVO' %}
+                                {% if contrato.esta_en_mora %}
+                                <span class="badge bg-danger">Mora</span>
+                                {% else %}
+                                <span class="badge bg-success">Al Día</span>
+                                {% endif %}
+                                {% elif contrato and contrato.estado == 'CERRADO' %}
+                                <span class="badge bg-secondary">Finalizado</span>
+                                {% elif contrato and contrato.estado == 'CANCELADO' %}
+                                <span class="badge bg-warning text-dark">Cancelado</span>
+                                {% elif contrato and contrato.estado == 'DEVOLUCION' %}
+                                <span class="badge bg-secondary">Devolución</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark border">Sin Contrato</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
                                 {% if contrato %}
                                 <a href="{% url 'detalle_contrato' contrato.id %}"
-                                    class="btn btn-sm btn-primary fw-medium px-3 rounded-2">
-                                    Ver Detalles <i class="bi bi-chevron-right ms-1"></i>
+                                    class="btn btn-sm btn-primary text-nowrap" style="font-size: 0.8rem;">
+                                    Ver Detalles
                                 </a>
                                 {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endwith %}
-                {% empty %}
-                <div class="text-center py-5">
-                    <div class="bg-light rounded-circle p-4 d-inline-block mb-3">
-                        <i class="bi bi-people-fill text-muted fs-1"></i>
-                    </div>
-                    <h5>No hay clientes registrados</h5>
-                    <p class="text-muted">Aún no has registrado ningún cliente en el sistema.</p>
-                </div>
-                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -132,108 +351,124 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
 <script>
     $(document).ready(function () {
-        let currentFilter = 'all';
-        let currentMoraFilter = 'all';
+        // Custom Filtering Function
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            const tableRow = settings.aoData[dataIndex].nTr;
+            const status = $(tableRow).attr('data-status'); // con-contrato, sin-contrato
+            const mora = $(tableRow).attr('data-mora');     // en-mora, al-dia
 
-        function applyFilters() {
-            const searchValue = $("#clienteSearch").val().toLowerCase();
+            // Get active filter values
+            const activeStatusFilter = $('.filter-btn.active').data('filter'); // all, con-contrato, sin-contrato
+            const activeMoraFilter = $('.mora-btn.active').data('mora');       // all, en-mora, al-dia
 
-            $(".client-item").each(function () {
-                const $item = $(this);
-                const text = $item.text().toLowerCase();
-                const status = $item.data("status");
-                const mora = $item.data("mora");
+            // Check Status Match
+            let statusMatch = true;
+            if (activeStatusFilter !== 'all') {
+                statusMatch = (status === activeStatusFilter);
+            }
 
-                const matchesSearch = text.includes(searchValue);
-                const matchesFilter = currentFilter === 'all' || status === currentFilter;
-                const matchesMora = currentMoraFilter === 'all' || mora === currentMoraFilter;
+            // Check Mora Match
+            let moraMatch = true;
+            if (activeMoraFilter !== 'all') {
+                moraMatch = (mora === activeMoraFilter);
+            }
 
-                if (matchesSearch && matchesFilter && matchesMora) {
-                    $item.fadeIn(200);
-                } else {
-                    $item.hide();
-                }
-            });
-        }
-
-        $("#clienteSearch").on("keyup", applyFilters);
-
-        $(".filter-btn").on("click", function () {
-            $(".filter-btn").removeClass("active");
-            $(this).addClass("active");
-            currentFilter = $(this).data("filter");
-            applyFilters();
+            return statusMatch && moraMatch;
         });
 
-        $(".mora-btn").on("click", function () {
-            $(".mora-btn").removeClass("active");
-            $(this).addClass("active");
-            currentMoraFilter = $(this).data("mora");
-            applyFilters();
+        // Initialize DataTable
+        const table = $('#clientesTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+            },
+            paging: true,
+            lengthChange: false, // Cleaner look without the "Show X entries" dropdown
+            pageLength: 10,
+            searching: true,
+            ordering: true,
+            info: true,
+            autoWidth: false,
+            responsive: true,
+            dom: '<"top"i>rt<"bottom"p><"clear">', // Custom DOM position: info top, table, pagination bottom
+            columnDefs: [
+                { orderable: false, targets: [5, 12] }, // Disable sorting on Celular and Acciones
+                { className: "text-end", targets: [8, 9, 10] }, // Align numeric columns
+                { className: "text-center", targets: [0, 1, 6, 7, 11, 12] }
+            ]
+        });
+
+        // Link Custom Search Input to DataTable
+        $('#clienteSearch').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+
+        // Handle Filter Button Clicks
+        $('.filter-btn, .mora-btn').on('click', function () {
+            // Toggle active classes
+            if ($(this).hasClass('filter-btn')) {
+                $('.filter-btn').removeClass('active');
+            } else {
+                $('.mora-btn').removeClass('active');
+            }
+            $(this).addClass('active');
+
+            // Redraw table (triggers custom search function)
+            table.draw();
         });
     });
 </script>
-<style>
-    .bg-light-subtle {
-        background-color: #f8fafc;
-        border: 1px solid #e2e8f0 !important;
-    }
 
-    .client-item {
-        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease !important;
-    }
+<!-- Modal for Reporte General -->
+<div class="modal fade" id="reporteGeneralModal" tabindex="-1" aria-labelledby="reporteGeneralModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="reporteGeneralModalLabel">
+                    <i class="bi bi-table me-2 text-primary"></i>Generar Reporte General
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'reporte_general' %}" method="GET">
+                <div class="modal-body">
+                    <p class="text-muted small">Seleccione el rango de meses para mostrar los pagos mensuales de cada
+                        cliente.</p>
 
-    .client-item:hover {
-        border-color: var(--accent-color) !important;
-        background-color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-    }
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Desde (Mes/Año)</label>
+                            <input type="month" name="desde" class="form-control" required value="{% now 'Y-01' %}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Hasta (Mes/Año)</label>
+                            <input type="month" name="hasta" class="form-control" required value="{% now 'Y-m' %}">
+                        </div>
+                    </div>
 
-    .x-small {
-        font-size: 0.7rem;
-    }
-
-    .info-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem 1rem;
-    }
-
-    .max-w-200 {
-        max-width: 200px;
-    }
-
-    .btn-xs {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.7rem;
-        line-height: 1;
-    }
-
-    @media (max-width: 767.98px) {
-        .card {
-            padding: 1.25rem !important;
-        }
-
-        .client-item {
-            padding: 1rem !important;
-        }
-
-        .info-grid {
-            gap: 0.4rem 0.75rem;
-        }
-
-        .info-grid span,
-        .info-grid a {
-            font-size: 0.75rem !important;
-        }
-
-        .status-badges .badge {
-            font-size: 0.65rem !important;
-            padding: 0.25rem 0.5rem !important;
-        }
-    }
-</style>
+                    <div class="mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="solo_activos" id="soloActivos"
+                                checked>
+                            <label class="form-check-label" for="soloActivos">
+                                Solo contratos activos
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>Generar Reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

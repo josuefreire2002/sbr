@@ -23,6 +23,8 @@ urlpatterns = [
     # Formulario para subir recibo o registrar efectivo
     path('contrato/<int:pk>/pagar/', views.registrar_pago_view, name='registrar_pago'),
     path('contrato/<int:pk>/cerrar/', views.cerrar_contrato_view, name='cerrar_contrato'),
+    path('contrato/<int:pk>/cancelar/', views.cancelar_contrato_view, name='cancelar_contrato'),
+    path('contrato/<int:pk>/devolucion/', views.devolucion_contrato_view, name='devolucion_contrato'),
 
     # --- REPORTES Y ARCHIVOS ---
     # Ruta para descargar el PDF generado (WeasyPrint)
@@ -34,6 +36,7 @@ urlpatterns = [
     # Reporte mensual de ingresos y mora
     path('reportes/mensual/', views.reporte_mensual_view, name='reporte_mensual'),
     path('reportes/mensual/pdf/', views.reporte_mensual_pdf_view, name='reporte_mensual_pdf'),
+    path('reportes/general/', views.reporte_general_view, name='reporte_general'),
 
     path('lotes/', views.gestion_lotes_view, name='gestion_lotes'),
     path('lotes/crear/', views.crear_lote_view, name='crear_lote'),

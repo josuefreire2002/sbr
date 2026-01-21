@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class="col-lg-4 bg-light bg-opacity-50 p-4 d-flex align-items-center justify-content-lg-end">
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 align-items-stretch">
                             {% if contrato.estado == 'ACTIVO' %}
                             <form action="{% url 'cerrar_contrato' contrato.id %}" method="POST" class="d-inline">
                                 {% csrf_token %}
@@ -37,7 +37,23 @@
                                     {%endif %}
                                     onclick="return confirm('¿Estás seguro de cerrar este contrato? Esta acción es irreversible.');">
 
-                                    <i class="bi bi-lock-fill me-2"></i> Cerrar Contrato
+                                    <i class="bi bi-lock-fill me-2"></i> Culminar Contrato
+                                </button>
+                            </form>
+
+                            <form action="{% url 'cancelar_contrato' contrato.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning d-flex align-items-center text-dark"
+                                    onclick="return confirm('¿Estás seguro de CANCELAR este contrato? El estado cambiará a Cancelado.');">
+                                    <i class="bi bi-x-circle-fill me-2"></i> Cancelar Contrato
+                                </button>
+                            </form>
+
+                            <form action="{% url 'devolucion_contrato' contrato.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary d-flex align-items-center"
+                                    onclick="return confirm('¿Estás seguro de registrar una DEVOLUCIÓN? Se cambiará el estado y afectará los reportes.');">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i> Marcar<br>Devolución
                                 </button>
                             </form>
                             {% endif %}

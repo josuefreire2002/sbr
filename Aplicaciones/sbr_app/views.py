@@ -50,6 +50,7 @@ def crear_venta_view(request):
     if request.method == 'POST':
         try:
             with transaction.atomic(): # Transacción segura
+                
                 # 1. CLIENTE (Datos completos del Excel)
                 cliente = Cliente.objects.create(
                     vendedor=request.user,
@@ -62,7 +63,8 @@ def crear_venta_view(request):
                 )
 
                 # 2. LOTE
-                lote = Lote.objects.get(id=request.POST.get('lote_id'))
+                lote_id = request.POST.get('lote_id')
+                lote = Lote.objects.get(id=lote_id)
                 
                 # 3. DATOS ECONÓMICOS Y CONTRATO
                 # Nota: Recibimos fecha manual del formulario
@@ -89,7 +91,7 @@ def crear_venta_view(request):
 
                 fecha_pago_input = request.POST.get('fecha_primer_pago')
 
-                # 4. GENERAR LOGICA
+                # 4. GENERAR LÓGICA
                 generar_tabla_amortizacion(contrato.id)
                 actualizar_moras_contrato(contrato.id)
                 generar_pdf_contrato(contrato.id)
@@ -98,11 +100,18 @@ def crear_venta_view(request):
                 return redirect('detalle_contrato', pk=contrato.id)
 
         except Exception as e:
-            messages.error(request, f"Error: {str(e)}")
+            messages.error(request, f"Error al generar la venta: {str(e)}")
             return redirect('crear_venta')
 
     # GET
-    lotes_disponibles = Lote.objects.filter(estado='DISPONIBLE')
+    # Filtrar lotes disponibles según el usuario
+    if request.user.is_superuser:
+        # Superusuarios ven todos los lotes disponibles
+        lotes_disponibles = Lote.objects.filter(estado='DISPONIBLE')
+    else:
+        # Usuarios normales solo ven sus propios lotes
+        lotes_disponibles = Lote.objects.filter(estado='DISPONIBLE', creado_por=request.user)
+    
     return render(request, 'ventas/nueva_venta.html', {'lotes_disponibles': lotes_disponibles})
 
 # ==========================================
@@ -126,7 +135,7 @@ def detalle_contrato_view(request, pk):
     contrato = get_object_or_404(Contrato, pk=pk)
     
     if not request.user.is_superuser and contrato.cliente.vendedor != request.user:
-        messages.error(request, "No tienes permiso.")
+        messages.error(request, "No tiene permisos para acceder a esta información.")
         return redirect('dashboard')
 
     # 1. Actualizar cálculo matemático al instante
@@ -176,6 +185,46 @@ def cerrar_contrato_view(request, pk):
         contrato.estado = 'CERRADO'
         contrato.save()
         messages.success(request, f"¡Contrato #{contrato.id} finalizado exitosamente!")
+    
+    return redirect('detalle_contrato', pk=pk)
+
+
+@login_required
+def cancelar_contrato_view(request, pk):
+    from datetime import date
+    contrato = get_object_or_404(Contrato, pk=pk)
+    
+    if request.method == 'POST':
+        contrato.estado = 'CANCELADO'
+        contrato.fecha_cancelacion = date.today()
+        contrato.save()
+        
+        # Liberar el lote
+        contrato.lote.estado = 'DISPONIBLE'
+        contrato.lote.save()
+        
+        messages.warning(request, f"¡Contrato #{contrato.id} ha sido cancelado! El lote está disponible nuevamente.")
+    
+    return redirect('detalle_contrato', pk=pk)
+
+
+@login_required
+def devolucion_contrato_view(request, pk):
+    from datetime import date
+    contrato = get_object_or_404(Contrato, pk=pk)
+    
+    if request.method == 'POST':
+        contrato.estado = 'DEVOLUCION'
+        contrato.fecha_cancelacion = date.today()
+        contrato.save()
+        
+        # Liberar el lote
+        contrato.lote.estado = 'DISPONIBLE'
+        contrato.lote.save()
+        
+        # Calculate total paid for feedback
+        total_pagado = sum(p.monto for p in contrato.pago_set.all())
+        messages.info(request, f"¡Contrato #{contrato.id} en devolución! Total a devolver: ${total_pagado}. El lote está disponible nuevamente.")
     
     return redirect('detalle_contrato', pk=pk)
 
@@ -242,7 +291,8 @@ def crear_lote_view(request):
                 numero_lote=request.POST.get('numero_lote'),
                 dimensiones=request.POST.get('dimensiones'),
                 precio_contado=request.POST.get('precio'),
-                estado='DISPONIBLE'
+                estado='DISPONIBLE',
+                creado_por=request.user  # Asignar el creador
             )
             messages.success(request, "Lote creado correctamente en el inventario.")
             return redirect('gestion_lotes')
@@ -254,6 +304,17 @@ def crear_lote_view(request):
 @login_required
 def editar_lote_view(request, pk):
     lote = get_object_or_404(Lote, pk=pk)
+    
+    # Verificar permisos: solo el creador o superusuario pueden editar
+    # Verificación más estricta comparando IDs
+    puede_editar = (
+        request.user.is_superuser or 
+        (lote.creado_por is not None and lote.creado_por.id == request.user.id)
+    )
+    
+    if not puede_editar:
+        messages.error(request, "No tiene permisos para editar este lote. Solo el creador puede modificarlo.")
+        return redirect('gestion_lotes')
 
     if request.method == 'POST':
         try:
@@ -322,7 +383,35 @@ def reporte_mensual_view(request):
             }
     
     total_mora = sum(c['deuda_total'] for c in clientes_en_mora.values())
-    ingreso_neto = total_ingresos - total_mora
+
+    # === DEVOLUCIONES DEL MES ===
+    # Contratos que cambiaron a estado 'DEVOLUCION' en este rango de fecha
+    contratos_devolucion = Contrato.objects.filter(
+        estado='DEVOLUCION',
+        fecha_cancelacion__gte=primer_dia_mes,
+        fecha_cancelacion__lte=hoy
+    )
+    if not request.user.is_superuser:
+        contratos_devolucion = contratos_devolucion.filter(cliente__vendedor=request.user)
+
+    devoluciones_lista = []
+    total_devoluciones = Decimal('0.00')
+
+    for c in contratos_devolucion:
+        # Sumamos todos los pagos realizados a este contrato
+        monto_devuelto = sum(p.monto for p in c.pago_set.all())
+        total_devoluciones += monto_devuelto
+        
+        devoluciones_lista.append({
+            'cliente': c.cliente,
+            'contrato': c,
+            'monto': monto_devuelto
+        })
+
+    # Ingreso Neto: (Ingresos Reales) - (Mora Pendiente) - (Devoluciones)
+    # Nota: Restar Mora es criterio del usuario, aunque contablemente es solo lo que NO entró.
+    # Restar Devoluciones es salida de efectivo.
+    ingreso_neto = total_ingresos - total_mora - total_devoluciones
     
     context = {
         'fecha_inicio': primer_dia_mes,
@@ -331,9 +420,100 @@ def reporte_mensual_view(request):
         'total_ingresos': total_ingresos,
         'mora_lista': sorted(clientes_en_mora.values(), key=lambda x: x['deuda_total'], reverse=True),
         'total_mora': total_mora,
+        'devoluciones_lista': devoluciones_lista,
+        'total_devoluciones': total_devoluciones,
         'ingreso_neto': ingreso_neto,
     }
     return render(request, 'reportes/reporte_mensual.html', context)
+
+
+@login_required
+def reporte_general_view(request):
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
+    from decimal import Decimal
+    
+    # Get date range from GET params
+    desde_str = request.GET.get('desde', None)  # Format: YYYY-MM
+    hasta_str = request.GET.get('hasta', None)
+    solo_activos = request.GET.get('solo_activos', None) == 'on'
+    
+    # Parse dates
+    if desde_str:
+        desde_year, desde_month = map(int, desde_str.split('-'))
+        desde = date(desde_year, desde_month, 1)
+    else:
+        desde = date.today().replace(day=1, month=1)  # Default to January this year
+    
+    if hasta_str:
+        hasta_year, hasta_month = map(int, hasta_str.split('-'))
+        # Last day of the month
+        hasta = date(hasta_year, hasta_month, 1) + relativedelta(months=1) - relativedelta(days=1)
+    else:
+        hasta = date.today()
+    
+    # Generate list of months between desde and hasta
+    meses_nombres = {
+        1: 'Ene', 2: 'Feb', 3: 'Mar', 4: 'Abr', 5: 'May', 6: 'Jun',
+        7: 'Jul', 8: 'Ago', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dic'
+    }
+    
+    meses = []
+    current = desde
+    while current <= hasta:
+        meses.append({
+            'year': current.year,
+            'month': current.month,
+            'label': f"{meses_nombres[current.month]} {current.year}"
+        })
+        current = current + relativedelta(months=1)
+    
+    # Get contracts
+    contratos_qs = Contrato.objects.select_related('cliente', 'lote').prefetch_related('cuotas', 'pago_set')
+    
+    if not request.user.is_superuser:
+        contratos_qs = contratos_qs.filter(cliente__vendedor=request.user)
+    
+    if solo_activos:
+        contratos_qs = contratos_qs.filter(estado='ACTIVO')
+    
+    # Build report data
+    reporte_data = []
+    
+    for contrato in contratos_qs:
+        # Basic data
+        row = {
+            'contrato': contrato,
+            'cliente': contrato.cliente,
+            'lote': contrato.lote,
+            'pagos_mensuales': [],
+            'total_pagado': Decimal('0.00')
+        }
+        
+        # For each month, calculate total paid based on CUOTA due date
+        for mes in meses:
+            mes_inicio = date(mes['year'], mes['month'], 1)
+            mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
+            
+            # Sum valor_pagado for cuotas that are DUE in this month
+            cuotas_mes = contrato.cuotas.filter(
+                fecha_vencimiento__gte=mes_inicio,
+                fecha_vencimiento__lte=mes_fin
+            )
+            total_mes = sum(c.valor_pagado for c in cuotas_mes)
+            row['pagos_mensuales'].append(total_mes)
+            row['total_pagado'] += total_mes
+        
+        reporte_data.append(row)
+    
+    context = {
+        'desde': desde,
+        'hasta': hasta,
+        'meses': meses,
+        'reporte_data': reporte_data,
+        'solo_activos': solo_activos,
+    }
+    return render(request, 'reportes/reporte_general.html', context)
 
 @login_required
 def reporte_mensual_pdf_view(request):

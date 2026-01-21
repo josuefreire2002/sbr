@@ -35,6 +35,9 @@ class Lote(models.Model):
     precio_contado = models.DecimalField(max_digits=12, decimal_places=2)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='DISPONIBLE')
     
+    # Usuario que creó el lote (para control de permisos de edición)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='lotes_creados')
+    
     # Para saber si está ocupado rápido
     def __str__(self):
         return f"Mz. {self.manzana} - Lote {self.numero_lote} ({self.estado})"
@@ -58,9 +61,13 @@ class Cliente(models.Model):
 
 class Contrato(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT)
-    lote = models.OneToOneField(Lote, on_delete=models.PROTECT) # Lote único
+    # Changed from OneToOneField to ForeignKey to allow lote reuse after cancellation/devolucion
+    lote = models.ForeignKey(Lote, on_delete=models.PROTECT)
     
     fecha_contrato = models.DateField()
+    # Fecha para reportes (cuando se cerró/canceló/devolvió)
+    fecha_cancelacion = models.DateField(null=True, blank=True) 
+    
     archivo_contrato_pdf = models.FileField(upload_to='contratos/', blank=True, null=True)
     
     # Datos financieros congelados al momento de la venta
@@ -77,6 +84,8 @@ class Contrato(models.Model):
         ('ACTIVO', 'Activo'),
         ('CERRADO', 'Cerrado/Finalizado'),
         ('ANULADO', 'Anulado'),
+        ('CANCELADO', 'Cancelado'),
+        ('DEVOLUCION', 'Devolución'),
     ]
     estado = models.CharField(max_length=20, choices=ESTADOS_CONTRATO, default='ACTIVO')
 
@@ -87,7 +96,7 @@ class Contrato(models.Model):
 class Cuota(models.Model):
     ESTADOS_PAGO = [
         ('PENDIENTE', 'Pendiente'),
-        ('PARCIAL', 'Pago Parcial'), # Si pagó menos de lo debido
+        ('PARCIAL', 'Pago Parcial'),
         ('PAGADO', 'Pagado'),
         ('VENCIDO', 'Vencido/Mora'),
     ]
@@ -111,11 +120,16 @@ class Cuota(models.Model):
 
     @property
     def total_a_pagar(self):
-        return self.valor_capital + self.valor_mora
+        capital = self.valor_capital or 0
+        mora = self.valor_mora or 0
+        return capital + mora
         
     @property
     def saldo_pendiente(self):
-        return (self.valor_capital + self.valor_mora) - self.valor_pagado
+        capital = self.valor_capital or 0
+        mora = self.valor_mora or 0
+        pagado = self.valor_pagado or 0
+        return (capital + mora) - pagado
 
 
 class Pago(models.Model):

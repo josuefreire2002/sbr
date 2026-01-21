@@ -57,9 +57,15 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
+                                {% if user.is_superuser or lote.creado_por == user %}
                                 <a href="{% url 'editar_lote' lote.id %}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil me-1"></i> Editar
                                 </a>
+                                {% else %}
+                                <span class="text-muted small">
+                                    <i class="bi bi-lock me-1"></i> Sin acceso
+                                </span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
