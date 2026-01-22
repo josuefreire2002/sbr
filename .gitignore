@@ -53,3 +53,9 @@ ENV/
 Thumbs.db
 
 sbr_db 
+.DS_Store
+Thumbs.db
+
+# Bases de datos (Cualquiera que termine en .sqlite3)
+*.sqlite3
+sbr_db.sqlite3
