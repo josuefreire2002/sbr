@@ -208,6 +208,7 @@
                             <th>Celular</th>
                             <th class="text-center">N°Lote</th>
                             <th class="text-center">Manzana</th>
+                            <th class="text-center">Foto Lote</th>
                             <th class="text-center">Plazo</th>
                             <th class="text-end">V/ Total</th>
                             <th class="text-end">V/Entrada</th>
@@ -276,6 +277,17 @@
                             </td>
 
                             <td class="text-center">
+                                {% if contrato and contrato.lote.imagen %}
+                                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
+                                    data-bs-target="#loteImgModal{{ contrato.id }}">
+                                    <i class="bi bi-image"></i> Ver
+                                </button>
+                                {% else %}
+                                <span class="text-muted small">--</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
                                 {% if contrato %}
                                 {{ contrato.numero_cuotas }}
                                 {% else %}
@@ -293,7 +305,16 @@
 
                             <td class="text-end font-monospace">
                                 {% if contrato %}
+                                {% with pago_entrada=contrato.pago_set.first %}
+                                {% if pago_entrada and pago_entrada.metodo_pago != 'EFECTIVO' %}
+                                <button type="button" class="btn btn-sm btn-link text-decoration-none p-0"
+                                    data-bs-toggle="modal" data-bs-target="#entradaModal{{ contrato.id }}">
+                                    ${{ contrato.valor_entrada|floatformat:2 }} <i class="bi bi-eye-fill ms-1"></i>
+                                </button>
+                                {% else %}
                                 ${{ contrato.valor_entrada|floatformat:2 }}
+                                {% endif %}
+                                {% endwith %}
                                 {% else %}
                                 -
                                 {% endif %}
@@ -348,6 +369,82 @@
         </div>
     </div>
 </div>
+
+<!-- Image Modals (outside of table for proper Bootstrap rendering) -->
+{% for cliente in clientes %}
+{% with contrato=cliente.contrato_set.first %}
+{% if contrato and contrato.lote.imagen %}
+<div class="modal fade" id="loteImgModal{{ contrato.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mz. {{ contrato.lote.manzana }} - Lote {{ contrato.lote.numero_lote }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img src="{{ contrato.lote.imagen.url }}" alt="Foto del lote" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endwith %}
+{% endfor %}
+
+<!-- Modal for Entry Payment Details -->
+{% for cliente in clientes %}
+{% with contrato=cliente.contrato_set.first %}
+{% if contrato %}
+{% with pago_entrada=contrato.pago_set.first %}
+{% if pago_entrada and pago_entrada.metodo_pago != 'EFECTIVO' %}
+<div class="modal fade" id="entradaModal{{ contrato.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Detalle de Entrada</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3 text-center">
+                    <span class="badg bg-light text-dark border px-3 py-2 rounded-pill mb-2 d-inline-block">
+                        {{ pago_entrada.get_metodo_pago_display }}
+                    </span>
+                    <h2 class="text-success fw-bold">${{ pago_entrada.monto|floatformat:2 }}</h2>
+                </div>
+
+                <div class="alert alert-light border mb-3">
+                    <h6 class="fw-bold mb-1"><i class="bi bi-info-circle me-2"></i>Información del Pago</h6>
+                    <p class="mb-0 small text-muted">{{ pago_entrada.observacion }}</p>
+                </div>
+
+                {% if pago_entrada.comprobante_imagen %}
+                <div class="text-center border rounded-3 p-2 bg-light">
+                    <label class="small fw-bold text-muted mb-2 d-block">Comprobante Adjunto</label>
+                    <!-- Check file extension or just try to render? Image works for img tag. PDF needs object/embed or link. -->
+                    {% if '.pdf' in pago_entrada.comprobante_imagen.url %}
+                    <a href="{{ pago_entrada.comprobante_imagen.url }}" target="_blank"
+                        class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-file-pdf me-2"></i>Ver PDF del Comprobante
+                    </a>
+                    {% else %}
+                    <img src="{{ pago_entrada.comprobante_imagen.url }}" alt="Comprobante"
+                        class="img-fluid rounded shadow-sm" style="max-height: 300px;">
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted small py-3">
+                    <i class="bi bi-image-alt me-1"></i> Sin comprobante adjunto
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endwith %}
+{% endif %}
+{% endwith %}
+{% endfor %}
 {% endblock %}
 
 {% block extra_js %}
@@ -394,12 +491,13 @@
             ordering: true,
             info: true,
             autoWidth: false,
-            responsive: true,
+            responsive: false,
+            scrollX: true,
             dom: '<"top"i>rt<"bottom"p><"clear">', // Custom DOM position: info top, table, pagination bottom
             columnDefs: [
-                { orderable: false, targets: [5, 12] }, // Disable sorting on Celular and Acciones
-                { className: "text-end", targets: [8, 9, 10] }, // Align numeric columns
-                { className: "text-center", targets: [0, 1, 6, 7, 11, 12] }
+                { orderable: false, targets: [5, 8, 14] }, // Disable sorting on Celular, Foto Lote, Acciones
+                { className: "text-end", targets: [9, 10, 11] }, // Align numeric columns
+                { className: "text-center", targets: [0, 1, 6, 7, 8, 12, 13, 14] }
             ]
         });
 
@@ -453,8 +551,7 @@
 
                     <div class="mt-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="solo_activos" id="soloActivos"
-                                checked>
+                            <input class="form-check-input" type="checkbox" name="solo_activos" id="soloActivos">
                             <label class="form-check-label" for="soloActivos">
                                 Solo contratos activos
                             </label>

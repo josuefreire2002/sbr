@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Report General de Pagos - Ugsha Inmoviliarios</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 8px;
+            color: #333;
+        }
+
+        h1 {
+            color: #1e40af;
+            margin-bottom: 5px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .period {
+            color: #666;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: #1e40af;
+            color: white;
+            text-align: center;
+            padding: 5px 3px;
+            font-size: 7px;
+            text-transform: uppercase;
+            border: 1px solid #000;
+        }
+
+        td {
+            padding: 4px 3px;
+            border: 1px solid #ddd;
+            font-size: 7px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-success {
+            color: #22c55e;
+        }
+
+        .text-danger {
+            color: #ef4444;
+        }
+
+        tfoot td {
+            background-color: #1e40af;
+            color: white;
+            font-weight: bold;
+            font-size: 7px;
+            border: 1px solid #000;
+        }
+
+        .devolucion {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .has-payment {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 8px;
+            color: #999;
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 6px;
+            color: white;
+        }
+
+        .badge-success {
+            background-color: #22c55e;
+        }
+
+        .badge-warning {
+            background-color: #f59e0b;
+        }
+
+        .badge-danger {
+            background-color: #ef4444;
+        }
+
+        .badge-secondary {
+            background-color: #6b7280;
+        }
+
+        .badge-info {
+            background-color: #3b82f6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Reporte General de Pagos</h1>
+        <div class="period">Período: {{ desde|date:"F Y" }} - {{ hasta|date:"F Y" }}</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>ESTADO</th>
+                <th>CÉDULA</th>
+                <th>CLIENTE</th>
+                <th>EMAIL</th>
+                <th>CELULAR</th>
+                <th>MZ</th>
+                <th>L</th>
+                <th>V/TOTAL</th>
+                <th>V/ENT</th>
+                <th>CUOTA</th>
+                {% for mes in meses %}
+                <th>{{ mes.label }}</th>
+                {% endfor %}
+                <th>TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in reporte_data %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td class="text-center">
+                    {% if row.contrato.estado == 'ACTIVO' %}
+                    <span class="badge badge-success">ACT</span>
+                    {% elif row.contrato.estado == 'CANCELADO' %}
+                    <span class="badge badge-warning">CAN</span>
+                    {% elif row.contrato.estado == 'DEVOLUCION' %}
+                    <span class="badge badge-info">DEV</span>
+                    {% elif row.contrato.estado == 'CERRADO' %}
+                    <span class="badge badge-secondary">CER</span>
+                    {% endif %}
+                    {% if row.contrato.esta_en_mora %}
+                    <span class="badge badge-danger">MORA</span>
+                    {% endif %}
+                </td>
+                <td>{{ row.cliente.cedula }}</td>
+                <td>{{ row.cliente.apellidos }} {{ row.cliente.nombres }}</td>
+                <td>{{ row.cliente.email|default:"-" }}</td>
+                <td>{{ row.cliente.celular }}</td>
+                <td class="text-center">{{ row.lote.manzana }}</td>
+                <td class="text-center">{{ row.lote.numero_lote }}</td>
+                <td class="text-right">${{ row.contrato.precio_venta_final }}</td>
+                <td class="text-right">${{ row.contrato.valor_entrada }}</td>
+                <td class="text-right">
+                    {% with primera_cuota=row.contrato.cuotas.first %}
+                    {% if primera_cuota %}
+                    ${{ primera_cuota.valor_capital|floatformat:2 }}
+                    {% else %}
+                    -
+                    {% endif %}
+                    {% endwith %}
+                </td>
+                {% for pago in row.pagos_mensuales %}
+                <td
+                    class="text-right {% if row.es_devolucion and pago > 0 %}devolucion{% elif pago > 0 %}has-payment{% endif %}">
+                    {% if pago > 0 %}{% if row.es_devolucion %}-{% endif %}${{ pago }}{% else %}-{% endif %}
+                </td>
+                {% endfor %}
+                <td class="text-right {% if row.es_devolucion %}text-danger{% else %}text-success{% endif %}">
+                    <strong>{% if row.es_devolucion %}-{% endif %}${{ row.total_pagado }}</strong>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{{ meses|length|add:13 }}" class="text-center">No hay contratos para mostrar.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="8" class="text-right">TOTALES:</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+                <td class="text-right">${{ total_cuotas|floatformat:2 }}</td>
+                {% for total in totales_mensuales %}
+                <td class="text-right">${{ total }}</td>
+                {% endfor %}
+                <td class="text-right"><strong>${{ total_general }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer">
+        Generado automáticamente por Ugsha Inmoviliarios - {{ hasta|date:"d/m/Y" }}
+    </div>
+</body>
+
+</html>

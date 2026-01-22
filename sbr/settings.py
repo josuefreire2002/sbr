@@ -95,9 +95,13 @@ else:
     # Ruta local para desarrollo
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'sbr_db',
-        }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sbr',
+        'USER': 'django_ats',
+        'PASSWORD': 'Kawsay_2025!!$$$',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
     }
 
 

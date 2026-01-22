@@ -37,6 +37,29 @@
         color: #9ca3af;
     }
 
+    .payment-cell.devolucion-payment {
+        background-color: #fee2e2 !important;
+        color: #dc2626 !important;
+        font-weight: 600;
+    }
+
+    .table-report tfoot td {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 0.75rem 0.5rem;
+        border-top: 3px solid #1e40af;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table-report tfoot td.text-success {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        font-size: 0.95rem;
+    }
+
     @media print {
         @page {
             size: landscape;
@@ -87,6 +110,33 @@
             background-color: #d1fae5 !important;
         }
 
+        .payment-cell.devolucion-payment {
+            background-color: #fee2e2 !important;
+            color: #dc2626 !important;
+        }
+
+        .table-report tfoot {
+            display: table-footer-group !important;
+            visibility: visible !important;
+            page-break-inside: avoid !important;
+        }
+
+        .table-report tfoot td {
+            background: #1e40af !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            font-size: 8px !important;
+            padding: 5px 3px !important;
+            font-weight: 700 !important;
+            border: 1px solid #000 !important;
+        }
+
+        .table-report tfoot td.text-success {
+            background: #059669 !important;
+            color: white !important;
+        }
+
         h4,
         h5 {
             font-size: 12px !important;
@@ -118,9 +168,10 @@
                     <a href="{% url 'lista_clientes' %}" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-2"></i>Volver
                     </a>
-                    <button onclick="window.print()" class="btn btn-outline-primary">
-                        <i class="bi bi-printer me-2"></i>Imprimir
-                    </button>
+                    <a href="{% url 'reporte_general_pdf' %}?desde={{ request.GET.desde }}&hasta={{ request.GET.hasta }}{% if solo_activos %}&solo_activos=on{% endif %}"
+                        class="btn btn-danger">
+                        <i class="bi bi-file-pdf me-2"></i>Descargar PDF
+                    </a>
                 </div>
             </div>
 
@@ -129,6 +180,7 @@
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
+                            <th class="text-center">Estado</th>
                             <th>Apellidos / Nombres</th>
                             <th class="text-center">Cédula</th>
                             <th class="text-center">Email</th>
@@ -148,6 +200,19 @@
                         {% for row in reporte_data %}
                         <tr>
                             <td class="text-center text-muted">{{ forloop.counter }}</td>
+                            <td class="text-center">
+                                {% if row.contrato.estado == 'CANCELADO' %}
+                                <span class="badge bg-danger">Cancelado</span>
+                                {% elif row.contrato.estado == 'DEVOLUCION' %}
+                                <span class="badge bg-info">Devolución</span>
+                                {% elif row.contrato.estado == 'CERRADO' %}
+                                <span class="badge bg-secondary">Cerrado</span>
+                                {% elif row.contrato.esta_en_mora %}
+                                <span class="badge bg-warning text-dark">En Mora</span>
+                                {% else %}
+                                <span class="badge bg-success">Activo</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 <strong>{{ row.cliente.apellidos }}</strong> {{ row.cliente.nombres }}
                             </td>
@@ -159,31 +224,52 @@
                             <td class="text-end">${{ row.contrato.precio_venta_final|intcomma }}</td>
                             <td class="text-end">${{ row.contrato.valor_entrada|intcomma }}</td>
                             <td class="text-end">
-                                {% with cuota_valor=row.contrato.saldo_a_financiar|floatformat:2 %}
-                                {% if row.contrato.numero_cuotas > 0 %}
-                                ${{ row.contrato.saldo_a_financiar|divisibleby:row.contrato.numero_cuotas|intcomma }}
+                                {% with primera_cuota=row.contrato.cuotas.first %}
+                                {% if primera_cuota %}
+                                ${{ primera_cuota.valor_capital|floatformat:2 }}
                                 {% else %}
                                 -
                                 {% endif %}
                                 {% endwith %}
                             </td>
                             {% for pago in row.pagos_mensuales %}
-                            <td class="payment-cell {% if pago > 0 %}has-payment{% else %}no-payment{% endif %}">
-                                {% if pago > 0 %}${{ pago|intcomma }}{% else %}-{% endif %}
+                            <td
+                                class="payment-cell {% if row.es_devolucion and pago > 0 %}devolucion-payment{% elif pago > 0 %}has-payment{% else %}no-payment{% endif %}">
+                                {% if pago > 0 %}{% if row.es_devolucion %}-{% endif %}${{ pago|intcomma }}
+                                {% else %}-{%endif %}
                             </td>
                             {% endfor %}
-                            <td class="text-end fw-bold text-success">${{ row.total_pagado|intcomma }}</td>
+                            <td
+                                class="text-end fw-bold {% if row.es_devolucion %}text-danger{% else %}text-success{% endif %}">
+                                {% if row.es_devolucion %}-{% endif %}${{ row.total_pagado|intcomma }}
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="{{ meses|length|add:9 }}" class="text-center py-4 text-muted">
+                            <td colspan="{{ meses|length|add:12 }}" class="text-center py-4 text-muted">
                                 No hay contratos para mostrar.
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="8" class="text-end fw-bold">TOTALES:</td>
+                            <td class="text-end">-</td> <!-- V/Total -->
+                            <td class="text-end">-</td> <!-- V/Entrada -->
+                            <td class="text-end fw-bold">${{ total_cuotas|floatformat:2|intcomma }}</td>
+                            <!-- Cuota -->
+                            {% for total in totales_mensuales %}
+                            <td class="text-end fw-bold">${{ total|intcomma }}</td>
+                            {% endfor %}
+                            <td class="text-end fw-bold">${{ total_general|intcomma }}</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
+
+            <!-- Totals Row (outside DataTable for proper printing) -->
+
         </div>
     </div>
 </div>

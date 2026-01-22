@@ -22,6 +22,14 @@ class ConfiguracionSistema(models.Model):
         return "Configuración General del Sistema"
 
 
+class Perfil(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
+    cedula = models.CharField(max_length=13, unique=True, null=True, blank=True)
+
+    def __str__(self):
+        return f"Perfil de {self.user.username}"
+
+
 class Lote(models.Model):
     ESTADOS = [
         ('DISPONIBLE', 'Disponible'),
@@ -35,6 +43,17 @@ class Lote(models.Model):
     precio_contado = models.DecimalField(max_digits=12, decimal_places=2)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='DISPONIBLE')
     
+    # Imagen opcional del lote
+    imagen = models.ImageField(upload_to='lotes/', blank=True, null=True, help_text="Foto del lote (opcional)")
+    
+    # Ubicación (Opcionales)
+    ciudad = models.CharField(max_length=100, blank=True, null=True)
+    parroquia = models.CharField(max_length=100, blank=True, null=True)
+    provincia = models.CharField(max_length=100, blank=True, null=True)
+    canton = models.CharField(max_length=100, blank=True, null=True)
+    
+
+    
     # Usuario que creó el lote (para control de permisos de edición)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='lotes_creados')
     
@@ -47,7 +66,7 @@ class Cliente(models.Model):
     # Relación con el vendedor (Usuario de Django)
     vendedor = models.ForeignKey(User, on_delete=models.PROTECT, related_name='mis_clientes')
     
-    cedula = models.CharField(max_length=10, unique=True)
+    cedula = models.CharField(max_length=10)
     nombres = models.CharField(max_length=100)
     apellidos = models.CharField(max_length=100)
     celular = models.CharField(max_length=15)
@@ -113,6 +132,9 @@ class Cuota(models.Model):
     valor_pagado = models.DecimalField(max_digits=10, decimal_places=2, default=0) # Cuánto han abonado a esta cuota
     estado = models.CharField(max_length=20, choices=ESTADOS_PAGO, default='PENDIENTE')
     
+    # Control manual de mora
+    mora_exenta = models.BooleanField(default=False, help_text="Si está marcado, esta cuota NO tendrá mora aunque esté vencida")
+    
     fecha_ultimo_pago = models.DateField(null=True, blank=True)
 
     class Meta:
@@ -126,10 +148,15 @@ class Cuota(models.Model):
         
     @property
     def saldo_pendiente(self):
-        capital = self.valor_capital or 0
-        mora = self.valor_mora or 0
-        pagado = self.valor_pagado or 0
-        return (capital + mora) - pagado
+        from decimal import Decimal
+        capital = self.valor_capital or Decimal('0')
+        mora = self.valor_mora or Decimal('0')
+        pagado = self.valor_pagado or Decimal('0')
+        resultado = (capital + mora) - pagado
+        # Treat sub-cent values as zero (precision tolerance)
+        if resultado < Decimal('0.01'):
+            return Decimal('0.00')
+        return resultado
 
 
 class Pago(models.Model):
@@ -144,7 +171,7 @@ class Pago(models.Model):
     metodo_pago = models.CharField(max_length=20, choices=METODOS)
     
     # Evidencia (Obligatorio por validación si es Transferencia)
-    comprobante_imagen = models.ImageField(upload_to='pagos/comprobantes/', blank=True, null=True)
+    comprobante_imagen = models.FileField(upload_to='pagos/comprobantes/', blank=True, null=True)
     
     observacion = models.TextField(blank=True, null=True)
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) # Auditoría

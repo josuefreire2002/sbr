@@ -146,13 +146,15 @@ def actualizar_moras_contrato(contrato_id):
             dias_retraso = (hoy - cuota.fecha_vencimiento).days
             mora_calcular = Decimal('0.00')
 
-            # Calcular Mora según nivel de atraso (el más alto que aplique)
-            if dias_retraso >= dias_grav:
-                mora_calcular = val_grav
-            elif dias_retraso >= dias_med:
-                mora_calcular = val_med
-            elif dias_retraso >= dias_leve:
-                mora_calcular = val_leve
+            # ⭐ NUEVO: Respetar exención manual de mora
+            if not cuota.mora_exenta:
+                # Calcular Mora según nivel de atraso (el más alto que aplique)
+                if dias_retraso >= dias_grav:
+                    mora_calcular = val_grav
+                elif dias_retraso >= dias_med:
+                    mora_calcular = val_med
+                elif dias_retraso >= dias_leve:
+                    mora_calcular = val_leve
 
             # Siempre actualizar estado y mora si está vencido
             cuota.estado = 'VENCIDO'
@@ -192,6 +194,13 @@ def registrar_pago_cliente(contrato_id, monto, metodo_pago, evidencia_img, usuar
         total_deuda_cuota = cuota.total_a_pagar
         falta_por_pagar = total_deuda_cuota - cuota.valor_pagado
 
+        # Tolerance: treat amounts under $0.01 as zero (fixes decimal precision issues)
+        if falta_por_pagar < Decimal('0.01'):
+            cuota.estado = 'PAGADO'
+            cuota.fecha_ultimo_pago = date.today()
+            cuota.save()
+            continue
+
         if dinero_disponible >= falta_por_pagar:
             cuota.valor_pagado += falta_por_pagar
             cuota.estado = 'PAGADO'
@@ -199,7 +208,12 @@ def registrar_pago_cliente(contrato_id, monto, metodo_pago, evidencia_img, usuar
             dinero_disponible -= falta_por_pagar
         else:
             cuota.valor_pagado += dinero_disponible
-            cuota.estado = 'PARCIAL'
+            # Check if remaining balance after payment is negligible
+            new_remaining = falta_por_pagar - dinero_disponible
+            if new_remaining < Decimal('0.01'):
+                cuota.estado = 'PAGADO'
+            else:
+                cuota.estado = 'PARCIAL'
             dinero_disponible = 0
         
         cuota.save()
@@ -218,12 +232,64 @@ def generar_pdf_contrato(contrato_id):
     contrato = Contrato.objects.get(id=contrato_id)
     config = ConfiguracionSistema.objects.first()
     
+    # Obtener el pago de entrada (el primero registrado)
+    pago_entrada = contrato.pago_set.order_by('id').first()
+    
+    metodo_real = 'EFECTIVO'
+    datos_bancarios = None
+
+    if pago_entrada:
+        # Lógica para determinar el método real y detalles desde la observación
+        obs = pago_entrada.observacion or ""
+        
+        if 'TRANSFERENCIA' in obs:
+            metodo_real = 'TRANSFERENCIA BANCARIA'
+            # Intentar extraer banco y cuenta
+            # Formato esperado: "Pago de Entrada (TRANSFERENCIA). Banco: X. Cuenta/Comp: Y."
+            try:
+                # Buscamos los delimitadores exactos que usamos en views.py
+                if "Banco:" in obs and "Cuenta/Comp:" in obs:
+                    # Todo lo que está después de 'Banco:'
+                    resto_banco = obs.split("Banco:")[1]
+                    
+                    # Separamos por el delimitador que sigue al banco: ". Cuenta/Comp:"
+                    # Usamos partition para seguridad
+                    if ". Cuenta/Comp:" in resto_banco:
+                        parte_banco, _, parte_cuenta = resto_banco.partition(". Cuenta/Comp:")
+                        
+                        datos_bancarios = {
+                            'banco': parte_banco.strip(),
+                            'cuenta': parte_cuenta.rstrip(".").strip() # Quitamos el punto final
+                        }
+                    else:
+                        # Fallback por si acaso el formato varió ligeramente (ej. falta espacio)
+                        # Intento split simple por 'Cuenta/Comp:'
+                        parte_banco = resto_banco.split("Cuenta/Comp:")[0].strip().rstrip(".")
+                        parte_cuenta = resto_banco.split("Cuenta/Comp:")[1].strip().rstrip(".")
+                        datos_bancarios = {
+                            'banco': parte_banco,
+                            'cuenta': parte_cuenta
+                        }
+            except Exception as e:
+                # En caso de error, dejamos datos_bancarios en None para que salga el default
+                print(f"Error parsing bank details: {e}")
+                pass
+                
+        elif 'DEPOSITO' in obs:
+            metodo_real = 'DEPÓSITO'
+        elif pago_entrada.metodo_pago == 'EFECTIVO':
+            metodo_real = 'EFECTIVO'
+
     context = {
         'contrato': contrato,
         'cliente': contrato.cliente,
         'lote': contrato.lote,
         'empresa': config,
-        'cuotas': contrato.cuotas.all()
+        'cuotas': contrato.cuotas.all(),
+        'metodo_real_pago': metodo_real,
+        'datos_bancarios': datos_bancarios,
+        'base_url': settings.BASE_URL if hasattr(settings, 'BASE_URL') else 'http://127.0.0.1:8000',
+        'fecha_actual': date.today(),
     }
     
     html_string = render_to_string('reportes/plantilla_contrato.html', context)

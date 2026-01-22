@@ -1,5 +1,19 @@
 from django.contrib import admin
-from .models import ConfiguracionSistema, Lote, Cliente, Contrato, Cuota, Pago
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+from .models import ConfiguracionSistema, Lote, Cliente, Contrato, Cuota, Pago, Perfil
+
+class PerfilInline(admin.StackedInline):
+    model = Perfil
+    can_delete = False
+    verbose_name_plural = 'Perfil de Usuario (Cédula)'
+
+class UserAdmin(BaseUserAdmin):
+    inlines = (PerfilInline,)
+
+# Re-register UserAdmin
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
 
 # 1. Configuración del Sistema (Para las reglas de Mora)
 @admin.register(ConfiguracionSistema)

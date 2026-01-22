@@ -11,7 +11,7 @@
             {% endif %}
         </div>
         <div class="card-body p-4">
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -34,20 +34,53 @@
                         <input type="number" step="0.01" name="precio" class="form-control" placeholder="0.00"
                             value="{{ lote.precio_contado|stringformat:'.2f'|default:'' }}" required>
                     </div>
-                </div>
-                <hr class="my-4">
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="{% url 'gestion_lotes' %}" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary px-4">
-                        {% if lote %}
-                        ACTUALIZAR
-                        {% else %}
-                        GUARDAR
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Foto del Lote (Opcional)</label>
+                        <input type="file" name="imagen" class="form-control" accept="image/*">
+                        {% if lote.imagen %}
+                        <div class="mt-2">
+                            <small class="text-muted">Imagen actual:</small>
+                            <img src="{{ lote.imagen.url }}" alt="Foto del lote" class="img-thumbnail mt-1"
+                                style="max-height: 150px;">
+                        </div>
                         {% endif %}
-                    </button>
+                    </div>
                 </div>
-            </form>
+
+
+
+                <div class="col-md-3">
+                    <label class="form-label">Ciudad</label>
+                    <input type="text" name="ciudad" class="form-control" value="{{ lote.ciudad|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Cantón</label>
+                    <input type="text" name="canton" class="form-control" value="{{ lote.canton|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Parroquia</label>
+                    <input type="text" name="parroquia" class="form-control" value="{{ lote.parroquia|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Provincia</label>
+                    <input type="text" name="provincia" class="form-control" value="{{ lote.provincia|default:'' }}">
+                </div>
         </div>
+
+
+        <hr class="my-4">
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'gestion_lotes' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary px-4">
+                {% if lote %}
+                ACTUALIZAR
+                {% else %}
+                GUARDAR
+                {% endif %}
+            </button>
+        </div>
+        </form>
     </div>
+</div>
 </div>
 {% endblock %}

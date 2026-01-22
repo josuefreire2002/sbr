@@ -1,10 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SBR Gestión{% endblock %}</title>
+    <title>{% block title %}Ugsha Inmoviliarios{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'img/logo_ugsha.png' %}">
 
     <!-- Bootstrap 5 & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -115,7 +117,8 @@
         }
 
         #sidebar .sidebar-header {
-            height: var(--header-height);
+            min-height: var(--header-height);
+            height: auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -371,10 +374,12 @@
 
     <!-- Sidebar -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-    <aside id="sidebar">
-        <div class="sidebar-header">
-            <h5 class="fw-bold mb-0 sidebar-text">SBR Gestión</h5>
-            <button class="sidebar-toggle d-lg-none" onclick="toggleSidebar()">
+    <aside id="sidebar" class="d-print-none">
+        <div class="sidebar-header d-flex flex-column align-items-center py-4">
+            <img src="{% static 'img/logo_ugsha.png' %}" alt="Logo" style="width: 80%; max-width: 180px; height: auto;"
+                class="mb-3">
+            <h5 class="fw-bold mb-0 sidebar-text text-center">Ugsha Inmoviliarios</h5>
+            <button class="sidebar-toggle d-lg-none position-absolute top-0 end-0 m-3" onclick="toggleSidebar()">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
@@ -419,13 +424,13 @@
     <!-- Main Wrapper -->
     <div id="main-content">
         <!-- Top Navbar -->
-        <header id="top-navbar">
+        <header id="top-navbar" class="d-print-none">
             <button class="btn btn-light me-3" id="sidebar-toggle" onclick="toggleSidebar()">
                 <i class="bi bi-list"></i>
             </button>
 
             <div class="breadcrumb mb-0 d-none d-md-flex">
-                <span class="text-muted small">SBR Gestión</span>
+                <span class="text-muted small">Ugsha Inmoviliarios</span>
                 <span class="mx-2 text-muted small">/</span>
                 <span class="small fw-medium">{% block breadcrumb %}Principal{% endblock %}</span>
             </div>

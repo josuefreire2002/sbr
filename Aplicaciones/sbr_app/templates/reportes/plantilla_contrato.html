@@ -1,185 +1,323 @@
+{% load static %}
+{% load numeros_letras %}
+{% load humanize %}
 <!DOCTYPE html>
-<html lang="es">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>Contrato</title>
+    <meta charset="utf-8">
     <style>
         @page {
             size: A4;
-            margin: 2.5cm;
-
-            @frame footer_frame {
-                /* Numeración de página opcional */
-                -pdf-frame-content: footerContent;
-                bottom: 1cm;
-                margin-left: 2.5cm;
-                margin-right: 2.5cm;
-                height: 1cm;
-            }
+            margin: 2.5cm 2.5cm 2.5cm 2.5cm;
         }
 
         body {
-            font-family: Helvetica, Arial, sans-serif;
-            /* Fuentes estándar PDF */
-            font-size: 11pt;
-            /* 12pt a veces es muy grande en PDF */
-            line-height: 1.5;
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            /* Slightly smaller to fit content */
+            line-height: 1.4;
+            text-align: justify;
             color: #000;
         }
 
-        .header {
+        h1 {
+            font-size: 14pt;
             text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .titulo {
             font-weight: bold;
+            font-style: italic;
+            margin-bottom: 1.5cm;
             text-transform: uppercase;
-            font-size: 16pt;
-            margin-bottom: 25px;
-            text-align: center;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 10px;
         }
 
-        .seccion {
-            margin-top: 25px;
-            margin-bottom: 10px;
+        p {
+            margin-bottom: 10pt;
+        }
+
+        .bold {
             font-weight: bold;
-            text-decoration: underline;
-            font-size: 12pt;
         }
 
-        /* TABLA DE PAGOS */
-        .tabla-pagos {
+        .center {
+            text-align: center;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+        }
+
+        /* Signature Section - Fixed Layout */
+        .signatures {
+            margin-top: 2cm;
+            width: 100%;
+            page-break-inside: avoid;
+            /* Keep signatures together */
+        }
+
+        .sig-table {
             width: 100%;
             border-collapse: collapse;
-            /* Importante para bordes finos */
-            margin-top: 15px;
-            font-size: 10pt;
+            border: none;
         }
 
-        .tabla-pagos th {
-            background-color: #f0f0f0;
+        .sig-td {
+            width: 50%;
+            vertical-align: top;
+            text-align: center;
+            padding: 0 10px;
+            border: none;
+        }
+
+        .sig-line {
+            margin-bottom: 5px;
+        }
+
+        /* Amortization Table */
+        .table-container {
+            page-break-before: always;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
             border: 1px solid #000;
-            padding: 8px;
+            padding: 4px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #ffeb3b;
             font-weight: bold;
         }
 
-        .tabla-pagos td {
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: center;
-        }
-
-        /* FIRMAS: Usamos diseño de tabla para compatibilidad total */
-        .tabla-firmas {
-            width: 100%;
-            margin-top: 80px;
-            border: none;
-        }
-
-        .tabla-firmas td {
-            border: none;
-            /* Sin bordes para la estructura */
-            vertical-align: top;
-        }
-
-        .linea-firma {
-            border-top: 1px solid #000;
-            width: 80%;
-            /* Ancho de la línea respecto a su celda */
-            margin: 0 auto;
-            /* Centrar línea */
-            padding-top: 10px;
-            text-align: center;
+        .total-row {
+            background-color: #ffeb3b;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-        {% if empresa.logo %}
-        <img src="{{ empresa.logo.url }}" style="height: 80px;">
-        {% else %}
-        <h1>{{ empresa.nombre_empresa }}</h1>
+
+
+    <h1>CONTRATO DE RESERVA DE LOTE DE TERRENO</h1>
+
+    <p>
+        En la Ciudad de La Maná, parroquia y cantón del mismo nombre, provincia de Cotopaxi, a los <span class="bold">
+            {{ fecha_actual|dia_sin_cero }}</span> días del mes de <span class="bold">
+            {{ fecha_actual|nombre_mes }}</span> del <span class="bold">
+            {{ fecha_actual.year }}
+        </span>, proceden a celebrar de manera libre y voluntaria, el presente <span class="bold">CONTRATO DE RESERVA DE
+            LOTE DE TERRENO</span>,
+        por una parte, el señor <span class="bold uppercase">GUILLERMO UGSHA ILAQUICHE</span>, con la cedula de
+        identidad <span class="bold">Nº 050289591-5</span>, Apoderado Especial
+        de los propietarios de <span class="bold uppercase">USHCA INMOBILIARIOS</span>, por sus propios derechos; y, por
+        otra parte,
+        El señor <span class="bold uppercase">{{ cliente.apellidos }} {{ cliente.nombres }}</span>, con
+        cédula de identidad <span class="bold">Nº {{ cliente.cedula }}</span>, en calidad de contratantes, también por
+        sus propios derechos, todos Los comparecientes declaran ser mayores de edad y con capacidad legal para
+        contratar,
+        convienen las siguientes cláusulas:
+    </p>
+
+    <p>
+        <span class="bold">PRIMERA. – a) EL VENDEDOR</span> es propietario de un bien inmueble ubicado en la avenida 19
+        de mayo, sector El Moral, de la parroquia y cantón La Mana, provincia de Cotopaxi, de la superficie de ciento
+        setenta y cuatro mil cuatrocientos cincuenta y seis puntos sesenta y un metros cuadrados, equivalente a
+        diecisiete puntos cuatrocientos cuarenta y cinco hectáreas.
+    </p>
+
+    <p>
+        <span class="bold">b) Los linderos y dimensiones del inmueble son los siguientes:</span> <span class="bold">
+            NORTE. -</span> Con la Av. 19 de mayo;
+        <span class="bold">SUR. -</span> Predio del señor Javier Zabrano y Maria de Jesus Zabala Ponce;
+        <span class="bold">ESTE. -</span>Vía pública proyectada de 10 metros de ancho; y,
+        <span class="bold">OESTE. -</span> Con propiedad del señor Hugo Proaño Cela. En caso de presentarse en este
+        instrumento un error de
+        transcripción, las partes determinan
+        como correctos y valederos los linderos y superficies constantes en el título de dominio del cual deriva.
+    </p>
+
+    <p>
+        c) EL VENDEDOR declara que UGSHA INMOVILIARIOS se encuentra en proceso de
+        legalización ante el GAD Municipal del cantón La Mana, en este sentido EL CONTRATANTE
+        declara conocer y aceptar el estado de legalización del proyecto y asume el riesgo en
+        caso de retrasos o modificaciones administrativas, sin que ello implique responsabilidad
+        para EL VENDEDOR o pago de indemnizaciones por retrasos.
+    </p>
+
+    <p>
+        <span class="bold">SEGUNDA.</span> - Con estos antecedentes <span class="bold">EL VENDEDOR</span> se obliga a
+        vender a <span class="bold">EL CONTRATANTE</span> el <span class="bold">LOTE Nº {{ lote.numero_lote }}</span> de
+        la manzana <span class="bold">{{ lote.manzana }}</span>, de <span class="bold">UGSHA INMOVILIARIOS</span>,
+        con una superficie aproximada de <span class="bold">{{ lote.dimensiones }} metros cuadrados</span>, identificado
+        en el plano general del proyecto <br>
+        El lote objeto de la presente reserva no podrá ser transferido, cedido o gravado por la <span
+            class="bold">CONTRATANTE</span> sin la autorización escrita de <span class="bold">EL VENDEDOR</span> hasta
+        el pago total del precio.
+    </p>
+
+    <p>
+        <span class="bold">TERCERA.</span> – Por otra parte el señor <span class="bold uppercase">UGSHA
+            ILAQUICHE</span>, acepta la pretensión de los contratantes aclarado
+        por el presente contrato tiene por propósito fijar y congelar el precio, a objeto que no pueda variar en lo
+        posterior, una vez que se obtenga la aprobación del proyecto de urbanización: además señala que la Urbanización
+        se ajusta a las ordenanzas del GAD municipal del cantón La Maná; En el que contempla la ejecución de servicio
+        básico tales como: agua potable, aceras y bordillo, vías y energía eléctrica.
+    </p>
+
+    <p>
+        <span class="bold">CUARTA.</span> –Precio y forma de pago, pactado para la presente separación del lote de
+        terreno especificado en la cláusula segunda; es de <span class="bold">$
+            {{ contrato.precio_venta_final|floatformat:0|intcomma }} ({{ contrato.precio_venta_final|numero_a_letras }}
+            DÓLARES AMERICANOS)</span>. Que en el contrato se compromete a pagar de la siguiente forma:
+    </p>
+
+    <div style="margin-left: 20px;">
+        <p>
+            a) Los <span class="bold">$ {{ contrato.valor_entrada|floatformat:0|intcomma }}
+                ({{ contrato.valor_entrada|numero_a_letras }} DÓLARES AMERICANOS)</span>, al momento de la firma del
+            presente contrato de promesa, el pago seleccionado fue {{ metodo_real_pago }}.
+        </p>
+
+        {% if metodo_real_pago == 'TRANSFERENCIA BANCARIA' %}
+        <p class="center bold">
+            BANCO: {{ datos_bancarios.banco|default:"(NO IDENTIFICADO)" }} &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp; Número de Cuenta: {{ datos_bancarios.cuenta|default:"(NO IDENTIFICADO)" }}
+        </p>
         {% endif %}
-        <p><strong>RUC:</strong> {{ empresa.ruc_empresa }}</p>
+
+        <p>
+            b) <span class="bold">$ {{ contrato.saldo_a_financiar|floatformat:0|intcomma }}
+                ({{ contrato.saldo_a_financiar|numero_a_letras }} DÓLARES AMERICANOS)</span>. en
+            {{ contrato.numero_cuotas }} cuotas mensuales desde la fecha del presente contrato.
+        </p>
     </div>
 
-    <div class="titulo">CONTRATO DE COMPRAVENTA DE LOTE</div>
-
-    <p style="text-align: justify;">
-        En la ciudad de Pujilí, a los {{ contrato.fecha_contrato|date:"d" }} días del mes de
-        {{ contrato.fecha_contrato|date:"F" }} del año {{ contrato.fecha_contrato|date:"Y" }}, comparecen:
+    <p>
+        <span class="bold">QUINTA.</span> –En caso del promitente comprador desista del compromiso de la promesa de
+        compra y venta, por cualquier motivo o causa ajena a la voluntad del promitente vendedor. - se procederá a
+        descontar el 30% del precio pactado entre partes, en la cláusula cuarta, por gastos administrativos y otros,
+        además el saldo que hubiere favor de promitente comprador se liquidará cuando se proceda a la nueva venta del
+        mismo lote de terreno que se motiva este contrato.
     </p>
 
-    <div class="seccion">PRIMERO: LOS COMPARECIENTES</div>
-    <p style="text-align: justify;">
-        Por una parte, la empresa <strong>{{ empresa.nombre_empresa }}</strong> (VENDEDOR), y por otra parte
-        el Sr/Sra. <strong>{{ cliente.nombres }} {{ cliente.apellidos }}</strong> con C.I. {{ cliente.cedula }}
-        (COMPRADOR).
+    <p>
+        <span class="bold">SEXTA.</span> – El promitente propietario está obligado a entregar la escritura respectiva
+        por el lote de terreno una vez que esté construido la infraestructura del mismo proyecto de la urbanización.
     </p>
 
-    <div class="seccion">SEGUNDO: EL OBJETO</div>
-    <p style="text-align: justify;">
-        El VENDEDOR vende al COMPRADOR el Lote de Terreno ubicado en la Manzana <strong>{{ lote.manzana }}</strong>,
-        Lote N° <strong>{{ lote.numero_lote }}</strong>, con dimensiones de {{ lote.dimensiones }}.
+    <p>
+        <span class="bold">SÉPTIMA.</span> - Los contratantes declara conocer que el “PROYECTO DE UGSHA INMOVILIARIOS”
+        se encuentra en proceso de aprobación y que el presente contrato no constituye privado de promesa de compraventa
+        y que desiste de proseguir acción alguna contemplada en el artículo 201 del COIP, y lo que busca es congelar el
+        precio pactado sobre la reserva del lote de terreno antes referido; y que, en todo caso, el presente documento
+        constituya un título ejecutivo, con el fin de garantizar las obligaciones de reserva de los lotes de terreno.
+        En caso de que <span class="bold">EL/LA CONTRATANTE</span>, realice algún tipo de mejora o construcción en el
+        bien inmueble reservado y esta decidiere desistir de la compra venta por cualquier razón, <span class="bold">EL
+            VENDEDOR</span>, no tiene la obligación de indemnizar ni reconocer ningún valor por las mejoras o las
+        construcciones realizadas en el lote de terreno, quedando éstas en favor de <span class="bold">EL
+            VENDEDOR</span>, en tal sentido <span class="bold uppercase">EL/LA CONTRATANTE</span> renuncia a iniciar
+        algún tipo de proceso civil, penal o administrativo por estas causas.
     </p>
 
-    <div class="seccion">TERCERO: PRECIO Y FORMA DE PAGO</div>
-    <p style="text-align: justify;">
-        El precio pactado es de <strong>${{ contrato.precio_venta_final }} USD</strong>.
-        El COMPRADOR entrega la suma de <strong>${{ contrato.valor_entrada }}</strong> como entrada.
-        El saldo de <strong>${{ contrato.saldo_a_financiar }}</strong> será pagado en {{ contrato.numero_cuotas }}
-        cuotas mensuales detalladas a continuación:
+    <p>
+        <span class="bold">OCTAVO.</span> – Los gastos notariales, de registro, impuestos, plusvalía y demás costos
+        relacionados con la escritura pública serán de cuenta exclusiva del comprador.
     </p>
 
-    <table class="tabla-pagos">
-        <thead>
+    <p>
+        <span class="bold">NOVENA.</span> - Las partes celebran el presente contrato de buena fe. Por lo mismo, se
+        obligan a realizar todo cuanto estuviere a su alcance, a fin de que la compraventa prometida tenga su cabal
+        realización, en el menor tiempo posible, que es la finalidad de este convenio. En lo no previsto se sujetan a
+        las normas de los Códigos Civil, y del Código Orgánico General de Procesos, así como a las conversaciones
+        amigables entre los contratantes, a base de los principios de equidad. Para el evento de una reclamación
+        judicial, renuncian domicilio, se sujetan a los jueces competentes del Cantón Latacunga. Si una de las partes se
+        resistiere a firmar la escritura de compraventa definitiva, lo hará en representación el señor Juez de lo Civil
+        de Latacunga, que corresponda en virtud del sorteo y al amparo de lo que dispone el Código Orgánico General de
+        Procesos
+    </p>
+
+    <p>
+        <span class="bold">DECIMA.</span> - Leído que fue el presente contrato y enteradas las partes de su contenido,
+        lo firman en dos ejemplares de igual tenor y valor.
+    </p>
+
+    <br><br>
+
+    <div class="signatures">
+        <table class="sig-table">
             <tr>
-                <th width="15%">Cuota N°</th>
-                <th width="40%">Fecha Vencimiento</th>
-                <th width="45%">Valor ($)</th>
+                <td class="sig-td">
+                    <br><br><br>
+                    <div class="sig-line">...................................................................</div>
+                    <span class="bold">Sr </span> GUILLERMO UGSHA ILQ.
+                    <!-- {{ contrato.cliente.vendedor.get_full_name|default:contrato.cliente.vendedor.username }} -->
+
+                    </span><br>
+                    <span class="bold">C.I. 050289591-5</span><br>
+                    <!--<span class="bold">C.I. {{ contrato.cliente.vendedor.perfil.cedula }}</span><br>-->
+                    <span class="bold">PROMITENTE VENDEDOR</span>
+                </td>
+                <td class="sig-td">
+                    <br><br><br>
+                    <div class="sig-line">...................................................................</div>
+                    <span class="bold">Sr. {{ cliente.apellidos }} {{ cliente.nombres }}</span><br>
+                    <span class="bold">C.I. {{ cliente.cedula }}</span><br>
+                    <span class="bold">PROMITENTE COMPRADOR</span>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            {% for cuota in cuotas %}
-            <tr>
-                <td>{{ cuota.numero_cuota }}</td>
-                <td>{{ cuota.fecha_vencimiento|date:"d/m/Y" }}</td>
-                <td>{{ cuota.valor_capital }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        </table>
+    </div>
 
-    <table class="tabla-firmas">
-        <tr>
-            <td width="45%" align="center">
-                <div class="linea-firma">
-                    <strong>VENDEDOR</strong><br>
-                    {{ empresa.nombre_empresa }}<br>
-                    <span style="font-size: 10pt;">RUC: {{ empresa.ruc_empresa }}</span>
-                </div>
-            </td>
+    <!-- Amortization Table Page -->
+    <div class="table-container">
+        <h3 class="center uppercase">TABLA DE PAGO</h3>
 
-            <td width="10%"></td>
-
-            <td width="45%" align="center">
-                <div class="linea-firma">
-                    <strong>COMPRADOR</strong><br>
-                    {{ cliente.nombres }} {{ cliente.apellidos }}<br>
-                    <span style="font-size: 10pt;">C.I. {{ cliente.cedula }}</span>
-                </div>
-            </td>
-        </tr>
-    </table>
-
-    <div id="footerContent" style="text-align: right; font-size: 9pt; color: gray;">
-        Página <pdf:pagenumber> de <pdf:pagecount>
+        <table style="width: 100%; border-collapse: collapse; font-size: 8pt;">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th style="border: 1px solid #000; padding: 4px; text-align: center;"># Cuota</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: center;">Fecha de pago</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: right;">Cuota Base</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: right;">Mora</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: right;">A Pagar</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: right;">Abonado</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: right;">Pendiente</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cuota in cuotas %}
+                <tr>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: center;">{{ cuota.numero_cuota }}</td>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: center;">
+                        {{ cuota.fecha_vencimiento|date:"d/m/Y" }}</td>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: right;">$
+                        {{ cuota.valor_capital|floatformat:2|intcomma }}</td>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: right;">
+                        {% if cuota.valor_mora > 0 %}
+                        +${{ cuota.valor_mora|floatformat:2|intcomma }}
+                        {% else %}
+                        $0.00
+                        {% endif %}
+                    </td>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: right;"><strong>$
+                            {{ cuota.total_a_pagar|floatformat:2|intcomma }}</strong></td>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: right;">$
+                        {{ cuota.valor_pagado|floatformat:2|intcomma }}</td>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: right;"><strong>$
+                            {{ cuota.saldo_pendiente|floatformat:2|intcomma }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
 </body>

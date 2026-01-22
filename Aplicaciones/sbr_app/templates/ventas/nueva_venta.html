@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{% url 'crear_venta' %}" id="formVenta" class="col-12">
+    <form method="POST" action="{% url 'crear_venta' %}" id="formVenta" class="col-12" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row g-4">
             <!-- Step 1: Client Information -->
@@ -177,6 +177,27 @@
                             </div>
                         </div>
 
+                        <!-- Nueva Sección: Método de Pago de la Entrada -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Forma de Pago de
+                                Entrada</label>
+                            <select class="form-select" name="metodo_pago_entrada" id="select_metodo_entrada" required>
+                                <option value="EFECTIVO">Efectivo</option>
+                                <option value="TRANSFERENCIA">Transferencia Bancaria</option>
+                                <option value="DEPOSITO">Depósito</option>
+                            </select>
+                            <button type="button" class="btn btn-outline-secondary btn-sm mt-2 d-none w-100"
+                                id="btnRevisarModal">
+                                <i class="bi bi-pencil-square me-1"></i> Ver/Editar Datos Bancarios
+                            </button>
+                        </div>
+
+                        <!-- Campos Ocultos para almacenar lo del Modal -->
+                        <input type="hidden" name="banco_entrada" id="hidden_banco">
+                        <input type="hidden" name="cuenta_entrada" id="hidden_cuenta">
+
+
+
                         <div class="mb-3">
                             <label class="form-label small fw-bold text-uppercase text-muted">Día de Cobro
                                 Mensual</label>
@@ -222,6 +243,58 @@
         </div>
     </form>
 </div>
+
+<!-- Modal de Transferencia (Moved outside form) -->
+<div class="modal fade" id="modalTransferencia" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-bank me-2"></i>Detalle de Transferencia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info py-2 small mb-3">
+                    <i class="bi bi-info-circle me-1"></i> Por favor complete los datos del comprobante.
+                </div>
+
+                <div id="modal_bank_fields">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Banco de Origen / Destino</label>
+                        <select class="form-select" id="modal_input_banco">
+                            <option value="">-- Seleccione --</option>
+                            <option value="PICHINCHA">Banco Pichincha</option>
+                            <option value="GUAYAQUIL">Banco Guayaquil</option>
+                            <option value="PRODUBANCO">Produbanco</option>
+                            <option value="PACIFICO">Banco del Pacífico</option>
+                            <option value="AUSTRO">Banco del Austro</option>
+                            <option value="INTERNACIONAL">Banco Internacional</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Número de Cuenta / Comprobante</label>
+                        <input type="text" class="form-control" id="modal_input_cuenta" placeholder="Ej: 123456">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Evidencia (Imagen o PDF) <span
+                            class="text-muted fw-normal fst-italic">(Opcional)</span></label>
+                    <!-- IMPORTANT: form="formVenta" allows this input to submit with the main form even if outside -->
+                    <input type="file" class="form-control" name="comprobante" accept="image/*,.pdf" form="formVenta">
+                    <div class="form-text x-small">Suba una foto o documento del depósito.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btnCancelarModal">Cancelar (Volver a
+                    Efectivo)</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarModal">Guardar Datos</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -238,8 +311,124 @@
         const lblCuota = document.getElementById('lbl_cuota');
         const preview_title = document.getElementById('preview_title');
 
+        const selectMetodo = document.getElementById('select_metodo_entrada');
+
+        // Modal elements
+        const modalTransferencia = new bootstrap.Modal(document.getElementById('modalTransferencia'));
+        const modalElement = document.getElementById('modalTransferencia');
+        const btnGuardarModal = document.getElementById('btnGuardarModal');
+        const btnCancelarModal = document.getElementById('btnCancelarModal');
+
+        const modalInputBanco = document.getElementById('modal_input_banco');
+        const modalInputCuenta = document.getElementById('modal_input_cuenta');
+        const hiddenBanco = document.getElementById('hidden_banco');
+        const hiddenCuenta = document.getElementById('hidden_cuenta');
+
         const empty_selection = document.querySelector('.empty-selection');
         const lote_details = document.querySelector('.lote-details');
+
+        const modalBankFields = document.getElementById('modal_bank_fields');
+
+        // Logic for Payment Method Selection
+        selectMetodo.addEventListener('change', function () {
+            if (this.value === 'TRANSFERENCIA') {
+                modalBankFields.classList.remove('d-none');
+                modalTransferencia.show();
+                btnRevisarModal.classList.remove('d-none');
+            } else if (this.value === 'DEPOSITO') {
+                modalBankFields.classList.add('d-none');
+                modalTransferencia.show();
+                btnRevisarModal.classList.remove('d-none');
+            } else {
+                // Clear fields if Efectivo
+                hiddenBanco.value = "";
+                hiddenCuenta.value = "";
+                modalInputBanco.value = "";
+                modalInputCuenta.value = "";
+                btnRevisarModal.classList.add('d-none');
+            }
+        });
+
+        // Review Button Logic
+        btnRevisarModal.addEventListener('click', function () {
+            modalTransferencia.show();
+        });
+
+        // Save Modal Data
+        btnGuardarModal.addEventListener('click', function () {
+            // Validate only if Transferencia
+            if (selectMetodo.value === 'TRANSFERENCIA') {
+                if (modalInputBanco.value === "") {
+                    alert("Por favor seleccione un banco.");
+                    return;
+                }
+                if (modalInputCuenta.value === "") {
+                    alert("Por favor ingrese el número de cuenta o comprobante.");
+                    return;
+                }
+            }
+
+            // Always save values (will be empty for Deposito if hidden/cleared, or whatever was there)
+            // Ideally should clear if Deposito
+            if (selectMetodo.value === 'DEPOSITO') {
+                hiddenBanco.value = "";
+                hiddenCuenta.value = "";
+            } else {
+                hiddenBanco.value = modalInputBanco.value;
+                hiddenCuenta.value = modalInputCuenta.value;
+            }
+
+            modalTransferencia.hide();
+        });
+
+        // Cancel Modal (Revert to Efectivo only if initial open, or just close)
+        btnCancelarModal.addEventListener('click', function () {
+            // If we are cancelling and there is no data saved (and not Deposito which might have no data), revert to Cash
+            if (hiddenBanco.value === "" && selectMetodo.value === 'TRANSFERENCIA') {
+                selectMetodo.value = 'EFECTIVO';
+                btnRevisarModal.classList.add('d-none');
+            }
+            // For Deposito, if hiddenBanco is empty it's fine. Maybe check file? But file is optional.
+            // Simplified: if nothing confirmed, revert? 
+            // Let's stick to: if we click cancel, and we haven't "Saved" before (implied by hidden values), revert.
+            // But hidden values are set on Save.
+            // Let's keep it simple: Just hide. Using logic "if empty fields -> Revert" is tricky if fields are optional.
+            // Reverting to Efectivo if "Cancelled" immediately after open is safer UX.
+
+            // Check if we have "saved" state. 
+            // Using the previous logic: if hidden inputs are empty, we assume no data was committed.
+            if (hiddenBanco.value === "" && selectMetodo.value === 'TRANSFERENCIA') {
+                selectMetodo.value = 'EFECTIVO';
+                btnRevisarModal.classList.add('d-none');
+            } else if (selectMetodo.value === 'DEPOSITO') {
+                // How to know if we saved for deposito? We don't save bank info.
+                // Assuming if they click cancel they changed their mind.
+                // But what if they just opened to check?
+                // Let's rely on the hidden.bs.modal for the "Revert if empty" logic
+            }
+
+            modalTransferencia.hide();
+        });
+
+        // Handle manual close of modal (X button or click outside)
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            // Logic to revert if no valid data is "set". 
+            // For Transferencia: if hiddenBanco is empty -> Revert.
+            // For Deposito: We don't have a required text field to check.
+            // We can add a hidden flag 'modalDataSaved'
+            if (selectMetodo.value === 'TRANSFERENCIA' && hiddenBanco.value === "") {
+                selectMetodo.value = 'EFECTIVO';
+                btnRevisarModal.classList.add('d-none');
+            }
+            if (selectMetodo.value === 'DEPOSITO') {
+                // For Deposito, since fields are optional/hidden, maybe we don't strictly revert?
+                // Or we can check if the user explicitly clicked "Guardar" using a flag?
+                // For now, let's NOT revert Deposito automatically on close, assuming they might have just viewed it.
+                // OR revert if they didn't click Save? 
+                // Let's leave Deposito as is (don't revert automatically) for better UX unless they manually cancel?
+                // Actually, if they close without saving, the form will submit empty/default.
+            }
+        });
 
         // 1. Al cambiar lote, llenar precio y dimensiones
         $('#select_lote').on('select2:select', function (e) {

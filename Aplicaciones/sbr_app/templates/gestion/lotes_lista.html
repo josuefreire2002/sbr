@@ -33,6 +33,12 @@
                             <th>ID</th>
                             <th>Manzana</th>
                             <th>N° Lote</th>
+                            <th>Ciudad</th>
+                            <th>Cantón</th>
+                            <th>Parroquia</th>
+                            <th>Provincia</th>
+
+                            <th class="text-center">Imagen</th>
                             <th>Dimensiones</th>
                             <th class="text-end">Precio Contado</th>
                             <th class="text-center">Estado</th>
@@ -45,6 +51,21 @@
                             <td class="text-muted small">#{{ lote.id }}</td>
                             <td class="fw-bold">{{ lote.manzana }}</td>
                             <td>{{ lote.numero_lote }}</td>
+                            <td>{{ lote.ciudad|default:"-" }}</td>
+                            <td>{{ lote.canton|default:"-" }}</td>
+                            <td>{{ lote.parroquia|default:"-" }}</td>
+                            <td>{{ lote.provincia|default:"-" }}</td>
+
+                            <td class="text-center">
+                                {% if lote.imagen %}
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#imgModal{{ lote.id }}">
+                                    <img src="{{ lote.imagen.url }}" alt="Lote" class="img-thumbnail"
+                                        style="max-height: 40px; max-width: 60px;">
+                                </a>
+                                {% else %}
+                                <span class="text-muted small"><i class="bi bi-image"></i> --</span>
+                                {% endif %}
+                            </td>
                             <td>{{ lote.dimensiones }}</td>
                             <td class="text-end">${{ lote.precio_contado }}</td>
                             <td class="text-center">
@@ -76,6 +97,25 @@
         </div>
     </div>
 </div>
+
+<!-- Image Modals (outside of table for proper Bootstrap rendering) -->
+{% for lote in lotes %}
+{% if lote.imagen %}
+<div class="modal fade" id="imgModal{{ lote.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mz. {{ lote.manzana }} - Lote {{ lote.numero_lote }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img src="{{ lote.imagen.url }}" alt="Foto del lote" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
 {% endblock %}
 
 {% block extra_js %}
@@ -116,7 +156,7 @@
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
             order: [[1, 'asc'], [2, 'asc']],
             columnDefs: [
-                { orderable: false, targets: 6 } // Disable sorting on Actions column
+                { orderable: false, targets: [7, 11] } // Disable sorting on Imagen and Actions columns
             ],
             dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
                 '<"row"<"col-sm-12"tr>>' +
