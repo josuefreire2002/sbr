@@ -149,12 +149,13 @@ def actualizar_moras_contrato(contrato_id):
             # ⭐ NUEVO: Respetar exención manual de mora
             if not cuota.mora_exenta:
                 # Calcular Mora según nivel de atraso (el más alto que aplique)
-                if dias_retraso >= dias_grav:
-                    mora_calcular = val_grav
-                elif dias_retraso >= dias_med:
-                    mora_calcular = val_med
-                elif dias_retraso >= dias_leve:
-                    mora_calcular = val_leve
+                # Calcular Mora Porcentual (Nueva Lógica)
+                # Si los días de retraso superan los días de gracia (mora_leve_dias)
+                if dias_retraso >= dias_leve:
+                    porcentaje = config.mora_porcentaje if config else Decimal('3.00')
+                    mora_calcular = (cuota.valor_capital * porcentaje) / Decimal('100.00')
+                    # Redondear a 2 decimales
+                    mora_calcular = mora_calcular.quantize(Decimal('0.01'), rounding='ROUND_HALF_UP')
 
             # Siempre actualizar estado y mora si está vencido
             cuota.estado = 'VENCIDO'

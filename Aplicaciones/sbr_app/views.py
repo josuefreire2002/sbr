@@ -366,7 +366,8 @@ def descargar_contrato_word(request, pk):
         'metodo_real_pago': metodo_real,
         'datos_bancarios': datos_bancarios,
         'logo_url': logo_url,
-        'base_url': base_url
+        'base_url': base_url,
+        'fecha_actual': date.today()
     }
     
     html_string = render_to_string('reportes/plantilla_contrato.html', context)

@@ -13,6 +13,14 @@ class ConfiguracionSistema(models.Model):
     mora_grave_dias = models.IntegerField(default=20)
     mora_grave_valor = models.DecimalField(max_digits=10, decimal_places=2, default=20.00)
 
+    # Mora Porcentual (Nueva Lógica)
+    mora_porcentaje = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=3.00, 
+        help_text="Porcentaje de mora sobre el capital de la cuota (Ej: 3.00 = 3%)"
+    )
+
     # Datos para el Contrato PDF
     nombre_empresa = models.CharField(max_length=100)
     ruc_empresa = models.CharField(max_length=13)
