@@ -64,3 +64,45 @@ class MoraCalculationTests(TestCase):
         cuota.refresh_from_db()
         self.assertEqual(cuota.estado, 'VENCIDO') # Still "VENCIDO" because it's late
         self.assertEqual(cuota.valor_mora, Decimal('0.00')) # But no financial penalty yet
+
+    def test_mora_exemption_resets_status(self):
+        """Test that exemption resets status to PENDIENTE even if overdue"""
+        contrato = Contrato.objects.create(
+            cliente=self.cliente, lote=self.lote, fecha_contrato=date.today() - timedelta(days=60),
+            precio_venta_final=1200, valor_entrada=0, saldo_a_financiar=1200, numero_cuotas=12
+        )
+        cuota = Cuota.objects.create(
+            contrato=contrato, numero_cuota=1, 
+            fecha_vencimiento=date.today() - timedelta(days=20), # Late
+            valor_capital=Decimal('100.00'), valor_mora=0, estado='PENDIENTE'
+        )
+
+        # 1. First run: Should be VENCIDO with mora
+        actualizar_moras_contrato(contrato.id)
+        cuota.refresh_from_db()
+        self.assertEqual(cuota.estado, 'VENCIDO')
+        self.assertEqual(cuota.valor_mora, Decimal('3.00'))
+
+        # 2. Exempt it
+        cuota.mora_exenta = True
+        cuota.save()
+        
+        # Run logic again
+        actualizar_moras_contrato(contrato.id)
+        cuota.refresh_from_db()
+        
+        # Should be PENDIENTE (Al día) and 0 mora
+        self.assertEqual(cuota.estado, 'PENDIENTE')
+        self.assertEqual(cuota.valor_mora, Decimal('0.00'))
+
+        # 3. Un-exempt it
+        cuota.mora_exenta = False
+        cuota.save()
+        
+        # Run logic again
+        actualizar_moras_contrato(contrato.id)
+        cuota.refresh_from_db()
+        
+        # Back to VENCIDO
+        self.assertEqual(cuota.estado, 'VENCIDO')
+        self.assertEqual(cuota.valor_mora, Decimal('3.00'))
