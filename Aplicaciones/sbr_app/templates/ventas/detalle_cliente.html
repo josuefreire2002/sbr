@@ -186,7 +186,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
                     <tr class="text-uppercase x-small text-muted fw-bold">
-                        <th class="ps-4 text-center">#</th>
+                        <th class="ps-4 text-center">#Cuota</th>
                         <th>Vencimiento</th>
                         <th class="text-end">Cuota Base</th>
                         <th class="text-end">Mora</th>
@@ -198,6 +198,29 @@
                     </tr>
                 </thead>
                 <tbody class="border-top-0">
+                    {% if contrato.valor_entrada > 0 %}
+                    <tr class="bg-success bg-opacity-10 opacity-75">
+                        <td class="ps-4 text-center fw-medium text-muted">Abono</td>
+                        <td class="fw-medium">
+                            {{ contrato.fecha_contrato|date:"d/m/Y" }}
+                        </td>
+                        <td class="text-end text-muted">${{ contrato.valor_entrada|intcomma }}</td>
+                        <td class="text-end text-muted">$0.00</td>
+                        <td class="text-end fw-bold">${{ contrato.valor_entrada|intcomma }}</td>
+                        <td class="text-end text-success fw-medium">${{ contrato.valor_entrada|intcomma }}</td>
+                        <td class="text-end fw-bold text-dark">$0.00</td>
+                        <td class="text-center">
+                            <span class="badge bg-success py-1 px-3">PAGADO</span>
+                        </td>
+                        <td class="text-center pe-4 d-print-none">
+                            <a href="{% url 'descargar_recibo_entrada' contrato.id %}"
+                                class="btn btn-sm btn-outline-primary" target="_blank"
+                                title="Descargar Recibo de Entrada">
+                                <i class="bi bi-file-earmark-pdf"></i> Recibo
+                            </a>
+                        </td>
+                    </tr>
+                    {% endif %}
                     {% for cuota in cuotas %}
                     <tr
                         class="{% if cuota.estado == 'VENCIDO' %}bg-danger bg-opacity-10{% elif cuota.estado == 'PAGADO' %}bg-success bg-opacity-10 opacity-75{% endif %}">

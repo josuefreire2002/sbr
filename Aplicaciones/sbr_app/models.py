@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from .validators import validar_archivo_seguro
+import bleach
 
 class ConfiguracionSistema(models.Model):
     # Moras configurables (días y montos)
@@ -24,7 +26,7 @@ class ConfiguracionSistema(models.Model):
     # Datos para el Contrato PDF
     nombre_empresa = models.CharField(max_length=100)
     ruc_empresa = models.CharField(max_length=13)
-    logo = models.ImageField(upload_to='config/logos/', blank=True, null=True)
+    logo = models.ImageField(upload_to='config/logos/', blank=True, null=True, validators=[validar_archivo_seguro])
 
     def __str__(self):
         return "Configuración General del Sistema"
@@ -33,6 +35,11 @@ class ConfiguracionSistema(models.Model):
 class Perfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
     cedula = models.CharField(max_length=13, unique=True, null=True, blank=True)
+    
+    # Datos Bancarios (Opcionales)
+    numero_cuenta = models.CharField(max_length=20, null=True, blank=True, help_text="Número de cuenta bancaria")
+    banco = models.CharField(max_length=50, null=True, blank=True, help_text="Nombre del Banco")
+    tipo_cuenta = models.CharField(max_length=20, null=True, blank=True, choices=[('AHORROS', 'Ahorros'), ('CORRIENTE', 'Corriente')])
 
     def __str__(self):
         return f"Perfil de {self.user.username}"
@@ -52,7 +59,7 @@ class Lote(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADOS, default='DISPONIBLE')
     
     # Imagen opcional del lote
-    imagen = models.ImageField(upload_to='lotes/', blank=True, null=True, help_text="Foto del lote (opcional)")
+    imagen = models.ImageField(upload_to='lotes/', blank=True, null=True, help_text="Foto del lote (opcional)", validators=[validar_archivo_seguro])
     
     # Ubicación (Opcionales)
     ciudad = models.CharField(max_length=100, blank=True, null=True)
@@ -82,6 +89,12 @@ class Cliente(models.Model):
     direccion = models.TextField()
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        # Sanitización de Inputs (Bleach) - Punto 3.1
+        if self.direccion:
+            self.direccion = bleach.clean(self.direccion, tags=[], attributes={}, strip=True) # Elimina todo HTML
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.apellidos} {self.nombres}"
 
@@ -95,7 +108,7 @@ class Contrato(models.Model):
     # Fecha para reportes (cuando se cerró/canceló/devolvió)
     fecha_cancelacion = models.DateField(null=True, blank=True) 
     
-    archivo_contrato_pdf = models.FileField(upload_to='contratos/', blank=True, null=True)
+    archivo_contrato_pdf = models.FileField(upload_to='contratos/', blank=True, null=True, validators=[validar_archivo_seguro])
     
     # Datos financieros congelados al momento de la venta
     precio_venta_final = models.DecimalField(max_digits=12, decimal_places=2)
@@ -179,10 +192,30 @@ class Pago(models.Model):
     metodo_pago = models.CharField(max_length=20, choices=METODOS)
     
     # Evidencia (Obligatorio por validación si es Transferencia)
-    comprobante_imagen = models.FileField(upload_to='pagos/comprobantes/', blank=True, null=True)
+    comprobante_imagen = models.FileField(upload_to='pagos/comprobantes/', blank=True, null=True, validators=[validar_archivo_seguro])
     
     observacion = models.TextField(blank=True, null=True)
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) # Auditoría
 
+    def save(self, *args, **kwargs):
+        # Sanitización de Inputs (Bleach)
+        if self.observacion:
+            self.observacion = bleach.clean(self.observacion, tags=[], attributes={}, strip=True)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Pago ${self.monto} - {self.contrato}"
+class LogActividad(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    accion = models.CharField(max_length=255) # Ej: "Login Exitoso", "Vio CV de Juan"
+    detalle = models.TextField(blank=True, null=True) # JSON o texto extra
+    fecha = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    def __str__(self):
+        return f"[{self.fecha.strftime('%Y-%m-%d %H:%M')}] {self.usuario} - {self.accion}"
+
+    class Meta:
+        verbose_name = "Log de Actividad"
+        verbose_name_plural = "Logs de Actividad"
+        ordering = ['-fecha']

@@ -374,6 +374,7 @@
 
     <!-- Sidebar -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    {% if user.is_authenticated %}
     <aside id="sidebar" class="d-print-none">
         <div class="sidebar-header d-flex flex-column align-items-center py-4">
             <img src="{% static 'img/logo_ugsha.png' %}" alt="Logo" style="width: 80%; max-width: 180px; height: auto;"
@@ -413,17 +414,19 @@
 
                 <div class="px-4 mt-2 mb-1 text-uppercase small fw-bold text-white-50 menu-category">
                     Configuración</div>
-                <a class="nav-link" href="/admin">
+                <a class="nav-link" href="/panel_gestion_seguro/">
                     <i class="bi bi-gear"></i> <span class="sidebar-text">Panel Admin</span>
                 </a>
                 {% endif %}
             </nav>
         </div>
     </aside>
+    {% endif %}
 
     <!-- Main Wrapper -->
     <div id="main-content">
         <!-- Top Navbar -->
+        {% if user.is_authenticated %}
         <header id="top-navbar" class="d-print-none">
             <button class="btn btn-light me-3" id="sidebar-toggle" onclick="toggleSidebar()">
                 <i class="bi bi-list"></i>
@@ -464,6 +467,7 @@
                 </div>
             </div>
         </header>
+        {% endif %}
 
         <!-- Main Content -->
         <main class="p-4 overflow-x-hidden">

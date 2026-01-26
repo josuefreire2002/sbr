@@ -120,7 +120,7 @@
         identidad <span class="bold">Nº 050289591-5</span>, Apoderado Especial
         de los propietarios de <span class="bold uppercase">USHCA INMOBILIARIOS</span>, por sus propios derechos; y, por
         otra parte,
-        el/la  señor/a <span class="bold uppercase">{{ cliente.apellidos }} {{ cliente.nombres }}</span>, con
+        el/la señor/a <span class="bold uppercase">{{ cliente.apellidos }} {{ cliente.nombres }}</span>, con
         cédula de identidad <span class="bold">Nº {{ cliente.cedula }}</span>, en calidad de contratantes, también por
         sus propios derechos, todos Los comparecientes declaran ser mayores de edad y con capacidad legal para
         contratar,
@@ -155,7 +155,8 @@
 
     <p>
         <span class="bold">SEGUNDA.</span> - Con estos antecedentes <span class="bold">EL VENDEDOR</span> se obliga a
-        vender a <span class="bold">EL/LA CONTRATANTE</span> el <span class="bold">LOTE Nº {{ lote.numero_lote }}</span> de
+        vender a <span class="bold">EL/LA CONTRATANTE</span> el <span class="bold">LOTE Nº {{ lote.numero_lote }}</span>
+        de
         la manzana <span class="bold">{{ lote.manzana }}</span>, de <span class="bold">UGSHA INMOBILIARIA</span>,
         con una superficie aproximada de <span class="bold">{{ lote.dimensiones }} metros cuadrados</span>, identificado
         en el plano general del proyecto <br>
@@ -189,8 +190,27 @@
 
         {% if metodo_real_pago == 'TRANSFERENCIA BANCARIA' %}
         <p class="center bold">
+            <span class="bold">Transferencia bancaria desde la cuenta de {{ cliente.apellidos }} {{ cliente.nombres }}
+                con los siguientes datos</span>
             BANCO: {{ datos_bancarios.banco|default:"(NO IDENTIFICADO)" }} &nbsp;&nbsp;&nbsp;&nbsp;
             &nbsp;&nbsp;&nbsp;&nbsp; Número de Cuenta: {{ datos_bancarios.cuenta|default:"(NO IDENTIFICADO)" }}
+            Hacia la cuenta de GUILLERMO UGSHA ILAQUICHE con los siguientes datos:
+            <br>
+            BANCO: {{ datos_bancarios.banco|default:"(NO IDENTIFICADO)" }} &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp; Número de Cuenta: {{ datos_bancarios.cuenta|default:"(NO IDENTIFICADO)" }}
+            Tipo de Cuenta: {{ datos_bancarios.tipo_cuenta|default:"(NO IDENTIFICADO)" }}
+
+        </p>
+        {% endif %}
+
+        {% if metodo_real_pago == 'DEPÓSITO' %}
+        <p class="center bold">
+            <span class="bold">Depósito bancario en la cuenta de GUILLERMO UGSHA ILAQUICHE con los
+                siguientes datos</span><br>
+            BANCO: {{ contrato.cliente.vendedor.perfil.banco|default:"(NO REGISTRADO)" }} &nbsp;&nbsp;&nbsp;&nbsp;
+            Tipo de Cuenta: {{ contrato.cliente.vendedor.perfil.get_tipo_cuenta_display|default:"(NO REGISTRADO)" }}
+            <br>
+            Número de Cuenta: {{ contrato.cliente.vendedor.perfil.numero_cuenta|default:"(NO REGISTRADO)" }}
         </p>
         {% endif %}
 

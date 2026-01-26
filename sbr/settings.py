@@ -14,6 +14,23 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+# Recaptcha Settings
+RECAPTCHA_PUBLIC_KEY = (os.getenv('RECAPTCHA_PUBLIC_KEY') or '').strip()
+RECAPTCHA_PRIVATE_KEY = (os.getenv('RECAPTCHA_PRIVATE_KEY') or '').strip()
+SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error'] # Silenciar alerta de claves de prueba
+
+# Configuración de Axes (Seguridad contra Fuerza Bruta)
+AXES_FAILURE_LIMIT = 5            # Bloquear tras 5 intentos fallidos
+AXES_COOLOFF_TIME = 1             # Bloquear por 1 hora
+AXES_RESET_ON_SUCCESS = True      # Resetear contador al entrar bien
+# AXES_LOCKOUT_TEMPLATE = 'lockout.html'  # Opcional
+
+# Configuración correcta de Backends de Autenticación
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend', # Backend de Axes (Primero)
+    'django.contrib.auth.backends.ModelBackend', # Backend por defecto de Django
+]
+
 # 1. Primero definimos la ruta base (BASE_DIR)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,7 +48,8 @@ load_dotenv(env_path)
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DJANGO_ENV', 'development') == 'development'
+# Secure by default: If DJANGO_ENV is not set, DEBUG will be False
+DEBUG = os.getenv('DJANGO_ENV') == 'development'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
@@ -47,10 +65,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'axes', # Protección contra ataques de fuerza bruta
+    'django_recaptcha', # Google Recaptcha
     'Aplicaciones.sbr_app',
 ]
 
 MIDDLEWARE = [
+    'sbr.middleware.ForceCSPMiddleware', # CSP Personalizado (Primero)
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware', # Middleware de Axes
 ]
 
 ROOT_URLCONF = 'sbr.urls'
@@ -95,14 +117,14 @@ else:
     # Ruta local para desarrollo
     DATABASES = {
         'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sbr',
-        'USER': 'django_ats',
-        'PASSWORD': 'Kawsay_2025!!$$$',
-        'HOST': 'localhost',
-        'PORT': '3306',
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.getenv('DB_NAME', 'sbr'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '3306'),
+        }
     }
-}
 
 
 # Password validation
@@ -151,6 +173,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Configuración de Login
 LOGIN_REDIRECT_URL = 'dashboard'  # A donde va al iniciar sesión
 LOGOUT_REDIRECT_URL = 'login'     # A donde va al salir
+
+# Gestión de Sesiones (Seguridad 4.1)
+SESSION_COOKIE_AGE = 900        # 15 minutos (en segundos)
+SESSION_SAVE_EVERY_REQUEST = True # Reiniciar contador si hay actividad (Inactividad real)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # Cerrar sesión al cerrar navegador
 
 # Configuraciones de seguridad para producción
 if not DEBUG:

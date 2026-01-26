@@ -29,6 +29,7 @@ urlpatterns = [
     # --- REPORTES Y ARCHIVOS ---
     # Ruta para descargar el PDF generado (WeasyPrint)
     path('contrato/<int:pk>/descargar-pdf/', views.descargar_contrato_pdf, name='descargar_pdf'),
+    path('contrato/<int:pk>/descargar-recibo-entrada/', views.descargar_recibo_entrada_pdf, name='descargar_recibo_entrada'),
     path('contrato/<int:pk>/descargar-word/', views.descargar_contrato_word, name='descargar_word'),
     
     # Ruta para ver el recibo de transferencia (imagen)

@@ -18,7 +18,8 @@ from .models import Cliente, Lote, Contrato, Pago, Cuota, ConfiguracionSistema
 from .services import (
     generar_tabla_amortizacion, 
     registrar_pago_cliente, 
-    generar_pdf_contrato
+    generar_pdf_contrato,
+    generar_recibo_entrada_buffer
 )
 
 # ==========================================
@@ -119,7 +120,7 @@ def crear_venta_view(request):
                 fecha_pago_input = request.POST.get('fecha_primer_pago')
 
                 # 4. GENERAR LÓGICA
-                generar_tabla_amortizacion(contrato.id)
+                generar_tabla_amortizacion(contrato.id, fecha_inicio_pago_str=fecha_pago_input)
                 actualizar_moras_contrato(contrato.id)
                 generar_pdf_contrato(contrato.id)
 
@@ -298,6 +299,17 @@ def descargar_contrato_pdf(request, pk):
         return FileResponse(contrato.archivo_contrato_pdf.open(), as_attachment=True, filename=f"Contrato_{contrato.id}.pdf")
     else:
         return HttpResponse("El PDF no se encuentra disponible.", status=404)
+
+@login_required
+def descargar_recibo_entrada_pdf(request, pk):
+    """
+    Genera y descarga el recibo de pago de entrada al vuelo.
+    """
+    buffer = generar_recibo_entrada_buffer(pk)
+    if not buffer:
+        return HttpResponse("Error al generar el recibo PDF.", status=500)
+    
+    return FileResponse(buffer, as_attachment=True, filename=f"Recibo_Entrada_{pk}.pdf")
 
 @login_required
 def descargar_contrato_word(request, pk):

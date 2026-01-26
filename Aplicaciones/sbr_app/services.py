@@ -70,17 +70,13 @@ def generar_tabla_amortizacion(contrato_id, fecha_inicio_pago_str=None):
     lista_cuotas_a_crear = []
     
     # Lógica de Fecha de Inicio
-    # NOTA: Comentado temporalmente para pruebas de mora
-    # TODO: Descomentar cuando las pruebas de mora estén completas
     if fecha_inicio_pago_str:
         try:
             fecha_base = datetime.strptime(fecha_inicio_pago_str, '%Y-%m-%d').date()
         except ValueError:
-            # fecha_base = contrato.fecha_contrato + relativedelta(months=1)  # <-- Original
-            fecha_base = contrato.fecha_contrato  # <-- Temporal para pruebas
+             fecha_base = contrato.fecha_contrato + relativedelta(months=1)
     else:
-        # fecha_base = contrato.fecha_contrato + relativedelta(months=1)  # <-- Original
-        fecha_base = contrato.fecha_contrato  # <-- Temporal para pruebas
+        fecha_base = contrato.fecha_contrato + relativedelta(months=1)
 
     for i in range(1, plazo_meses + 1):
         # La cuota 1 es la fecha elegida, la 2 es un mes después, etc.
@@ -318,3 +314,81 @@ def generar_pdf_contrato(contrato_id):
     contrato.archivo_contrato_pdf.save(filename, ContentFile(result_file.getvalue()))
     
     return contrato.archivo_contrato_pdf.url
+
+
+# ==========================================
+# 5. GENERADOR DE RECIBO DE ENTRADA
+# ==========================================
+def _parse_bank_details(observacion):
+    """
+    Helper para extraer datos bancarios de la observación del pago.
+    """
+    datos_bancarios = None
+    if "Banco:" in observacion and "Cuenta/Comp:" in observacion:
+        try:
+            resto_banco = observacion.split("Banco:")[1]
+            if ". Cuenta/Comp:" in resto_banco:
+                parte_banco, _, parte_cuenta = resto_banco.partition(". Cuenta/Comp:")
+                datos_bancarios = {
+                    'banco': parte_banco.strip(),
+                    'cuenta': parte_cuenta.rstrip(".").strip()
+                }
+            else:
+                parte_banco = resto_banco.split("Cuenta/Comp:")[0].strip().rstrip(".")
+                parte_cuenta = resto_banco.split("Cuenta/Comp:")[1].strip().rstrip(".")
+                datos_bancarios = {
+                    'banco': parte_banco,
+                    'cuenta': parte_cuenta
+                }
+        except Exception:
+            pass
+    return datos_bancarios
+
+def generar_recibo_entrada_buffer(contrato_id):
+    """
+    Genera el PDF del recibo de entrada y retorna el buffer (BytesIO).
+    """
+    contrato = Contrato.objects.get(id=contrato_id)
+    config = ConfiguracionSistema.objects.first()
+    
+    pago_entrada = contrato.pago_set.order_by('id').first()
+    
+    metodo_real = 'EFECTIVO'
+    datos_bancarios = None
+
+    if pago_entrada:
+        obs = pago_entrada.observacion or ""
+        if 'TRANSFERENCIA' in obs:
+            metodo_real = 'TRANSFERENCIA BANCARIA'
+            datos_bancarios = _parse_bank_details(obs)
+        elif 'DEPOSITO' in obs:
+            metodo_real = 'DEPÓSITO'
+        elif pago_entrada.metodo_pago == 'EFECTIVO':
+            metodo_real = 'EFECTIVO'
+
+    context = {
+        'contrato': contrato,
+        'cliente': contrato.cliente,
+        'empresa': config,
+        'metodo_real_pago': metodo_real,
+        'datos_bancarios': datos_bancarios,
+        'fecha_actual': datetime.now(),
+        'base_url': settings.BASE_URL if hasattr(settings, 'BASE_URL') else 'http://127.0.0.1:8000',
+    }
+    
+    html_string = render_to_string('reportes/recibo_entrada.html', context)
+    
+    from io import BytesIO
+    result_file = BytesIO()
+    
+    pisa_status = pisa.CreatePDF(
+        html_string,
+        dest=result_file,
+        link_callback=link_callback 
+    )
+
+    if pisa_status.err:
+        return None
+        
+    result_file.seek(0)
+    return result_file
