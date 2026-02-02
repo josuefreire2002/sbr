@@ -9,232 +9,125 @@
     <style>
         @page {
             size: A5 landscape;
-            /* Formato recibo horizontal o A4 vertical cortado */
-            margin: 1cm;
+            margin: 5mm;
         }
 
         body {
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 11pt;
-            line-height: 1.3;
-            color: #333;
-        }
-
-        .header {
-            width: 100%;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        .header-table {
-            width: 100%;
-        }
-
-        .company-name {
-            font-size: 18pt;
-            font-weight: bold;
-            color: #2c3e50;
-            text-transform: uppercase;
-        }
-
-        .company-info {
+            font-family: Arial, sans-serif;
             font-size: 9pt;
-            color: #555;
+            margin: 0;
+            padding: 0;
         }
 
-        .receipt-title {
-            text-align: right;
-            font-size: 16pt;
-            font-weight: bold;
-            color: #2c3e50;
+        table {
+            border-collapse: collapse;
         }
 
-        .receipt-number {
-            text-align: right;
-            font-size: 12pt;
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        .content-box {
-            width: 100%;
-            border: 1px solid #ddd;
-            padding: 15px;
-            background-color: #f9f9f9;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-
-        .row {
-            margin-bottom: 8px;
-        }
-
-        .label {
-            font-weight: bold;
-            display: inline-block;
-            width: 140px;
-            color: #555;
-        }
-
-        .value {
-            display: inline-block;
-            color: #000;
-            font-weight: normal;
-        }
-
-        .amount-box {
-            float: right;
-            background-color: #e8f6f3;
-            border: 1px solid #1abc9c;
-            color: #16a085;
-            padding: 10px 20px;
-            font-size: 16pt;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-
-        .signatures {
-            margin-top: 40px;
-            width: 100%;
-        }
-
-        .sig-table {
-            width: 100%;
-        }
-
-        .sig-cell {
-            width: 50%;
-            text-align: center;
+        td {
             vertical-align: top;
-        }
-
-        .sig-line {
-            border-top: 1px solid #333;
-            width: 70%;
-            margin: 0 auto 5px auto;
-        }
-
-        .sig-name {
-            font-weight: bold;
-            font-size: 10pt;
-            text-transform: uppercase;
-        }
-
-        .sig-role {
-            font-size: 9pt;
-            color: #777;
-        }
-
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 8pt;
-            color: #aaa;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
         }
     </style>
 </head>
 
 <body>
-
-    <div class="header">
-        <table class="header-table">
-            <tr>
-                <td style="vertical-align: top;">
-                    <!-- Intentar usar logo si existe, sino solo texto -->
-                    <div class="company-name">UGSHA INMOBILIARIOS</div>
-                    <div class="company-info">
-                        RUC: 050289591-5<br>
-                        Dir: Av. 19 de Mayo, Sector El Moral, La Maná<br>
-                        Representante: Sr. Guillermo Ugsha Ilaquiche
-                    </div>
-                </td>
-                <td style="vertical-align: top; text-align: right;">
-                    <div class="receipt-title">RECIBO DE ENTRADA</div>
-                    <div class="receipt-number">Nº {{ contrato.id }}-ENT</div>
-                    <br>
-                    <div style="font-size: 10pt;">
-                        <strong>FECHA:</strong> {{ contrato.fecha_contrato|date:"d/m/Y" }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="content-box">
-        <!-- Amount Box floating right -->
-        <div class="amount-box">
-            $ {{ contrato.valor_entrada|floatformat:2|intcomma }}
-        </div>
-
-        <div class="row">
-            <span class="label">RECIBÍ DE:</span>
-            <span class="value text-uppercase"><strong>{{ cliente.apellidos }} {{ cliente.nombres }}</strong></span>
-        </div>
-        <div class="row">
-            <span class="label">C.I. / RUC:</span>
-            <span class="value">{{ cliente.cedula }}</span>
-        </div>
-        <div class="row">
-            <span class="label">LA SUMA DE:</span>
-            <span class="value" style="font-style: italic;">{{ contrato.valor_entrada|numero_a_letras }} DÓLARES
-                AMERICANOS</span>
-        </div>
-        <div class="row">
-            <span class="label">POR CONCEPTO DE:</span>
-            <span class="value">COMPRA DE LOTE - MZ. {{ contrato.lote.manzana }} LOTE {{ contrato.lote.numero_lote
-                }}</span>
-        </div>
-    </div>
-
-    <div class="content-box">
-        <div class="row">
-            <span class="label">FORMA DE PAGO:</span>
-            <span class="value text-uppercase"><strong>{{ metodo_real_pago }}</strong></span>
-        </div>
-
+    <table width="100%" border="2" cellpadding="8" cellspacing="0" style="border-color: #1a4480;">
+        <!-- HEADER ROW -->
+        <tr>
+            <td width="65%" style="border: none; border-bottom: 1px solid #ccc;">
+                <span style="font-size: 14pt; font-weight: bold; color: #1a4480;">UGSHA INMOBILIARIOS</span><br>
+                <span style="font-size: 7pt; color: #555;">
+                    RUC: 050289591-5 | Av. 19 de Mayo, Sector El Moral, La Maná | Tel: 098 553 6655
+                </span>
+            </td>
+            <td width="35%" style="border: none; border-bottom: 1px solid #ccc; text-align: right;">
+                <span style="font-size: 12pt; font-weight: bold; color: #1a4480;">RECIBO DE ENTRADA</span><br>
+                <span style="font-size: 14pt; font-weight: bold; color: #c00;">Nº {{ contrato.id }}</span><br>
+                <span style="font-size: 8pt;"><b>Fecha:</b> {{ contrato.fecha_contrato|date:"d/m/Y" }}</span>
+            </td>
+        </tr>
+        <!-- AMOUNT ROW -->
+        <tr>
+            <td colspan="2" style="border: none; background-color: #d4edda; text-align: center; padding: 6px;">
+                <span style="font-size: 14pt; font-weight: bold; color: #155724;">
+                    $ {{ contrato.valor_entrada|floatformat:2|intcomma }}
+                </span>
+            </td>
+        </tr>
+        <!-- DATA ROWS -->
+        <tr>
+            <td colspan="2" style="border: none; padding: 4px 8px;">
+                <b>RECIBÍ DE:</b> {{ cliente.apellidos }} {{ cliente.nombres }}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: none; padding: 4px 8px;">
+                <b>CÉDULA/RUC:</b> {{ cliente.cedula }}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: none; padding: 4px 8px;">
+                <b>LA SUMA DE:</b> <i>{{ contrato.valor_entrada|numero_a_letras }} DÓLARES AMERICANOS</i>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: none; padding: 4px 8px;">
+                <b>POR CONCEPTO DE:</b> Entrada para LOTE Mz. {{ contrato.lote.manzana }} - Nº
+                {{ contrato.lote.numero_lote }}
+            </td>
+        </tr>
+        <!-- PAYMENT METHOD -->
+        <tr>
+            <td colspan="2" style="border: none; background-color: #fff3cd; text-align: center; padding: 6px;">
+                <b>FORMA DE PAGO: {{ metodo_real_pago }}</b>
+            </td>
+        </tr>
         {% if metodo_real_pago == 'TRANSFERENCIA BANCARIA' %}
-        <div class="row">
-            <span class="label">DETALLES:</span>
-            <span class="value">
-                Banco: {{ datos_bancarios.banco|default:"--" }} |
-                Cuenta/Comp: {{ datos_bancarios.cuenta|default:"--" }}
-            </span>
-        </div>
+        <tr>
+            <td colspan="2" style="border: none; padding: 4px 8px; background-color: #f0f8ff; font-size: 8pt;">
+                <b>Transferencia desde:</b> {{ cliente.apellidos }} {{ cliente.nombres }}<br>
+                <b>Banco origen:</b> {{ datos_bancarios.banco|default:"(NO IDENTIFICADO)" }} |
+                <b>Nº Cuenta:</b> {{ datos_bancarios.cuenta|default:"(NO IDENTIFICADO)" }}<br>
+                <b>Hacia la cuenta de:</b> GUILLERMO UGSHA ILAQUICHE<br>
+                <b>Banco destino:</b> {{ contrato.cliente.vendedor.perfil.banco|default:"BANCO PICHINCHA" }} |
+                <b>Tipo:</b> {{ contrato.cliente.vendedor.perfil.get_tipo_cuenta_display|default:"AHORROS" }} |
+                <b>Nº Cuenta:</b> {{ contrato.cliente.vendedor.perfil.numero_cuenta|default:"2206573348" }}
+            </td>
+        </tr>
         {% endif %}
-    </div>
+        {% if metodo_real_pago == 'DEPÓSITO' %}
+        <tr>
+            <td colspan="2" style="border: none; padding: 4px 8px; background-color: #f0f8ff; font-size: 8pt;">
+                <b>Depósito en cuenta de:</b> GUILLERMO UGSHA ILAQUICHE<br>
+                <b>Banco:</b> {{ contrato.cliente.vendedor.perfil.banco|default:"BANCO PICHINCHA" }} |
+                <b>Tipo de Cuenta:</b> {{ contrato.cliente.vendedor.perfil.get_tipo_cuenta_display|default:"AHORROS"}}
+                <br>
+                <b>Número de Cuenta:</b> {{ contrato.cliente.vendedor.perfil.numero_cuenta|default:"2206573348" }}
+            </td>
+        </tr>
+        {% endif %}
 
-    <div class="signatures">
-        <table class="sig-table">
-            <tr>
-                <td class="sig-cell">
-                    <br><br><br><br>
-                    <div class="sig-line"></div>
-                    <div class="sig-name">GUILLERMO UGSHA ILAQUICHE</div>
-                    <div class="sig-role">RUC: 050289591-5</div>
-                    <br>
-                    <div class="sig-role">Vendedor / Propietario</div>
-                </td>
-                <td class="sig-cell">
-                    <br><br><br><br>
-                    <div class="sig-line"></div>
-                    <div class="sig-name">{{ cliente.apellidos }} {{ cliente.nombres }}</div>
-                    <div class="sig-role">C.I. {{ cliente.cedula }}</div>
-                    <br>
-                    <div class="sig-role">Cliente</div>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="footer">
-        Este documento certifica el pago de la entrada estipulada en el contrato de promesa de compraventa.
-        <br>
-        Generado el {{ fecha_actual|date:"d/m/Y H:i" }} | UGSHA INMOBILIARIOS
-    </div>
-
+        <!-- SIGNATURES -->
+        <tr>
+            <td width="50%" style="border: none; text-align: center; padding-top: 15px;">
+                <div style="border-top: 1px solid #000; width: 80%; margin: 0 auto;"></div>
+                <b style="font-size: 8pt;">GUILLERMO UGSHA ILAQUICHE</b><br>
+                <span style="font-size: 7pt; color: #666;">Propietario - RUC: 050289591-5</span>
+            </td>
+            <td width="50%" style="border: none; text-align: center; padding-top: 15px;">
+                <div style="border-top: 1px solid #000; width: 80%; margin: 0 auto;"></div>
+                <b style="font-size: 8pt;">{{ cliente.apellidos }} {{ cliente.nombres }}</b><br>
+                <span style="font-size: 7pt; color: #666;">Cliente - C.I. {{ cliente.cedula }}</span>
+            </td>
+        </tr>
+        <!-- FOOTER -->
+        <tr>
+            <td colspan="2" style="border: none; text-align: center; border-top: 1px solid #ddd; padding: 3px;">
+                <span style="font-size: 6pt; color: #888;">
+                    Recibo de entrada según contrato de compra-venta | {{ fecha_actual|date:"d/m/Y H:i" }}
+                </span>
+            </td>
+        </tr>
+    </table>
 </body>
 
 </html>
