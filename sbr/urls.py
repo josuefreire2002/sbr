@@ -4,11 +4,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 import os
 from django.contrib.auth.views import LoginView
-from Aplicaciones.sbr_app.forms import LoginForm # Importar nuestro form con Recaptcha
-
-# Asegurar carga de variables si no se han cargado (redundancia segura)
-from dotenv import load_dotenv
-load_dotenv()
 
 urlpatterns = [
     # Panel de Administración (Donde configuras las moras y usuarios)
@@ -16,9 +11,8 @@ urlpatterns = [
     path(os.getenv('ADMIN_URL', 'admin/'), admin.site.urls),
 
     # Sistema de Autenticación (Login/Logout estándar de Django)
-    # Sistema de Autenticación (Login personalizado + Defaults)
-    path('accounts/login/', LoginView.as_view(authentication_form=LoginForm), name='login'), # Interceptar Login
     path('accounts/', include('django.contrib.auth.urls')),
+
 
     # Tu Aplicación Principal (Asumiendo que la llamaste 'core' o 'ventas')
     path('', include('Aplicaciones.sbr_app.urls')), 
