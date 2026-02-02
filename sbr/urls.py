@@ -8,7 +8,7 @@ from django.contrib.auth.views import LoginView
 urlpatterns = [
     # Panel de Administración (Donde configuras las moras y usuarios)
     # Panel de Administración (Ruta Ofuscada)
-    path(os.getenv('ADMIN_URL', 'admin/'), admin.site.urls),
+    path(os.getenv('ADMIN_URL', 'panel_gestion_seguro/'), admin.site.urls),
 
     # Sistema de Autenticación (Login/Logout estándar de Django)
     path('accounts/', include('django.contrib.auth.urls')),
