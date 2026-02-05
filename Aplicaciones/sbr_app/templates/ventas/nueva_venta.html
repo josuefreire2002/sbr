@@ -94,8 +94,8 @@
                     <div class="card-body p-4 text-center d-flex flex-column">
                         <div class="mb-4 text-start">
                             <label class="form-label small fw-bold text-uppercase text-muted">Lotes Disponibles</label>
-                            <select class="form-select select2" name="lote_id" id="select_lote" required>
-                                <option value="">-- Buscar Manzana / Lote --</option>
+                            <select class="form-select select2" name="lote_id" id="select_lote" required
+                                multiple="multiple">
                                 {% for lote in lotes_disponibles %}
                                 <option value="{{ lote.id }}" data-precio="{{ lote.precio_contado }}"
                                     data-dim="{{ lote.dimensiones }}">
@@ -430,23 +430,61 @@
             }
         });
 
-        // 1. Al cambiar lote, llenar precio y dimensiones
-        $('#select_lote').on('select2:select', function (e) {
-            const data = e.params.data.element.dataset;
-            const text = e.params.data.text.split('(')[0]; // Solo MZ y LOTE
+        // 1. Al cambiar lote (selección múltiple), sumar precios y actualizar vista
+        $('#select_lote').on('change', function (e) {
+            const selectedOptions = $(this).select2('data');
 
-            lblPrecioLista.innerText = `$${parseFloat(data.precio).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            lblDimensiones.innerText = data.dim;
-            preview_title.innerText = text;
+            if (selectedOptions && selectedOptions.length > 0) {
+                let totalPrecio = 0;
+                let nombresLotes = [];
+                let primerDim = "";
 
-            // Show details
-            empty_selection.classList.add('d-none');
-            lote_details.classList.remove('d-none');
+                selectedOptions.forEach(function (item) {
+                    // item.element es el <option> original
+                    const precio = parseFloat(item.element.dataset.precio) || 0;
+                    totalPrecio += precio;
 
-            // Auto-llenar el precio final con el precio del lote (siempre)
-            // Convertir formato de coma a punto para input type="number"
-            const precioFormateado = data.precio.toString().replace(',', '.');
-            inputPrecioFinal.value = precioFormateado;
+                    // Limpiar texto para obtener "Mz X - Lote Y"
+                    const textoLimpio = item.text.split('(')[0].trim();
+                    nombresLotes.push(textoLimpio);
+
+                    if (!primerDim) primerDim = item.element.dataset.dim;
+                });
+
+                lblPrecioLista.innerText = `$${totalPrecio.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                // Si hay más de uno, mostramos "Lotes combinados" o la lista
+                if (selectedOptions.length === 1) {
+                    lblDimensiones.innerText = primerDim;
+                } else {
+                    lblDimensiones.innerText = "Múltiples";
+                }
+
+                // Mostrar nombres concatenados en el título
+                // Si son muchos, acortar
+                if (nombresLotes.length > 2) {
+                    preview_title.innerText = `${nombresLotes.length} Lotes Seleccionados`;
+                } else {
+                    preview_title.innerText = nombresLotes.join(' + ');
+                }
+
+                // Show details
+                empty_selection.classList.add('d-none');
+                lote_details.classList.remove('d-none');
+
+                // Auto-llenar el precio final con el precio TOTAL formateado para input
+                // input type="number" usa punto flotante
+                inputPrecioFinal.value = totalPrecio.toFixed(2);
+            } else {
+                // Nada seleccionado
+                lblPrecioLista.innerText = "$0.00";
+                lblDimensiones.innerText = "-";
+                preview_title.innerText = "Sin Lote";
+
+                empty_selection.classList.remove('d-none');
+                lote_details.classList.add('d-none');
+
+                inputPrecioFinal.value = 0;
+            }
 
             calcular();
         });

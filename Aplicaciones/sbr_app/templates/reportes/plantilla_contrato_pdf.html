@@ -147,7 +147,9 @@
         <table class="header-table">
             <tr>
                 <td class="logo-cell">
-                    <img src="{% static 'img/logo_ugsha.png' %}" class="logo-img" alt="Ugsha">
+                    {% if logo_url %}
+                    <img src="{{ logo_url }}" class="logo-img" alt="Ugsha">
+                    {% endif %}
                 </td>
 
                 <td class="titulo-cell">
@@ -166,16 +168,16 @@
 
     <p>
         En la ciudad de La Maná, a los <strong>{{ contrato.fecha_contrato|date:"d" }}</strong> días del mes de
-        <strong>{{ contrato.fecha_contrato|date:"F" }}</strong> de <strong>{{ contrato.fecha_contrato|date:"Y"
-            }}</strong>,
+        <strong>{{ contrato.fecha_contrato|date:"F" }}</strong> de <strong>
+            {{contrato.fecha_contrato|date:"Y"}}</strong>,
         proceden a celebrar de manera libre y voluntaria, el presente contrato de <strong>reserva del lote de
             terreno</strong>,
         por una parte, el señor <strong>GUILLERMO UGSHA ILAQUICHE</strong>, con la cedula de identidad <span
             class="no-break">Nº 050289591-5</span>,
-        en representación legal y propietario del <strong>“PROYECTO DE URBANIZACIÓN LA QUINTA DEL MORAL”</strong>, por
+        en representación legal y propietario del <strong>"PROYECTO DE URBANIZACIÓN LA QUINTA DEL MORAL"</strong>, por
         sus propios derechos;
-        y por otra parte El/la señor/a. <strong>{{ contrato.cliente.apellidos|upper }} {{ contrato.cliente.nombres|upper
-            }}</strong>
+        y por otra parte El/la señor/a. <strong>{{ contrato.cliente.apellidos|upper }} 
+            {{contrato.cliente.nombres|upper}}</strong>
         con la cedula de identidad <span class="no-break">Nº {{ contrato.cliente.cedula }}</span>, en calidad de
         contratantes,
         también por sus propios derechos, todos los comparecientes son mayores de edad, con capacidad para proceder y
@@ -186,7 +188,7 @@
     <p>
         <strong>PRIMERA. –</strong> a) El señor. <strong>GUILLERMO UGSHA ILAQUICHE</strong>; Es propietario de un lote
         de terreno, ubicado en Cantón La Maná, sector el Moral. Bien Inmueble en el cual se desarrolla el
-        <strong>“PROYECTO DE URBANIZACIÓN LA QUINTA DEL MORAL”</strong>, b) El mencionado proyecto se encuentra con la
+        <strong>"PROYECTO DE URBANIZACIÓN LA QUINTA DEL MORAL"</strong>, b) El mencionado proyecto se encuentra con la
         aprobación definitiva del <strong>GAD Municipal De Cantón La Maná</strong>. c) El/la señor/a. <strong>
             {{ contrato.cliente.apellidos|upper }} {{ contrato.cliente.nombres|upper }}</strong> con la cedula de
         identidad
@@ -197,13 +199,16 @@
 
     <p>
         <strong>SEGUNDA. -</strong> Con estos antecedentes El/la señor/a. <strong>{{ contrato.cliente.apellidos|upper }}
-            {{ contrato.cliente.nombres|upper }}</strong> con la cedula de identidad Nº <strong>{{
-            contrato.cliente.cedula }}</strong>,
-        por sus propios y personales derechos, libre y voluntariamente, reserva para sí, <strong>un Lote de
-            terreno</strong>, signado
-        <strong># {{ contrato.lote.numero }} de la MZ {{ contrato.lote.manzana }}</strong> con una superficie total de
-        <strong>{{ contrato.lote.area }}mt2</strong>, del <strong>“PROYECTO DE URBANIZACIÓN LA QUINTA DEL
-            MORAL”</strong>,
+            {{ contrato.cliente.nombres|upper }}</strong> con la cedula de identidad Nº <strong>
+            {{contrato.cliente.cedula }}</strong>,
+        por sus propios y personales derechos, libre y voluntariamente, reserva para sí, <strong>
+            {% if contrato.lotes.count > 1 %}los Lotes de terreno{% else %}un Lote de terreno{% endif %}
+        </strong>, {% if contrato.lotes.count > 1 %}signados{% else %}signado{% endif %}
+        {% for lote in contrato.lotes.all %}
+        <strong># {{ lote.numero_lote }} de la MZ {{ lote.manzana }}</strong> con una superficie total de <strong>
+            {{lote.dimensiones }}</strong>{% if not forloop.last %}, {% endif %}{% endfor %}, del <strong>"PROYECTO DE
+            URBANIZACIÓN LA QUINTA DEL
+            MORAL"</strong>,
         ubicado en la ciudad de La Maná; y declara conocer que el referido proyecto se encuentra con la aprobación
         definitiva,
         al cumplimento a las ordenanzas municipales del mismo Cantón.
@@ -220,9 +225,9 @@
 
     <p>
         <strong>CUARTA. –</strong> Precio y forma de pago, pactado para la presente separación del lote de terreno
-        especificado en la cláusula segunda; es de <strong>$ {{ contrato.precio_final|intcomma }}</strong>
-        ({{ contrato.precio_final_texto }}) dólares americanos. Pagaderos de la siguiente forma los
-        <strong>$ {{ contrato.valor_entrada|intcomma }}</strong> ({{ contrato.valor_entrada_texto }} dólares
+        especificado en la cláusula segunda; es de <strong>$ {{ contrato.precio_venta_final|intcomma }}</strong>
+        ({{contrato.precio_venta_final|numero_a_letras }}) dólares americanos. Pagaderos de la siguiente forma los
+        <strong>$ {{ contrato.valor_entrada|intcomma }}</strong> ({{ contrato.valor_entrada|numero_a_letras }} dólares
         americanos), se cancelará en la firma del presente contrato, y la diferencia en {{ contrato.numero_cuotas }}
         pagos mensuales.
     </p>
@@ -242,8 +247,8 @@
     </p>
 
     <p>
-        <strong>SÉPTIMA. -</strong> Los contratantes declara conocer que el <strong>“PROYECTO DE URBANIZACIÓN LA QUINTA
-            DEL MORAL”</strong>, se encuentra con la aprobación definitiva, que el presente contrato no constituye
+        <strong>SÉPTIMA. -</strong> Los contratantes declara conocer que el <strong>"PROYECTO DE URBANIZACIÓN LA QUINTA
+            DEL MORAL"</strong>, se encuentra con la aprobación definitiva, que el presente contrato no constituye
         privado de promesa de compraventa y que desiste de proseguir acción alguna contemplada en el artículo 201 del
         COIP, y lo que busca es congelar el precio pacto sobre la reserva de lotes de terreno tantas veces referido; y
         que, en todo caso, el presente documento constituya un título ejecutivo, con el fin de garantizar las
@@ -259,26 +264,31 @@
         Para constancia de todo lo estipulado, los contratos suscriben el presente, en dos ejemplares idénticos, en el
         mismo lugar y fecha ya indicados.
     </p>
-
+    <br><br><br><br><br><br><br><br>
     <div class="firmas-container">
         <table class="firmas">
             <tr>
                 <td class="firma-col">
-                    <div class="linea-firma"></div>
-                    <div class="firma-texto">
-                        <strong>Sr. GUILLERMO UGSHA ILQ.</strong><br>
-                        C.I. 050289591-5<br>
-                        <small><strong>PROMITENTE VENDEDOR</strong></small>
+                    <div class="linea-firma">
+                        <div class="firma-texto">
+                            <br>
+                            <strong>Sr. GUILLERMO UGSHA ILQ.</strong><br>
+                            C.I. 050289591-5<br>
+                            <small><strong>PROMITENTE VENDEDOR</strong></small>
+                        </div>
                     </div>
                 </td>
                 <td class="firma-col">
-                    <div class="linea-firma"></div>
-                    <div class="firma-texto">
-                        <strong>Sr. {{ contrato.cliente.apellidos|upper }} {{ contrato.cliente.nombres|upper
-                            }}</strong><br>
-                        C.I. {{ contrato.cliente.cedula }}<br>
-                        <small><strong>PROMITENTE COMPRADOR</strong></small>
+                    <div class="linea-firma">
+                        <div class="firma-texto">
+                            <br>
+                            <strong>Sr/a. {{ contrato.cliente.apellidos|upper }} {{ contrato.cliente.nombres|upper}}
+                            </strong><br>
+                            C.I. {{ contrato.cliente.cedula }}<br>
+                            <small><strong>PROMITENTE COMPRADOR</strong></small>
+                        </div>
                     </div>
+
                 </td>
             </tr>
         </table>

@@ -35,17 +35,17 @@
                             <!-- Status actions (smaller) -->
                             <button type="button" class="btn btn-sm btn-outline-success"
                                 onclick="if(confirm('¿Estás seguro de CULMINAR este contrato?')) document.getElementById('formCerrar').submit();"
-                                {% if contrato.estado != 'ACTIVO' or not puede_cerrar %}disabled{% endif %}>
+                                {% if contrato.estado !='ACTIVO' or not puede_cerrar %}disabled{% endif %}>
                                 <i class="bi bi-check-circle"></i> Culminar
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-danger"
                                 onclick="if(confirm('¿Cancelar este contrato?')) document.getElementById('formCancelar').submit();"
-                                {% if contrato.estado != 'ACTIVO' %}disabled{% endif %}>
+                                {% if contrato.estado !='ACTIVO' %}disabled{% endif %}>
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-warning"
                                 onclick="if(confirm('¿Registrar devolución?')) document.getElementById('formDevolucion').submit();"
-                                {% if contrato.estado != 'ACTIVO' %}disabled{% endif %}>
+                                {% if contrato.estado !='ACTIVO' %}disabled{% endif %}>
                                 <i class="bi bi-arrow-counterclockwise"></i> Devolución
                             </button>
 
@@ -53,9 +53,8 @@
                             <div class="vr d-none d-lg-block mx-1" style="height: 24px;"></div>
 
                             <!-- Primary actions -->
-                            <a href="{% url 'descargar_pdf' contrato.id %}" class="btn btn-outline-primary"
-                                target="_blank">
-                                <i class="bi bi-file-earmark-pdf"></i> Contrato (PDF)
+                            <a href="{% url 'descargar_word' contrato.id %}" class="btn btn-outline-primary">
+                                <i class="bi bi-file-earmark-word"></i> Contrato
                             </a>
                             <a href="{% url 'registrar_pago' contrato.id %}" class="btn btn-primary shadow-sm">
                                 <i class="bi bi-cash-stack"></i> Registrar Pago

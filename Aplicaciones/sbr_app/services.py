@@ -295,20 +295,15 @@ def generar_pdf_contrato(contrato_id):
         'fecha_actual': date.today(),
     }
     
+    from weasyprint import HTML
+    
     html_string = render_to_string('reportes/plantilla_contrato.html', context)
     
     from io import BytesIO
     result_file = BytesIO()
     
-    # El link_callback actualizado usa 'finders' y funciona en Linux/Windows
-    pisa_status = pisa.CreatePDF(
-        html_string,
-        dest=result_file,
-        link_callback=link_callback 
-    )
-
-    if pisa_status.err:
-        return None
+    base_url = settings.BASE_URL if hasattr(settings, 'BASE_URL') else 'http://127.0.0.1:8000'
+    HTML(string=html_string, base_url=base_url).write_pdf(result_file)
 
     filename = f"Contrato_{contrato.id}_{contrato.cliente.apellidos}.pdf"
     contrato.archivo_contrato_pdf.save(filename, ContentFile(result_file.getvalue()))
@@ -372,23 +367,90 @@ def generar_recibo_entrada_buffer(contrato_id):
         'empresa': config,
         'metodo_real_pago': metodo_real,
         'datos_bancarios': datos_bancarios,
+        'saldo_pendiente': contrato.saldo_a_financiar,
         'fecha_actual': datetime.now(),
         'base_url': settings.BASE_URL if hasattr(settings, 'BASE_URL') else 'http://127.0.0.1:8000',
     }
+    
+    from weasyprint import HTML
     
     html_string = render_to_string('reportes/recibo_entrada.html', context)
     
     from io import BytesIO
     result_file = BytesIO()
     
-    pisa_status = pisa.CreatePDF(
-        html_string,
-        dest=result_file,
-        link_callback=link_callback 
-    )
+    base_url = settings.BASE_URL if hasattr(settings, 'BASE_URL') else 'http://127.0.0.1:8000'
+    HTML(string=html_string, base_url=base_url).write_pdf(result_file)
+        
+    result_file.seek(0)
+    return result_file
 
-    if pisa_status.err:
+# ==========================================
+# 6. GENERADOR DE RECIBO DE PAGO MENSUAL
+# ==========================================
+def generar_recibo_pago_buffer(cuota_id):
+    """
+    Genera el PDF del recibo de pago mensual para una cuota y retorna el buffer (BytesIO).
+    """
+    cuota = Cuota.objects.get(id=cuota_id)
+    contrato = cuota.contrato
+    config = ConfiguracionSistema.objects.first()
+    
+    # Verificar que la cuota tenga pagos
+    if cuota.valor_pagado <= 0:
         return None
+    
+    # Obtener fecha y monto del pago principal
+    # Usamos la fecha del último pago si existe, o vencimiento como fallback visual
+    fecha_pago = cuota.fecha_ultimo_pago or cuota.fecha_vencimiento
+    monto_pagado = cuota.valor_pagado
+    
+    # Saldo pendiente global del contrato
+    saldo_pendiente = sum(c.total_a_pagar - c.valor_pagado for c in contrato.cuotas.all())
+    
+    # Determinar método de pago buscando en pagos recientes
+    # Buscamos un pago que coincida con la fecha (aproximación razonable)
+    metodo_real = 'EFECTIVO'
+    datos_bancarios = None
+    
+    # Buscar el pago más reciente que cubra esta cuota
+    pago_asociado = contrato.pago_set.filter(fecha_pago=fecha_pago).order_by('-id').first()
+    
+    if pago_asociado:
+        obs = pago_asociado.observacion or ""
+        if 'TRANSFERENCIA' in obs:
+            metodo_real = 'TRANSFERENCIA BANCARIA'
+            datos_bancarios = _parse_bank_details(obs)
+        elif 'DEPOSITO' in obs:
+            metodo_real = 'DEPÓSITO'
+        elif pago_asociado.metodo_pago == 'EFECTIVO':
+            metodo_real = 'EFECTIVO'
+
+    context = {
+        'contrato': contrato,
+        'cliente': contrato.cliente,
+        'cuota': cuota,
+        'empresa': config,
+        'fecha_pago': fecha_pago,
+        'monto_pagado': monto_pagado,
+        'metodo_real_pago': metodo_real,
+        'datos_bancarios': datos_bancarios,
+        'saldo_pendiente': saldo_pendiente,
+        'fecha_actual': datetime.now(),
+        'base_url': settings.BASE_URL if hasattr(settings, 'BASE_URL') else 'http://127.0.0.1:8000',
+    }
+    
+    from weasyprint import HTML
+    
+    html_string = render_to_string('reportes/recibo_pago_mensual.html', context)
+    
+    from io import BytesIO
+    result_file = BytesIO()
+    
+    # Usamos WeasyPrint para soportar CSS moderno (Flexbox, Grid)
+    # base_url apunta a la raiz para cargar imagenes estaticas
+    base_url = settings.BASE_URL if hasattr(settings, 'BASE_URL') else 'http://127.0.0.1:8000'
+    HTML(string=html_string, base_url=base_url).write_pdf(result_file)
         
     result_file.seek(0)
     return result_file

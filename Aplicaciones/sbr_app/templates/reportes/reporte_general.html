@@ -189,6 +189,7 @@
                             <th class="text-center">Lote</th>
                             <th class="text-end">V/Total</th>
                             <th class="text-end">Entrada</th>
+                            <th class="text-end">Saldo</th>
                             <th class="text-end">Cuota</th>
                             {% for mes in meses %}
                             <th class="text-center">{{ mes.label }}</th>
@@ -223,6 +224,10 @@
                             <td class="text-center">{{ row.lote.numero_lote }}</td>
                             <td class="text-end">${{ row.contrato.precio_venta_final|intcomma }}</td>
                             <td class="text-end">${{ row.contrato.valor_entrada|intcomma }}</td>
+                            <td
+                                class="text-end {% if row.saldo_pendiente > 0 %}text-warning{% elif row.saldo_pendiente == 0 %}text-success{% endif %}">
+                                ${{ row.saldo_pendiente|intcomma }}
+                            </td>
                             <td class="text-end">
                                 {% with primera_cuota=row.contrato.cuotas.first %}
                                 {% if primera_cuota %}
@@ -255,8 +260,9 @@
                     <tfoot>
                         <tr>
                             <td colspan="8" class="text-end fw-bold">TOTALES:</td>
-                            <td class="text-end">-</td> <!-- V/Total -->
-                            <td class="text-end">-</td> <!-- V/Entrada -->
+                            <td class="text-end fw-bold">${{ total_vtotal|intcomma }}</td>
+                            <td class="text-end fw-bold">${{ total_entrada|intcomma }}</td>
+                            <td class="text-end fw-bold">${{ total_saldo|intcomma }}</td>
                             <td class="text-end fw-bold">${{ total_cuotas|floatformat:2|intcomma }}</td>
                             <!-- Cuota -->
                             {% for total in totales_mensuales %}

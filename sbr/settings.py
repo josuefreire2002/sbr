@@ -14,6 +14,12 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+# Configuración de GTK para WeasyPrint en Windows
+GTK_FOLDER = r'C:\Program Files\GTK3-Runtime Win64\bin'
+if os.name == 'nt':
+    if os.path.exists(GTK_FOLDER):
+        os.environ['PATH'] = GTK_FOLDER + ';' + os.environ['PATH']
+
 # Recaptcha Settings
 RECAPTCHA_PUBLIC_KEY = (os.getenv('RECAPTCHA_PUBLIC_KEY') or '').strip()
 RECAPTCHA_PRIVATE_KEY = (os.getenv('RECAPTCHA_PRIVATE_KEY') or '').strip()

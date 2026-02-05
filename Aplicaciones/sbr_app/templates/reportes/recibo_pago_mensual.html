@@ -6,7 +6,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Recibo de Entrada - Contrato {{ contrato.id }}</title>
+    <title>Recibo de Pago - Cuota {{ cuota.numero_cuota }}</title>
     <style>
         /* CONFIGURACIÓN EXACTA DE HOJA */
         @page {
@@ -274,7 +274,7 @@
             </div>
 
             <div class="header-right">
-                <div class="recibo-title">RECIBO<br>DE COBRO</div>
+                <div class="recibo-title">RECIBO<br>DE PAGO</div>
 
                 <div style="display: flex; align-items: flex-end; justify-content: flex-end;">
                     <span
@@ -286,16 +286,16 @@
                             <span style="flex:1">AÑO</span>
                         </div>
                         <div class="date-body">
-                            <div class="d-col">{{ contrato.fecha_contrato|date:"d" }}</div>
-                            <div class="d-col">{{ contrato.fecha_contrato|date:"m" }}</div>
-                            <div class="d-col">{{ contrato.fecha_contrato|date:"Y" }}</div>
+                            <div class="d-col">{{ fecha_pago|date:"d" }}</div>
+                            <div class="d-col">{{ fecha_pago|date:"m" }}</div>
+                            <div class="d-col">{{ fecha_pago|date:"Y" }}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="valor-wrapper">
                     <span style="font-weight: 900; font-size: 12pt;">VALOR $</span>
-                    <div class="valor-box">{{ contrato.valor_entrada|floatformat:2|intcomma }}</div>
+                    <div class="valor-box">{{ monto_pagado|floatformat:2|intcomma }}</div>
                 </div>
             </div>
         </div>
@@ -320,13 +320,13 @@
 
         <div class="form-row">
             <span class="label">La suma de:</span>
-            <div class="input-line">{{ contrato.valor_entrada|numero_a_letras }}</div>
+            <div class="input-line">{{ monto_pagado|numero_a_letras }}</div>
             <span class="label" style="margin-left: 5px;">Dólares.</span>
         </div>
 
         <div class="form-row">
             <span class="label">Por concepto de:</span>
-            <div class="input-line">ENTRADA - {{ contrato.lotes_display }}
+            <div class="input-line">CUOTA Nº {{ cuota.numero_cuota }} - {{ contrato.lotes_display }}
             </div>
         </div>
         <div class="form-row">

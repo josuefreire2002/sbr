@@ -219,7 +219,7 @@
                     </thead>
                     <tbody>
                         {% for cliente in clientes %}
-                        {% with contrato=cliente.contrato_set.first %}
+                        {% with contrato=cliente.contrato_set.last %}
                         <tr class="client-row {% if contrato and contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}table-danger-subtle{% elif contrato and contrato.estado == 'CANCELADO' %}table-warning-subtle{% elif contrato and contrato.estado == 'DEVOLUCION' %}table-secondary-subtle{% endif %}"
                             data-status="{% if contrato and contrato.estado == 'ACTIVO' %}con-contrato{% else %}sin-contrato{% endif %}"
                             data-mora="{% if contrato and contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}en-mora{% else %}al-dia{% endif %}">
@@ -261,7 +261,7 @@
                             <td class="text-center">
                                 {% if contrato %}
                                 <span class="badge bg-info bg-opacity-10 text-info fw-bold">
-                                    {{ contrato.lote.numero_lote }}
+                                    {{ contrato.numeros_lotes_str }}
                                 </span>
                                 {% else %}
                                 -
@@ -270,14 +270,14 @@
 
                             <td class="text-center">
                                 {% if contrato %}
-                                {{ contrato.lote.manzana }}
+                                {{ contrato.manzanas_str }}
                                 {% else %}
                                 -
                                 {% endif %}
                             </td>
 
                             <td class="text-center">
-                                {% if contrato and contrato.lote.imagen %}
+                                {% if contrato and contrato.lote_principal.imagen %}
                                 <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
                                     data-bs-target="#loteImgModal{{ contrato.id }}">
                                     <i class="bi bi-image"></i> Ver
@@ -372,17 +372,17 @@
 
 <!-- Image Modals (outside of table for proper Bootstrap rendering) -->
 {% for cliente in clientes %}
-{% with contrato=cliente.contrato_set.first %}
-{% if contrato and contrato.lote.imagen %}
+{% with contrato=cliente.contrato_set.last %}
+{% if contrato and contrato.lote_principal.imagen %}
 <div class="modal fade" id="loteImgModal{{ contrato.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Mz. {{ contrato.lote.manzana }} - Lote {{ contrato.lote.numero_lote }}</h5>
+                <h5 class="modal-title">Mz. {{ contrato.manzanas_str }} - Lote {{ contrato.numeros_lotes_str }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body text-center p-0">
-                <img src="{{ contrato.lote.imagen.url }}" alt="Foto del lote" class="img-fluid">
+                <img src="{{ contrato.lote_principal.imagen.url }}" alt="Foto del lote" class="img-fluid">
             </div>
         </div>
     </div>
@@ -393,7 +393,7 @@
 
 <!-- Modal for Entry Payment Details -->
 {% for cliente in clientes %}
-{% with contrato=cliente.contrato_set.first %}
+{% with contrato=cliente.contrato_set.last %}
 {% if contrato %}
 {% with pago_entrada=contrato.pago_set.first %}
 {% if pago_entrada and pago_entrada.metodo_pago != 'EFECTIVO' %}

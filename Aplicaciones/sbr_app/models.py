@@ -102,24 +102,24 @@ class Cliente(models.Model):
 class Contrato(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT)
     # Changed from OneToOneField to ForeignKey to allow lote reuse after cancellation/devolucion
-    lote = models.ForeignKey(Lote, on_delete=models.PROTECT)
+    # DEPRECATED: Se eliminará en favor de 'lotes' (M2M)
+    lote = models.ForeignKey(Lote, on_delete=models.PROTECT, null=True, blank=True)
+    
+    # Nuevo campo para múltiples lotes
+    lotes = models.ManyToManyField(Lote, related_name='contratos', blank=True)
     
     fecha_contrato = models.DateField()
     # Fecha para reportes (cuando se cerró/canceló/devolvió)
-    fecha_cancelacion = models.DateField(null=True, blank=True) 
+    fecha_fin_contrato = models.DateField(null=True, blank=True)
     
-    archivo_contrato_pdf = models.FileField(upload_to='contratos/', blank=True, null=True, validators=[validar_archivo_seguro])
+    precio_venta_final = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    valor_entrada = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    # Este saldo inicial servirá de base. 
+    # Si hay múltiples lotes, es la suma de precios - entradas.
+    saldo_a_financiar = models.DecimalField(max_digits=10, decimal_places=2)
     
-    # Datos financieros congelados al momento de la venta
-    precio_venta_final = models.DecimalField(max_digits=12, decimal_places=2)
-    valor_entrada = models.DecimalField(max_digits=12, decimal_places=2)
-    saldo_a_financiar = models.DecimalField(max_digits=12, decimal_places=2)
     numero_cuotas = models.IntegerField()
-    
-    
-    # Campo calculado para facilitar reportes
-    esta_en_mora = models.BooleanField(default=False) 
-
+    # ESTADO: ACTIVO, CANCELADO, FINALIZADO (pagado tod), DEVOLUCION (dinero devuelto)
     ESTADOS_CONTRATO = [
         ('ACTIVO', 'Activo'),
         ('CERRADO', 'Cerrado/Finalizado'),
@@ -128,9 +128,64 @@ class Contrato(models.Model):
         ('DEVOLUCION', 'Devolución'),
     ]
     estado = models.CharField(max_length=20, choices=ESTADOS_CONTRATO, default='ACTIVO')
+    
+    observacion = models.TextField(blank=True, null=True)
+    archivo_contrato_pdf = models.FileField(upload_to='contratos_pdfs/', blank=True, null=True)
+    
+    # Bandera para saber si está en mora actualmente (calculado)
+    esta_en_mora = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Contrato #{self.id} - {self.cliente}"
+
+    @property
+    def lote_principal(self):
+        """Devuelve el primer lote asociado para compatibilidad."""
+        return self.lotes.first() or self.lote
+
+    @property
+    def lotes_display(self):
+        """String concatenado de los lotes: 'Mz A - 1, 2'"""
+        lotes_qs = self.lotes.all()
+        if not lotes_qs.exists() and self.lote:
+            return f"Mz {self.lote.manzana} - Lote {self.lote.numero_lote}"
+            
+        # Agrupar por Manzana
+        grupos = {}
+        for l in lotes_qs:
+            if l.manzana not in grupos:
+                grupos[l.manzana] = []
+            grupos[l.manzana].append(str(l.numero_lote))
+        
+        textos = []
+        for mz, nums in grupos.items():
+            nums_str = ", ".join(nums)
+            textos.append(f"Mz {mz} - Lote(s) {nums_str}")
+            
+        return " / ".join(textos) if textos else "Sin Lote"
+
+    @property
+    def manzanas_str(self):
+        """Devuelve string de manzanas unicas: 'A, B'"""
+        lotes_qs = self.lotes.all()
+        if not lotes_qs.exists() and self.lote:
+            return str(self.lote.manzana)
+        mzs = sorted(list(set(l.manzana for l in lotes_qs)))
+        return ", ".join(mzs)
+
+    @property
+    def numeros_lotes_str(self):
+        """Devuelve string de numeros de lote: '1, 2, 5'"""
+        lotes_qs = self.lotes.all()
+        if not lotes_qs.exists() and self.lote:
+            return str(self.lote.numero_lote)
+        
+        # Opcional: mostrar 'Mz A: 1, 2 / Mz B: 5' si hay mezcla compleja
+        # Para simplificar en columnas separadas, solo listamos números
+        # Si queremos ser precisos cuando hay multiple manzanas, lo mejor es el lotes_display general.
+        # Pero intentaremos listar todos los números.
+        nums = sorted([str(l.numero_lote) for l in lotes_qs], key=lambda x: int(x) if x.isdigit() else x)
+        return ", ".join(nums)
 
 
 class Cuota(models.Model):

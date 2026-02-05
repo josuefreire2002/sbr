@@ -19,7 +19,8 @@ from .services import (
     generar_tabla_amortizacion, 
     registrar_pago_cliente, 
     generar_pdf_contrato,
-    generar_recibo_entrada_buffer
+    generar_recibo_entrada_buffer,
+    generar_recibo_pago_buffer
 )
 
 # ==========================================
@@ -56,23 +57,55 @@ def crear_venta_view(request):
         try:
             with transaction.atomic(): # Transacción segura
                 
-                # 1. CLIENTE (Datos completos del Excel)
-                cliente = Cliente.objects.create(
-                    vendedor=request.user,
-                    cedula=request.POST.get('cedula'),
-                    nombres=request.POST.get('nombres'),
-                    apellidos=request.POST.get('apellidos'),
-                    celular=request.POST.get('celular'),
-                    email=request.POST.get('email'), # Opcional
-                    direccion=request.POST.get('direccion')
-                )
-
-                # 2. LOTE
-                lote_id = request.POST.get('lote_id')
-                lote = Lote.objects.get(id=lote_id)
+                # 1. CLIENTE (Buscar o Crear)
+                cedula = request.POST.get('cedula')
                 
+                # Usamos filter().first() para evitar error si hay múltiples clientes con la misma cédula (base de datos sucia)
+                cliente = Cliente.objects.filter(cedula=cedula).first()
+                
+                if cliente:
+                    # El cliente existe, actualizamos sus datos
+                    created = False
+                else:
+                    # No existe, lo creamos
+                    cliente = Cliente.objects.create(
+                        vendedor=request.user,
+                        cedula=cedula,
+                        nombres=request.POST.get('nombres'),
+                        apellidos=request.POST.get('apellidos'),
+                        celular=request.POST.get('celular'),
+                        email=request.POST.get('email'),
+                        direccion=request.POST.get('direccion')
+                    )
+                    created = True
+                
+                # Si el cliente ya existe (o acabamos de crearlo, aunque redundante, lo aseguramos), actualizamos
+                # Y IMPORTANTE: Lo asignamos al vendedor actual para que le aparezca en su lista
+                cliente.vendedor = request.user
+                
+                if not created:
+                    cliente.nombres = request.POST.get('nombres')
+                    cliente.apellidos = request.POST.get('apellidos')
+                    cliente.celular = request.POST.get('celular')
+                    if request.POST.get('email'):
+                        cliente.email = request.POST.get('email')
+                    cliente.direccion = request.POST.get('direccion')
+                    cliente.save()
+
+                # 2. LOTES (Soporte Múltiple)
+                # Obtenemos la lista de IDs. El select en el HTML debe ser name="lote_id" y multiple
+                lotes_ids = request.POST.getlist('lote_id')
+                if not lotes_ids:
+                     # Fallback por si acaso viene como string único
+                     single_id = request.POST.get('lote_id')
+                     if single_id: lotes_ids = [single_id]
+                
+                lotes_objs = Lote.objects.filter(id__in=lotes_ids)
+                
+                if not lotes_objs.exists():
+                     raise Exception("Debe seleccionar al menos un lote válido.")
+
                 # 3. DATOS ECONÓMICOS Y CONTRATO
-                # Nota: Recibimos fecha manual del formulario
                 fecha_contrato_str = request.POST.get('fecha_contrato') 
                 
                 # 3.1. CAPTURAR MÉTODO DE PAGO ENTRADA
@@ -80,27 +113,28 @@ def crear_venta_view(request):
                 banco_entrada = request.POST.get('banco_entrada')
                 cuenta_entrada = request.POST.get('cuenta_entrada')
                 
-                # Mapeamos DEPOSITO a TRANSFERENCIA para el modelo, pero guardamos el detalle
                 metodo_modelo = 'TRANSFERENCIA' if metodo_entrada in ['TRANSFERENCIA', 'DEPOSITO'] else 'EFECTIVO'
                 
-                # Construimos la observación con los detalles bancarios
                 observacion_pago = f"Pago de Entrada ({metodo_entrada})."
                 if metodo_entrada == 'TRANSFERENCIA':
                     observacion_pago += f" Banco: {banco_entrada}. Cuenta/Comp: {cuenta_entrada}."
+                elif metodo_entrada == 'DEPOSITO':
+                     observacion_pago += f" Depósito. Banco: {banco_entrada}. Comp: {cuenta_entrada}."
 
                 contrato = Contrato.objects.create(
                     cliente=cliente,
-                    lote=lote,
-                    fecha_contrato=fecha_contrato_str, # Usamos la fecha que eligió el usuario
+                    fecha_contrato=fecha_contrato_str,
                     precio_venta_final=Decimal(request.POST.get('precio_final')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP),
                     valor_entrada=Decimal(request.POST.get('entrada')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP),
                     saldo_a_financiar=Decimal(request.POST.get('saldo')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP),
-                    numero_cuotas=int(request.POST.get('plazo'))
+                    numero_cuotas=int(request.POST.get('plazo')),
+                    observacion=request.POST.get('observacion')
                 )
                 
-                # Guardamos la observación del contrato si existe
-                observacion_contrato = request.POST.get('observacion')
-                # contrato.observacion = observacion_contrato # Descomentar si se agrega campo al modelo
+                # Asignar relación M2M y FK temporal
+                contrato.lotes.set(lotes_objs)
+                contrato.lote = lotes_objs.first() # Mantener compatibilidad temporal
+                contrato.save() # Guardar cambios FK
 
                 # 3.2. REGISTRAR PAGO DE ENTRADA
                 if contrato.valor_entrada > 0:
@@ -114,8 +148,10 @@ def crear_venta_view(request):
                         registrado_por=request.user
                     )
 
-                lote.estado = 'VENDIDO'
-                lote.save()
+                # Marcar lotes como vendidos
+                for l in lotes_objs:
+                    l.estado = 'VENDIDO'
+                    l.save()
 
                 fecha_pago_input = request.POST.get('fecha_primer_pago')
 
@@ -150,8 +186,10 @@ def lista_clientes_view(request):
     # Filtro de seguridad: Vendedor solo ve lo suyo
     if request.user.is_superuser:
         clientes = Cliente.objects.all()
+        print(f"DEBUG: Superuser {request.user} viendo TODOS. Total: {clientes.count()}")
     else:
         clientes = Cliente.objects.filter(vendedor=request.user)
+        print(f"DEBUG: Vendedor {request.user} filtrando propios. Total: {clientes.count()}")
     
     return render(request, 'ventas/lista_clientes.html', {'clientes': clientes})
 
@@ -224,14 +262,17 @@ def cancelar_contrato_view(request, pk):
     
     if request.method == 'POST':
         contrato.estado = 'CANCELADO'
-        contrato.fecha_cancelacion = date.today()
+        contrato.fecha_fin_contrato = date.today()
         contrato.save()
         
-        # Liberar el lote
-        contrato.lote.estado = 'DISPONIBLE'
-        contrato.lote.save()
+        # Liberar TODOS los lotes asociados al contrato
+        for lote in contrato.lotes.all():
+            lote.estado = 'DISPONIBLE'
+            lote.save()
         
-        messages.warning(request, f"¡Contrato #{contrato.id} ha sido cancelado! El lote está disponible nuevamente.")
+        cant_lotes = contrato.lotes.count()
+        lotes_text = "lote" if cant_lotes == 1 else "lotes"
+        messages.warning(request, f"¡Contrato #{contrato.id} ha sido cancelado! {cant_lotes} {lotes_text} ahora disponible(s).")
     
     return redirect('detalle_contrato', pk=pk)
 
@@ -243,16 +284,19 @@ def devolucion_contrato_view(request, pk):
     
     if request.method == 'POST':
         contrato.estado = 'DEVOLUCION'
-        contrato.fecha_cancelacion = date.today()
+        contrato.fecha_fin_contrato = date.today()
         contrato.save()
         
-        # Liberar el lote
-        contrato.lote.estado = 'DISPONIBLE'
-        contrato.lote.save()
+        # Liberar TODOS los lotes asociados al contrato
+        for lote in contrato.lotes.all():
+            lote.estado = 'DISPONIBLE'
+            lote.save()
         
         # Calculate total paid for feedback
         total_pagado = sum(p.monto for p in contrato.pago_set.all())
-        messages.info(request, f"¡Contrato #{contrato.id} en devolución! Total a devolver: ${total_pagado}. El lote está disponible nuevamente.")
+        cant_lotes = contrato.lotes.count()
+        lotes_text = "lote" if cant_lotes == 1 else "lotes"
+        messages.info(request, f"¡Contrato #{contrato.id} en devolución! Total a devolver: ${total_pagado}. {cant_lotes} {lotes_text} ahora disponible(s).")
     
     return redirect('detalle_contrato', pk=pk)
 
@@ -313,6 +357,25 @@ def descargar_recibo_entrada_pdf(request, pk):
 
 @login_required
 def descargar_contrato_word(request, pk):
+    return generar_contrato_word(request, pk)
+
+@login_required
+def descargar_recibo_pago_pdf(request, cuota_id):
+    """
+    Genera y descarga el recibo de pago mensual de una cuota en PDF.
+    """
+    buffer = generar_recibo_pago_buffer(cuota_id)
+    if not buffer:
+        from .models import Cuota
+        # Si falla, verificar si es porque no está pagado
+        c = Cuota.objects.get(id=cuota_id)
+        if c.valor_pagado <= 0:
+            return HttpResponse("Esta cuota no tiene pagos registrados.", status=400)
+        return HttpResponse("Error al generar el recibo PDF.", status=500)
+    
+    return FileResponse(buffer, as_attachment=True, filename=f"Recibo_Pago_Cuota_{cuota_id}.pdf")
+
+def generar_contrato_word(request, pk):
     contrato = get_object_or_404(Contrato, pk=pk)
     # Usamos ConfiguracionSistema en lugar de Empresa
     config = ConfiguracionSistema.objects.first()
@@ -523,8 +586,8 @@ def reporte_mensual_view(request):
     # Contratos que cambiaron a estado 'DEVOLUCION' en este rango de fecha
     contratos_devolucion = Contrato.objects.filter(
         estado='DEVOLUCION',
-        fecha_cancelacion__gte=primer_dia_mes,
-        fecha_cancelacion__lte=hoy
+        fecha_fin_contrato__gte=primer_dia_mes,
+        fecha_fin_contrato__lte=hoy
     )
     if not request.user.is_superuser:
         contratos_devolucion = contratos_devolucion.filter(cliente__vendedor=request.user)
@@ -619,6 +682,9 @@ def reporte_general_view(request):
     totales_mensuales = [Decimal('0.00') for _ in meses]
     total_general = Decimal('0.00')
     total_cuotas = Decimal('0.00')  # Total de todas las cuotas mensuales
+    total_vtotal = Decimal('0.00')  # Suma de precio_venta_final
+    total_entrada = Decimal('0.00')  # Suma de valor_entrada
+    total_saldo = Decimal('0.00')  # Suma de saldos pendientes
     
     for contrato in contratos_qs:
         # Basic data
@@ -628,8 +694,13 @@ def reporte_general_view(request):
             'lote': contrato.lote,
             'pagos_mensuales': [],
             'total_pagado': Decimal('0.00'),
-            'es_devolucion': contrato.estado == 'DEVOLUCION'
+            'es_devolucion': contrato.estado == 'DEVOLUCION',
+            'saldo_pendiente': Decimal('0.00')  # Se calculará después
         }
+        
+        # Sumar totales de VTotal y Entrada
+        total_vtotal += contrato.precio_venta_final or Decimal('0.00')
+        total_entrada += contrato.valor_entrada or Decimal('0.00')
         
         # Calculate cuota value for totals
         primera_cuota = contrato.cuotas.first()
@@ -648,13 +719,22 @@ def reporte_general_view(request):
             )
             total_mes = sum(c.valor_pagado for c in cuotas_mes)
             row['pagos_mensuales'].append(total_mes)
-            row['total_pagado'] += total_mes
             
             # Add to monthly totals (subtract if devolucion)
             if row['es_devolucion']:
                 totales_mensuales[i] -= total_mes
             else:
                 totales_mensuales[i] += total_mes
+        
+        # Calcular saldo pendiente REAL: suma de saldo_pendiente de TODAS las cuotas
+        # Usa el mismo property que detalle_cliente.html (cuota.saldo_pendiente)
+        row['saldo_pendiente'] = sum(c.saldo_pendiente for c in contrato.cuotas.all())
+        total_saldo += row['saldo_pendiente']
+        
+        # Calcular total_pagado REAL: entrada + todos los pagos de cuotas (no solo filtradas)
+        row['total_pagado'] = (contrato.valor_entrada or Decimal('0.00')) + sum(
+            c.valor_pagado or Decimal('0.00') for c in contrato.cuotas.all()
+        )
         
         # Add to general total
         if row['es_devolucion']:
@@ -673,6 +753,9 @@ def reporte_general_view(request):
         'totales_mensuales': totales_mensuales,
         'total_general': total_general,
         'total_cuotas': total_cuotas,
+        'total_vtotal': total_vtotal,
+        'total_entrada': total_entrada,
+        'total_saldo': total_saldo,
     }
     return render(request, 'reportes/reporte_general.html', context)
 
@@ -878,4 +961,64 @@ def toggle_mora_cuota(request, cuota_id):
             messages.info(request, f"Cuota #{cuota.numero_cuota} volverá a calcular mora automáticamente.")
     
     return redirect('detalle_contrato', pk=contrato.id)
+
+
+@login_required
+def visualizar_contrato_view(request, pk):
+    contrato = get_object_or_404(Contrato, pk=pk)
+    config = ConfiguracionSistema.objects.first()
+    
+    context = {
+        'contrato': contrato,
+        'empresa': config,
+        'fecha_actual': date.today(),
+    }
+    return render(request, 'ventas/visualizar_contrato.html', context)
+
+
+@login_required
+def descargar_contrato_pdf(request, pk):
+    from django.template.loader import render_to_string
+    from io import BytesIO
+    from xhtml2pdf import pisa
+    from .services import link_callback
+    from django.contrib.staticfiles import finders
+    import base64
+    
+    contrato = get_object_or_404(Contrato, pk=pk)
+    
+    # 1. Obtener Logo y convertirlo a base64
+    logo_base64 = ""
+    try:
+        abs_path = finders.find('img/logo_ugsha.png')
+        if abs_path:
+            with open(abs_path, 'rb') as img_file:
+                logo_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                # Data URI completo para PNG
+                logo_base64 = f"data:image/png;base64,{logo_base64}"
+    except Exception as e:
+        print(f"Error cargando logo: {e}")
+
+    # Contexto similar a visualizar pero para PDF
+    context = {
+        'contrato': contrato,
+        'fecha_actual': date.today(),
+        'logo_url': logo_base64,
+        # Datos de empresa si se requieran
+    }
+    
+    html_string = render_to_string('reportes/plantilla_contrato_pdf.html', context)
+    result_file = BytesIO()
+    
+    # Generar PDF
+    pisa_status = pisa.CreatePDF(html_string, dest=result_file, link_callback=link_callback)
+    
+    if pisa_status.err:
+        return HttpResponse('Error al generar PDF: ' + str(pisa_status.err), status=500)
+        
+    response = HttpResponse(result_file.getvalue(), content_type='application/pdf')
+    filename = f"Contrato_{contrato.cliente.apellidos}_{contrato.cliente.nombres}.pdf"
+    # Cambiamos a 'inline' para que se abra en el navegador y el usuario imprima desde ahí
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
+    return response
 
