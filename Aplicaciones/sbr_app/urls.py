@@ -34,6 +34,11 @@ urlpatterns = [
     path('contrato/<int:pk>/descargar-word/', views.descargar_contrato_word, name='descargar_word'),
     path('contrato/<int:pk>/visualizar/', views.visualizar_contrato_view, name='visualizar_contrato'),
     
+    # Rutas de preview para móviles (con botones de acción)
+    path('contrato/<int:pk>/preview-pdf/', views.preview_contrato_pdf, name='preview_contrato_pdf'),
+    path('contrato/<int:pk>/preview-recibo-entrada/', views.preview_recibo_entrada, name='preview_recibo_entrada'),
+    path('cuota/<int:cuota_id>/preview-recibo/', views.preview_recibo_pago, name='preview_recibo_pago'),
+    
     # Ruta para ver el recibo de transferencia (imagen)
     path('pago/<int:pago_id>/ver-comprobante/', views.ver_comprobante_view, name='ver_comprobante'),
 

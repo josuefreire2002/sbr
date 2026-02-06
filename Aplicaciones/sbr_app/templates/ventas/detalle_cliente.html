@@ -35,17 +35,17 @@
                             <!-- Status actions (smaller) -->
                             <button type="button" class="btn btn-sm btn-outline-success"
                                 onclick="if(confirm('¿Estás seguro de CULMINAR este contrato?')) document.getElementById('formCerrar').submit();"
-                                {% if contrato.estado != 'ACTIVO' or not puede_cerrar %}disabled{% endif %}>
+                                {% if contrato.estado !='ACTIVO' or not puede_cerrar %}disabled{% endif %}>
                                 <i class="bi bi-check-circle"></i> Culminar
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-danger"
                                 onclick="if(confirm('¿Cancelar este contrato?')) document.getElementById('formCancelar').submit();"
-                                {% if contrato.estado != 'ACTIVO' %}disabled{% endif %}>
+                                {% if contrato.estado !='ACTIVO' %}disabled{% endif %}>
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-warning"
                                 onclick="if(confirm('¿Registrar devolución?')) document.getElementById('formDevolucion').submit();"
-                                {% if contrato.estado != 'ACTIVO' %}disabled{% endif %}>
+                                {% if contrato.estado !='ACTIVO' %}disabled{% endif %}>
                                 <i class="bi bi-arrow-counterclockwise"></i> Devolución
                             </button>
 
@@ -53,8 +53,7 @@
                             <div class="vr d-none d-lg-block mx-1" style="height: 24px;"></div>
 
                             <!-- Primary actions -->
-                            <a href="{% url 'descargar_pdf' contrato.id %}" class="btn btn-outline-primary"
-                                target="_blank">
+                            <a href="{% url 'preview_contrato_pdf' contrato.id %}" class="btn btn-outline-primary">
                                 <i class="bi bi-file-earmark-pdf"></i> Contrato (PDF)
                             </a>
                             <a href="{% url 'registrar_pago' contrato.id %}" class="btn btn-primary shadow-sm">
@@ -214,9 +213,8 @@
                             <span class="badge bg-success py-1 px-3">PAGADO</span>
                         </td>
                         <td class="text-center d-print-none">
-                            <a href="{% url 'descargar_recibo_entrada' contrato.id %}"
-                                class="btn btn-sm btn-outline-primary" target="_blank"
-                                title="Descargar Recibo de Entrada">
+                            <a href="{% url 'preview_recibo_entrada' contrato.id %}"
+                                class="btn btn-sm btn-outline-primary" title="Ver Recibo de Entrada">
                                 <i class="bi bi-file-earmark-pdf"></i>
                             </a>
                         </td>
@@ -264,8 +262,8 @@
                         </td>
                         <td class="text-center d-print-none">
                             {% if cuota.valor_pagado > 0 %}
-                            <a href="{% url 'descargar_recibo_pago' cuota.id %}" class="btn btn-sm btn-outline-primary"
-                                target="_blank" title="Descargar Recibo de Pago">
+                            <a href="{% url 'preview_recibo_pago' cuota.id %}" class="btn btn-sm btn-outline-primary"
+                                title="Ver Recibo de Pago">
                                 <i class="bi bi-file-earmark-pdf"></i>
                             </a>
                             {% else %}

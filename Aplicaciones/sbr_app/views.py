@@ -385,6 +385,55 @@ def descargar_recibo_pago_pdf(request, cuota_id):
     response['Content-Length'] = len(buffer.getvalue())
     return response
 
+# ==========================================
+# VISTAS DE PREVIEW PARA MÓVILES
+# ==========================================
+@login_required
+def preview_recibo_entrada(request, pk):
+    """
+    Muestra página de acciones para el recibo de entrada (compatible con móviles).
+    """
+    contrato = get_object_or_404(Contrato, pk=pk)
+    
+    context = {
+        'titulo': 'Recibo de Entrada',
+        'subtitulo': f'{contrato.cliente.apellidos} {contrato.cliente.nombres}',
+        'pdf_url': request.build_absolute_uri(f'/contrato/{pk}/descargar-recibo-entrada/'),
+        'url_volver': request.build_absolute_uri(f'/contrato/{pk}/detalle/'),
+    }
+    return render(request, 'reportes/pdf_acciones.html', context)
+
+@login_required
+def preview_recibo_pago(request, cuota_id):
+    """
+    Muestra página de acciones para el recibo de pago mensual (compatible con móviles).
+    """
+    cuota = get_object_or_404(Cuota, pk=cuota_id)
+    contrato = cuota.contrato
+    
+    context = {
+        'titulo': f'Recibo Cuota #{cuota.numero_cuota}',
+        'subtitulo': f'{contrato.cliente.apellidos} {contrato.cliente.nombres}',
+        'pdf_url': request.build_absolute_uri(f'/cuota/{cuota_id}/descargar-recibo/'),
+        'url_volver': request.build_absolute_uri(f'/contrato/{contrato.pk}/detalle/'),
+    }
+    return render(request, 'reportes/pdf_acciones.html', context)
+
+@login_required
+def preview_contrato_pdf(request, pk):
+    """
+    Muestra página de acciones para el contrato PDF (compatible con móviles).
+    """
+    contrato = get_object_or_404(Contrato, pk=pk)
+    
+    context = {
+        'titulo': 'Contrato de Compraventa',
+        'subtitulo': f'{contrato.cliente.apellidos} {contrato.cliente.nombres} - {contrato.lotes_display}',
+        'pdf_url': request.build_absolute_uri(f'/contrato/{pk}/descargar-pdf/'),
+        'url_volver': request.build_absolute_uri(f'/contrato/{pk}/detalle/'),
+    }
+    return render(request, 'reportes/pdf_acciones.html', context)
+
 def generar_contrato_word(request, pk):
     contrato = get_object_or_404(Contrato, pk=pk)
     # Usamos ConfiguracionSistema en lugar de Empresa
