@@ -400,9 +400,8 @@ def generar_recibo_pago_buffer(cuota_id):
     if cuota.valor_pagado <= 0:
         return None
     
-    # Obtener fecha y monto del pago principal
-    # Usamos la fecha del último pago si existe, o vencimiento como fallback visual
-    fecha_pago = cuota.fecha_ultimo_pago or cuota.fecha_vencimiento
+    # Usamos la fecha de vencimiento de la cuota (como aparece en la tabla de amortización)
+    fecha_pago = cuota.fecha_vencimiento
     monto_pagado = cuota.valor_pagado
     
     # Saldo pendiente global del contrato
