@@ -348,12 +348,17 @@ def descargar_contrato_pdf(request, pk):
 def descargar_recibo_entrada_pdf(request, pk):
     """
     Genera y descarga el recibo de pago de entrada al vuelo.
+    Compatible con móviles (iOS/Android).
     """
     buffer = generar_recibo_entrada_buffer(pk)
     if not buffer:
         return HttpResponse("Error al generar el recibo PDF.", status=500)
     
-    return FileResponse(buffer, as_attachment=False, filename=f"Recibo_Entrada_{pk}.pdf", content_type='application/pdf')
+    # Usar HttpResponse con headers explícitos para compatibilidad móvil
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Recibo_Entrada_{pk}.pdf"'
+    response['Content-Length'] = len(buffer.getvalue())
+    return response
 
 @login_required
 def descargar_contrato_word(request, pk):
@@ -363,6 +368,7 @@ def descargar_contrato_word(request, pk):
 def descargar_recibo_pago_pdf(request, cuota_id):
     """
     Genera y descarga el recibo de pago mensual de una cuota en PDF.
+    Compatible con móviles (iOS/Android).
     """
     buffer = generar_recibo_pago_buffer(cuota_id)
     if not buffer:
@@ -373,7 +379,11 @@ def descargar_recibo_pago_pdf(request, cuota_id):
             return HttpResponse("Esta cuota no tiene pagos registrados.", status=400)
         return HttpResponse("Error al generar el recibo PDF.", status=500)
     
-    return FileResponse(buffer, as_attachment=False, filename=f"Recibo_Pago_Cuota_{cuota_id}.pdf", content_type='application/pdf')
+    # Usar HttpResponse con headers explícitos para compatibilidad móvil
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Recibo_Cuota_{cuota_id}.pdf"'
+    response['Content-Length'] = len(buffer.getvalue())
+    return response
 
 def generar_contrato_word(request, pk):
     contrato = get_object_or_404(Contrato, pk=pk)
