@@ -149,10 +149,30 @@ def actualizar_moras_contrato(contrato_id):
                 cuota.save()
                 continue
             
-            # Calcular Mora Porcentual si pasaron los días de gracia
+            # Calcular Mora: Priority 1 - Categorías fijas (si están configuradas)
+            if config:
+                if dias_retraso >= config.mora_grave_dias:
+                    mora_calcular = config.mora_grave_valor
+                elif dias_retraso >= config.mora_media_dias:
+                    mora_calcular = config.mora_media_valor
+                elif dias_retraso >= config.mora_leve_dias:
+                    mora_calcular = config.mora_leve_valor
+                else:
+                    mora_calcular = Decimal('0.00')
+            else:
+                mora_calcular = Decimal('0.00')
+
+            # Priority 2 - Porcentual (si es mayor que la fija o si no hay fija)
             if dias_retraso >= dias_leve:
-                mora_calcular = (cuota.valor_capital * porcentaje_mora) / Decimal('100.00')
-                mora_calcular = mora_calcular.quantize(Decimal('0.01'), rounding='ROUND_HALF_UP')
+                mora_porcentual = (cuota.valor_capital * porcentaje_mora) / Decimal('100.00')
+                mora_porcentual = mora_porcentual.quantize(Decimal('0.01'), rounding='ROUND_HALF_UP')
+                
+                # Asegurar mínimo de $0.01 si el porcentaje dio 0 por ser cuota muy pequeña
+                if mora_porcentual < Decimal('0.01') and porcentaje_mora > 0:
+                    mora_porcentual = Decimal('0.01')
+                
+                # Usar el mayor entre el fijo y el porcentual
+                mora_calcular = max(mora_calcular, mora_porcentual)
 
             # Actualizar estado y mora - VENCIDO tiene prioridad sobre PARCIAL
             cuota.estado = 'VENCIDO'
