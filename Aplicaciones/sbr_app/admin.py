@@ -40,7 +40,7 @@ class ClienteAdmin(admin.ModelAdmin):
     search_fields = ('cedula', 'apellidos', 'nombres')
     list_filter = ('vendedor',)
 
-# 4. Cuotas (Para verlas dentro del contrato)
+# 4. Cuotas (Para verlas dentro del contrato - solo como Inline, no registro standalone por bug Jazzmin/Django 6)
 class CuotaInline(admin.TabularInline):
     model = Cuota
     extra = 0
@@ -60,6 +60,32 @@ class ContratoAdmin(admin.ModelAdmin):
 class PagoAdmin(admin.ModelAdmin):
     list_display = ('fecha_pago', 'contrato', 'monto', 'metodo_pago', 'registrado_por')
     list_filter = ('metodo_pago', 'fecha_pago')
+    search_fields = (
+        'contrato__cliente__nombres', 
+        'contrato__cliente__apellidos', 
+        'contrato__cliente__cedula',
+        'contrato__id'
+    )
+    date_hierarchy = 'fecha_pago'
+
+    def save_model(self, request, obj, form, change):
+        """
+        Al guardar un pago desde el admin (crear o editar),
+        recalculamos toda la deuda del contrato para mantener consistencia.
+        """
+        super().save_model(request, obj, form, change)
+        from .services import recalcular_deuda_contrato
+        recalcular_deuda_contrato(obj.contrato.id)
+
+    def delete_model(self, request, obj):
+        """
+        Al eliminar un pago desde el admin,
+        recalculamos la deuda para deshacer el efecto del pago borrado.
+        """
+        contrato_id = obj.contrato.id
+        super().delete_model(request, obj)
+        from .services import recalcular_deuda_contrato
+        recalcular_deuda_contrato(contrato_id)
 from django.contrib import admin
 from .models import *
 

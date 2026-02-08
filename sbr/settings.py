@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'axes', # Protección contra ataques de fuerza bruta
     'django_recaptcha', # Google Recaptcha
     'Aplicaciones.sbr_app',
+    'Aplicaciones.pag_web',
 ]
 
 MIDDLEWARE = [
@@ -177,7 +178,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Configuración de Login
-LOGIN_REDIRECT_URL = 'dashboard'  # A donde va al iniciar sesión
+LOGIN_REDIRECT_URL = '/'  # A donde va al iniciar sesión (área de gestión)
 LOGOUT_REDIRECT_URL = 'login'     # A donde va al salir
 
 # Gestión de Sesiones (Seguridad 4.1)
@@ -209,7 +210,7 @@ JAZZMIN_SETTINGS = {
         # Botón para ir al inicio (la parte pública)
         {
             "name": "Ir al Dashboard",  # Texto del botón
-            "url": "Dashboard",                 # La ruta (puede ser "/" o el nombre de la url como 'dashboard')
+            "url": "/",                 # La ruta (puede ser "/" o el nombre de la url como 'dashboard')
             "new_window": True,         # ¿Abrir en nueva pestaña? (True/False)
             "icon": "fas fa-home",      # Icono de FontAwesome
             "permissions": ["auth.view_user"], # Solo mostrar a quien tenga permiso (opcional)
@@ -219,3 +220,5 @@ JAZZMIN_SETTINGS = {
     # Opcional: Para que el logo de arriba a la izquierda también lleve al inicio
     # "site_logo": "img/logo.png", 
 }
+
+

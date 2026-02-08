@@ -35,17 +35,17 @@
                             <!-- Status actions (smaller) -->
                             <button type="button" class="btn btn-sm btn-outline-success"
                                 onclick="if(confirm('¿Estás seguro de CULMINAR este contrato?')) document.getElementById('formCerrar').submit();"
-                                {% if contrato.estado !='ACTIVO' or not puede_cerrar %}disabled{% endif %}>
+                                {% if contrato.estado != 'ACTIVO' or not puede_cerrar %}disabled{% endif %}>
                                 <i class="bi bi-check-circle"></i> Culminar
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-danger"
                                 onclick="if(confirm('¿Cancelar este contrato?')) document.getElementById('formCancelar').submit();"
-                                {% if contrato.estado !='ACTIVO' %}disabled{% endif %}>
+                                {% if contrato.estado != 'ACTIVO' %}disabled{% endif %}>
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-warning"
                                 onclick="if(confirm('¿Registrar devolución?')) document.getElementById('formDevolucion').submit();"
-                                {% if contrato.estado !='ACTIVO' %}disabled{% endif %}>
+                                {% if contrato.estado != 'ACTIVO' %}disabled{% endif %}>
                                 <i class="bi bi-arrow-counterclockwise"></i> Devolución
                             </button>
 
@@ -157,6 +157,8 @@
 </div>
 
 
+
+
 <!-- Amortization Table -->
 <div class="col-12">
     <div class="card border-0 shadow-sm overflow-hidden">
@@ -194,7 +196,10 @@
                         <th class="text-end">Pendiente</th>
                         <th class="text-center">Estado</th>
                         <th class="text-center d-print-none">Recibos</th>
-                        <th class="text-center pe-4 d-print-none">Control Mora</th>
+                        <th class="text-center d-print-none">Control Mora</th>
+                        {% if user.is_superuser %}
+                        <th class="text-end pe-4 d-print-none">Acciones</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody class="border-top-0">
@@ -221,6 +226,11 @@
                         <td class="text-center pe-4 d-print-none">
                             <span class="text-muted small">-</span>
                         </td>
+                        {% if user.is_superuser %}
+                        <td class="text-end pe-4 d-print-none">
+                            <span class="text-muted small">-</span>
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endif %}
                     {% for cuota in cuotas %}
@@ -291,6 +301,23 @@
                             <span class="text-muted small">-</span>
                             {% endif %}
                         </td>
+                        {% if user.is_superuser %}
+                        <td class="text-end pe-4 d-print-none">
+                            <div class="btn-group">
+                                <a href="{% url 'editar_cuota' cuota.id %}" class="btn btn-sm btn-outline-warning"
+                                    title="Editar Cuota">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <!--<button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="if(confirm('¿ELIMINAR Cuota #{{ cuota.numero_cuota }}? Se recalculará toda la deuda.')) document.getElementById('del_cuota_{{ cuota.id }}').submit();"
+                                    title="Eliminar Cuota">
+                                    <i class="bi bi-trash"></i>
+                                </button>-->
+                            </div>
+                            <form id="del_cuota_{{ cuota.id }}" action="{% url 'eliminar_cuota' cuota.id %}"
+                                method="POST" style="display:none;">{% csrf_token %}</form>
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

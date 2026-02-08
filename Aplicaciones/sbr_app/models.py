@@ -216,6 +216,9 @@ class Cuota(models.Model):
     class Meta:
         ordering = ['numero_cuota'] # Ordenar cronológicamente
 
+    def __str__(self):
+        return f"Cuota {self.numero_cuota} - {self.contrato}"
+
     @property
     def total_a_pagar(self):
         capital = self.valor_capital or 0

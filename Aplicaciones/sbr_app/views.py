@@ -207,7 +207,8 @@ def detalle_contrato_view(request, pk):
     # 1. Actualizar cálculo matemático al instante
     actualizar_moras_contrato(contrato.id)
 
-    cuotas = contrato.cuotas.all().order_by('numero_cuota')
+    # IMPORTANTE: Usar Cuota.objects.filter para evitar caché del ORM de relaciones
+    cuotas = Cuota.objects.filter(contrato=contrato).order_by('numero_cuota')
     
     # 2. Filtrar las vencidas
     cuotas_vencidas = cuotas.filter(estado='VENCIDO')
@@ -311,6 +312,10 @@ def registrar_pago_view(request, pk):
         monto = float(request.POST.get('monto'))
         metodo = request.POST.get('metodo_pago')
         imagen = request.FILES.get('comprobante') # Puede ser None si es efectivo
+        
+        # Campos opcionales nuevos
+        fecha_pago = request.POST.get('fecha_pago')
+        cuota_id = request.POST.get('cuota_id')
 
         try:
             # Llamamos al servicio inteligente
@@ -319,14 +324,125 @@ def registrar_pago_view(request, pk):
                 monto=monto,
                 metodo_pago=metodo,
                 evidencia_img=imagen,
-                usuario_vendedor=request.user
+                usuario_vendedor=request.user,
+                fecha_pago=fecha_pago,
+                cuota_origen_id=cuota_id
             )
             messages.success(request, "Pago registrado con éxito.")
             return redirect('detalle_contrato', pk=contrato.id)
         except Exception as e:
             messages.error(request, f"Error en pago: {str(e)}")
     
-    return render(request, 'ventas/form_pago.html', {'contrato': contrato})
+    # Pasamos las cuotas pendientes para el selector
+    cuotas_pendientes = contrato.cuotas.filter(
+        estado__in=['PENDIENTE', 'PARCIAL', 'VENCIDO']
+    ).order_by('numero_cuota')
+
+    return render(request, 'ventas/form_pago.html', {
+        'contrato': contrato,
+        'cuotas_pendientes': cuotas_pendientes,
+        'hoy': date.today()
+    })
+
+# ==========================================
+# 5.1 GESTIÓN DE CUOTAS (Editar/Eliminar)
+# ==========================================
+@login_required
+def editar_cuota_view(request, pk):
+    cuota = get_object_or_404(Cuota, pk=pk)
+    contrato = cuota.contrato
+    
+    # Solo superusuarios pueden editar cuotas
+    if not request.user.is_superuser:
+        messages.error(request, "Acceso denegado. Solo administradores pueden editar cuotas.")
+        return redirect('detalle_contrato', pk=contrato.id)
+        
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                # Obtener el nuevo valor abonado (lo que el cliente ha pagado)
+                nuevo_abonado = Decimal(request.POST.get('valor_pagado', '0') or '0')
+                mora_exenta = 'mora_exenta' in request.POST
+                
+                # Actualizar valor pagado (ABONADO)
+                cuota.valor_pagado = nuevo_abonado
+                cuota.mora_exenta = mora_exenta
+                
+                # Si exentamos la mora, limpiamos el valor de mora actual
+                if mora_exenta:
+                    cuota.valor_mora = Decimal('0.00')
+                
+                # Calcular saldo pendiente
+                total_a_pagar = cuota.valor_capital + (cuota.valor_mora or Decimal('0'))
+                saldo = total_a_pagar - nuevo_abonado
+                
+                # DEBUG: Ver fechas
+                print(f"DEBUG: Cuota #{cuota.numero_cuota}")
+                print(f"  - Fecha vencimiento: {cuota.fecha_vencimiento}")
+                print(f"  - Hoy: {date.today()}")
+                print(f"  - Vencida? {cuota.fecha_vencimiento < date.today()}")
+                print(f"  - Mora exenta? {mora_exenta}")
+                print(f"  - Saldo: {saldo}")
+                
+                # Determinar el estado correcto
+                if saldo < Decimal('0.01'):
+                    cuota.estado = 'PAGADO'
+                elif cuota.fecha_vencimiento < date.today() and not mora_exenta:
+                    cuota.estado = 'VENCIDO'
+                elif nuevo_abonado > 0:
+                    cuota.estado = 'PARCIAL'
+                else:
+                    cuota.estado = 'PENDIENTE'
+                
+                print(f"  - Estado calculado: {cuota.estado}")
+                
+                cuota.save()
+                
+                # Actualizar moras del contrato
+                from .services import actualizar_moras_contrato
+                actualizar_moras_contrato(contrato.id)
+                
+                # Refrescar para obtener valores actualizados
+                cuota.refresh_from_db()
+                
+                print(f"  - Estado final después de actualizar_moras: {cuota.estado}")
+                
+            messages.success(request, f"Cuota #{cuota.numero_cuota} actualizada. Abonado: ${nuevo_abonado}, Pendiente: ${cuota.saldo_pendiente}")
+            return redirect('detalle_contrato', pk=contrato.id)
+            
+        except Exception as e:
+            import traceback
+            print(f"ERROR: {traceback.format_exc()}")
+            messages.error(request, f"Error al editar cuota: {e}")
+            
+    return render(request, 'ventas/form_cuota_editar.html', {'cuota': cuota, 'contrato': contrato})
+
+@login_required
+def eliminar_cuota_view(request, pk):
+    cuota = get_object_or_404(Cuota, pk=pk)
+    contrato_id = cuota.contrato.id
+    numero_cuota = cuota.numero_cuota
+    
+    # Solo superusuarios pueden eliminar cuotas
+    if not request.user.is_superuser:
+        messages.error(request, "Acceso denegado. Solo administradores pueden eliminar cuotas.")
+        return redirect('detalle_contrato', pk=contrato_id)
+        
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                cuota.delete()
+                
+                # Recalcular toda la deuda del contrato
+                from .services import recalcular_deuda_contrato
+                recalcular_deuda_contrato(contrato_id)
+                
+            messages.success(request, f"Cuota #{numero_cuota} eliminada. Deuda recalculada.")
+        except Exception as e:
+            messages.error(request, f"Error al eliminar cuota: {e}")
+            
+    return redirect('detalle_contrato', pk=contrato_id)
+
 
 # ==========================================
 # 6. DESCARGAS Y ARCHIVOS

@@ -1,0 +1,68 @@
+{% extends 'pag_web/base_web.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Lotes Disponibles - Ugsha Inmobiliarios{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="py-5 bg-dark text-white" style="margin-top: 70px;">
+    <div class="container py-4">
+        <h1 class="fw-bold">Lotes Disponibles</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'pag_web:index' %}" class="text-warning">Inicio</a></li>
+                <li class="breadcrumb-item active text-white">Lotes</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row g-4">
+            {% for lote in lotes %}
+            <div class="col-lg-4 col-md-6 fade-in">
+                <div class="property-card card-hover">
+                    <div class="position-relative">
+                        {% if lote.imagen %}
+                        <img src="{{ lote.imagen.url }}" class="card-img-top" alt="{{ lote.nombre }}">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
+                            style="height: 200px;">
+                            <i class="bi bi-geo-alt text-white" style="font-size: 4rem;"></i>
+                        </div>
+                        {% endif %}
+                        <span class="property-badge bg-success text-white">Disponible</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-2">{{ lote.nombre|default:"Lote" }} #{{ lote.numero }}</h5>
+                        <p class="text-muted mb-3">
+                            <i class="bi bi-rulers me-1"></i>{{ lote.area_m2|floatformat:0 }} m²
+                            {% if lote.manzana %}<span class="mx-2">|</span><i class="bi bi-grid-3x3 me-1"></i>Mz. {{
+                            lote.manzana }}{% endif %}
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price-tag">${{ lote.precio_venta|intcomma }}</span>
+                            <a href="{% url 'pag_web:lote_detalle' lote.id %}"
+                                class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                Ver más <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-geo-alt text-muted" style="font-size: 5rem;"></i>
+                <h4 class="mt-4 text-muted">Próximamente nuevos lotes</h4>
+                <p class="text-muted">Estamos trabajando en nuevos proyectos. ¡Contáctanos para más información!</p>
+                <a href="{% url 'pag_web:contacto' %}" class="btn btn-primary-custom text-white mt-3">
+                    <i class="bi bi-envelope me-2"></i>Contáctanos
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

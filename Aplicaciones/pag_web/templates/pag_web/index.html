@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Inmobiliarias Ugsha - Premium Land &amp; Lots</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1173d4",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "earth-dark": "#1e2b26",
+                        "earth-light": "#f4f1ee",
+                        "gold-accent": "#c5a059",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#0d141b] overflow-x-hidden antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header
+        class="sticky top-0 z-50 w-full bg-white/95 dark:bg-background-dark/95 backdrop-blur-sm border-b border-[#e7edf3] dark:border-gray-800">
+        <div class="px-4 md:px-10 py-3 max-w-[1280px] mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 text-[#0d141b] dark:text-white">
+                <div class="h-10 w-auto flex items-center justify-center">
+                    {% if config and config.logo %}
+                    <img src="{{ config.logo.url }}" alt="Logo" class="h-full w-auto object-contain">
+                    {% else %}
+                    <span class="material-symbols-outlined text-3xl">landscape</span>
+                    {% endif %}
+                </div>
+                <h2 class="text-xl font-bold leading-tight tracking-tight font-serif">Inmobiliarias Ugsha</h2>
+            </div>
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex flex-1 justify-end items-center gap-8">
+                <nav class="flex items-center gap-8">
+                    <a class="text-sm font-medium hover:text-primary transition-colors dark:text-gray-300"
+                        href="{% url 'pag_web:index' %}">Inicio</a>
+                    <a class="text-sm font-medium hover:text-primary transition-colors dark:text-gray-300"
+                        href="{% url 'pag_web:lotes' %}">Lotes</a>
+                    <a class="text-sm font-medium hover:text-primary transition-colors dark:text-gray-300"
+                        href="{% url 'pag_web:nosotros' %}">Nosotros</a>
+                    <a class="text-sm font-medium hover:text-primary transition-colors dark:text-gray-300"
+                        href="{% url 'pag_web:contacto' %}">Contacto</a>
+                </nav>
+                <a href="{% url 'pag_web:contacto' %}"
+                    class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-primary hover:bg-primary/90 transition-colors text-white text-sm font-bold shadow-sm">
+                    Contáctanos
+                </a>
+            </div>
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden p-2 text-gray-600 dark:text-gray-300">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div>
+    </header>
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <div class="relative w-full min-h-[600px] flex items-center justify-center bg-earth-dark">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0 bg-cover bg-center"
+                data-alt="Aerial view of lush green hills and golden sunlight"
+                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDWkMzJVifH9ntGTV88-PW3KNKLFO-xDjaa3L31s4daKDqrvpGg_MNJnPHjelLYSeWSAVeyBruGkVBihdCkEjhnWpjcOygu3BGvcW-KDf7msYmXCC7ajF_Z4KNvERKRPe4b3oxx89DxAY2WZZKSZ0EpgEjld9n-jlwag0ywO9zErmcKPwm0c42sgRNMU4tdNBdeaxTKm7KKPAXwe4IMmRTYlTRaGzwQJZ1VimoYO_s3Dg9Fj7qSIdNmD1uVLitvBH-svljET7qOiIg');">
+            </div>
+            <!-- Overlay Gradient -->
+            <div class="absolute inset-0 z-10 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
+            <div
+                class="relative z-20 container mx-auto px-4 text-center text-white flex flex-col items-center gap-6 mt-10">
+                <span class="uppercase tracking-[0.2em] text-sm font-semibold text-gold-accent mb-2">Bienes Raíces
+                    Premium</span>
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-serif font-medium leading-tight text-shadow max-w-4xl">
+                    Invierta en su legado futuro
+                </h1>
+                <p class="text-lg md:text-xl font-light text-gray-100 max-w-2xl leading-relaxed">
+                    Descubra oportunidades exclusivas de terrenos y lotes en ubicaciones de alto crecimiento. Asegure su
+                    pedazo de paraíso hoy.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 mt-8 w-full justify-center">
+                    <a href="{% url 'pag_web:lotes' %}"
+                        class="h-12 px-8 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold text-base transition-all shadow-lg flex items-center justify-center gap-2">
+                        Ver Lotes Disponibles
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                    <button
+                        class="h-12 px-8 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 font-bold text-base transition-all flex items-center justify-center">
+                        Descargar Folleto
+                    </button>
+                </div>
+            </div>
+            <!-- Search Filter Bar (Floating) -->
+            <div class="absolute -bottom-16 left-0 right-0 z-30 px-4">
+                <div
+                    class="max-w-[1000px] mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl p-4 md:p-6 flex flex-col md:flex-row gap-4 items-center justify-between border border-gray-100 dark:border-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                        <div class="flex flex-col gap-1">
+                            <label
+                                class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Ubicación</label>
+                            <div class="relative">
+                                <select
+                                    class="w-full bg-transparent border-b border-gray-300 dark:border-gray-600 py-2 pr-8 text-gray-800 dark:text-white focus:border-primary focus:ring-0 text-sm font-medium cursor-pointer">
+                                    <option>Todas las Ubicaciones</option>
+                                    <option>Valle Norte</option>
+                                    <option>Distrito Lagos</option>
+                                    <option>Tierras Altas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label
+                                class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Rango
+                                de Precios</label>
+                            <div class="relative">
+                                <select
+                                    class="w-full bg-transparent border-b border-gray-300 dark:border-gray-600 py-2 pr-8 text-gray-800 dark:text-white focus:border-primary focus:ring-0 text-sm font-medium cursor-pointer">
+                                    <option>Cualquier Precio</option>
+                                    <option>$10k - $30k</option>
+                                    <option>$30k - $60k</option>
+                                    <option>$60k+</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label
+                                class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Tamaño
+                                (m²)</label>
+                            <div class="relative">
+                                <select
+                                    class="w-full bg-transparent border-b border-gray-300 dark:border-gray-600 py-2 pr-8 text-gray-800 dark:text-white focus:border-primary focus:ring-0 text-sm font-medium cursor-pointer">
+                                    <option>Cualquier Tamaño</option>
+                                    <option>200 - 500 m²</option>
+                                    <option>500 - 1000 m²</option>
+                                    <option>1000+ m²</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full md:w-auto min-w-[120px] h-12 bg-earth-dark hover:bg-earth-dark/90 text-white rounded-lg font-bold shadow-md transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">search</span>
+                        Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Featured Lots Section -->
+        <div class="pt-28 pb-16 px-4 md:px-10 bg-background-light dark:bg-background-dark" id="lots">
+            <div class="max-w-[1280px] mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+                    <div>
+                        <span class="text-primary font-bold tracking-wider text-sm uppercase">Selección Exclusiva</span>
+                        <h2 class="text-3xl md:text-4xl font-serif font-bold mt-2 text-[#0d141b] dark:text-white">
+                            Oportunidades Destacadas</h2>
+                    </div>
+                    <a class="text-[#0d141b] dark:text-gray-300 font-bold flex items-center gap-1 hover:text-primary transition-colors"
+                        href="{% url 'pag_web:lotes' %}">
+                        Ver todas las propiedades
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Lot Card 1 -->
+                    <div
+                        class="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
+                        <div class="relative aspect-[4/3] overflow-hidden">
+                            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                data-alt="Green valley landscape with mountain view"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4VVEnNDyO3jQLfjgDk3hsuawNoszvPXRYf_2UyOxpGEx8lJgoDjnt59Ji3ol1TArF-Y04qnV7SEBtDKIAXOjmupBgS-9F6vx2Z6_s1SUen6vS_0aC3GIsRnRwYlBfKXjbCq0uDYkYJXBNDOfYAvFtSA1N8Xk8PrJMMunnpUOYlZjGXsqf0gkcHT0cY4FFyLv6MKevDXO0_pp3bIrUuf2B0SPPfMZAd-yjrjQy9Z-r1hDIOHO3r5s0deu_jXx6YlvsnoWZokqcM2k" />
+                            <div
+                                class="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                                Nueva Etapa
+                            </div>
+                            <div
+                                class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                <p class="text-white font-bold text-lg">Lote El Mirador</p>
+                                <p class="text-gray-200 text-sm flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">location_on</span>
+                                    Valle Norte, Sector 4
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div
+                                class="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Precio</p>
+                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">$25,000</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Área</p>
+                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">500 <span
+                                            class="text-base font-sans font-normal">m²</span></p>
+                                </div>
+                            </div>
+                            <button
+                                class="w-full py-2.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white font-bold text-sm transition-colors">
+                                Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Lot Card 2 -->
+                    <div
+                        class="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
+                        <div class="relative aspect-[4/3] overflow-hidden">
+                            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                data-alt="Wide field with trees and sunset"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHaURO_o-Td6DDoPyJ2Yrn6_JDgmpyfirr0nOaXU1IDu4tYAVvGgcThvFs4zCyYAxjQVZu3pGgGE1sU5rpfNCLKOhVdG0JFZu_N6_NrsaOtuEhY9EYQqh7zf0hl1lYdyiv77e5tGGbo5Qlqww4syPbpA3sN-caiQyStHoPTluNaFf6dZojDBmChYKS0RUdinUA4KB1J12aImJqIdeF7P1LyttoV90gBKsl0Ubux-aGUB6f_WBSbX3wQ4XA38u8C15FEexGDIh0lgY" />
+                            <div
+                                class="absolute top-4 left-4 bg-gold-accent text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                                Mejor Valor
+                            </div>
+                            <div
+                                class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                <p class="text-white font-bold text-lg">Hacienda Verde</p>
+                                <p class="text-gray-200 text-sm flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">location_on</span>
+                                    Distrito Lagos
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div
+                                class="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Precio</p>
+                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">$55,000</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Área</p>
+                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">1,200 <span
+                                            class="text-base font-sans font-normal">m²</span></p>
+                                </div>
+                            </div>
+                            <button
+                                class="w-full py-2.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white font-bold text-sm transition-colors">
+                                Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Lot Card 3 -->
+                    <div
+                        class="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
+                        <div class="relative aspect-[4/3] overflow-hidden">
+                            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                data-alt="Sunny meadow near forest edge"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPWomLRNhw_zIpPmczo4yfdlHo5l1-n_s5QX2zJJidKVIg_yHtcp495W_9RS-A1hIC4QNUrY3SAJCYQzuJdYakgWRYgNylACzWkNYCc70uFIdMVcHdJMxoQUHRZF9-y1W8FeDdvDAmIR6TtioNxV4PZz7eQ51Jc6XiRE3mPJnlUH4YRi-AbT_2ewYI-fP6hMCVOnax4dsNGUDqgXZoFqmhu_8H4NoPwCOB59WwXJtCHuwFyUo1tnhUhx-FSBOT_8PmrcIejd0BLSE" />
+                            <div
+                                class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                <p class="text-white font-bold text-lg">Parcela Santuario</p>
+                                <p class="text-gray-200 text-sm flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">location_on</span>
+                                    Borde del Bosque
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div
+                                class="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Precio</p>
+                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">$38,000</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Área</p>
+                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">800 <span
+                                            class="text-base font-sans font-normal">m²</span></p>
+                                </div>
+                            </div>
+                            <button
+                                class="w-full py-2.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white font-bold text-sm transition-colors">
+                                Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-12 text-center">
+                    <button
+                        class="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-earth-dark text-white font-bold hover:bg-earth-dark/90 transition-colors shadow-lg">
+                        Ver Inventario Completo
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Why Choose Us Section -->
+        <div class="py-20 px-4 md:px-10 bg-earth-light dark:bg-[#152028]" id="about">
+            <div class="max-w-[1280px] mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div class="flex flex-col gap-8">
+                        <div>
+                            <span class="text-gold-accent font-bold tracking-wider text-sm uppercase">Nuestros
+                                Valores</span>
+                            <h2
+                                class="text-3xl md:text-5xl font-serif font-bold mt-2 text-[#0d141b] dark:text-white leading-tight">
+                                Por qué elegir Inmobiliarias Ugsha
+                            </h2>
+                            <p class="text-gray-600 dark:text-gray-300 mt-6 text-lg leading-relaxed">
+                                Ofrecemos más que solo tierra; ofrecemos una base para tus sueños. Con más de 15 años
+                                de experiencia, garantizamos transparencia, seguridad legal y las mejores ubicaciones.
+                            </p>
+                        </div>
+                        <div class="flex flex-col gap-6">
+                            <div class="flex gap-4">
+                                <div
+                                    class="flex-shrink-0 size-12 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center text-gold-accent shadow-sm">
+                                    <span class="material-symbols-outlined">verified_user</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-[#0d141b] dark:text-white">Seguridad Legal</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mt-1">Escrituras garantizadas y
+                                        procesos transparentes. Su inversión está segura con nosotros.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div
+                                    class="flex-shrink-0 size-12 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center text-gold-accent shadow-sm">
+                                    <span class="material-symbols-outlined">trending_up</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-[#0d141b] dark:text-white">Ubicaciones
+                                        Privilegiadas</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mt-1">Áreas cuidadosamente seleccionadas
+                                        con alto
+                                        potencial de plusvalía para el máximo retorno de inversión.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div
+                                    class="flex-shrink-0 size-12 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center text-gold-accent shadow-sm">
+                                    <span class="material-symbols-outlined">payments</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-[#0d141b] dark:text-white">Crédito Directo</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mt-1">Planes de pago flexibles con 0%
+                                        de interés el primer año. Lo hacemos fácil.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative h-[600px] rounded-2xl overflow-hidden shadow-2xl">
+                        <img class="absolute inset-0 w-full h-full object-cover"
+                            data-alt="Modern house architecture in nature"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7m9nDCWCW1Qf6T1G6RHhnx4uBo0YkDlXwCIzT6jL_1UwOwOB0dzmBgR0zYee3ErJNtQCCevm8NexlL9-H9QeSCWK0ZtjAw8xFQgkVnTKbougkwUQHwp3K0WVD9m14e_ZJXqAXTon-ANkDa4rHRRAOT-DUprk2hXRUSQkH37gijLwLVtXX_364_wEVtw9xMYOVR_SlPFnPzTRAwoKj7US4DzR5Nu-L62MdSSLyXFEuvFWlE96GIe3I5iTnp0bSP8f0hhBS2BkpMSg" />
+                        <div
+                            class="absolute bottom-6 left-6 right-6 bg-white/95 dark:bg-gray-800/95 backdrop-blur p-6 rounded-xl border-l-4 border-gold-accent">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="material-symbols-outlined text-gold-accent">format_quote</span>
+                                <p class="text-sm font-bold uppercase tracking-wider text-gray-500">Testimonio</p>
+                            </div>
+                            <p class="text-[#0d141b] dark:text-white font-medium italic">
+                                "El proceso fue increíblemente sencillo. El equipo de Ugsha me ayudó a encontrar el
+                                terreno perfecto
+                                para mi casa de retiro."
+                            </p>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 font-bold">— Carlos M.,
+                                Inversionista Satisfecho</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- CTA Section -->
+        <div class="bg-earth-dark text-white py-20 px-4" id="contact">
+            <div class="container mx-auto max-w-4xl text-center">
+                <span class="text-gold-accent font-bold tracking-widest text-sm uppercase">Empecemos</span>
+                <h2 class="text-3xl md:text-5xl font-serif font-bold mt-4 mb-6">¿Listo para asegurar su futuro?</h2>
+                <p class="text-gray-300 text-lg mb-10 max-w-2xl mx-auto">
+                    Contacte a nuestros agentes hoy para agendar una visita o recibir un catálogo personalizado de lotes
+                    disponibles.
+                </p>
+                <form class="bg-white text-gray-900 p-8 rounded-2xl shadow-xl max-w-2xl mx-auto text-left" method="post"
+                    action="{% url 'pag_web:contacto' %}">
+                    {% csrf_token %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-bold text-gray-700">Nombre Completo</label>
+                            <input
+                                class="rounded-lg border-gray-300 focus:border-primary focus:ring-primary bg-gray-50 text-sm"
+                                placeholder="Juan Pérez" type="text" name="nombre" />
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-bold text-gray-700">Teléfono</label>
+                            <input
+                                class="rounded-lg border-gray-300 focus:border-primary focus:ring-primary bg-gray-50 text-sm"
+                                placeholder="+593 99 999 9999" type="tel" name="telefono" />
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2 mb-6">
+                        <label class="text-sm font-bold text-gray-700">Correo Electrónico</label>
+                        <input
+                            class="rounded-lg border-gray-300 focus:border-primary focus:ring-primary bg-gray-50 text-sm"
+                            placeholder="juan@ejemplo.com" type="email" name="email" />
+                    </div>
+                    <div class="flex flex-col gap-2 mb-6">
+                        <label class="text-sm font-bold text-gray-700">Mensaje</label>
+                        <textarea
+                            class="rounded-lg border-gray-300 focus:border-primary focus:ring-primary bg-gray-50 text-sm"
+                            placeholder="Estoy interesado en lotes en el Valle Norte..." rows="3"
+                            name="mensaje"></textarea>
+                    </div>
+                    <button
+                        class="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                        type="submit">
+                        Enviar Mensaje
+                        <span class="material-symbols-outlined text-sm">send</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-gray-800 pt-16 pb-8">
+        <div class="container mx-auto px-4 md:px-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 text-[#0d141b] dark:text-white mb-6">
+                        <span class="material-symbols-outlined text-3xl text-primary">landscape</span>
+                        <h2 class="text-lg font-bold font-serif">Inmobiliarias Ugsha</h2>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-6">
+                        Su socio de confianza en la adquisición de tierras e inversión inmobiliaria. Construyendo el
+                        futuro, un lote a la vez.
+                    </p>
+                    <div class="flex gap-4">
+                        <a class="text-gray-400 hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">public</span></a>
+                        <a class="text-gray-400 hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">mail</span></a>
+                        <a class="text-gray-400 hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">call</span></a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-[#0d141b] dark:text-white font-bold mb-6">Enlaces Rápidos</h3>
+                    <ul class="space-y-3 text-sm text-gray-500 dark:text-gray-400">
+                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:index' %}">Inicio</a>
+                        </li>
+                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:lotes' %}">Lotes
+                                Disponibles</a></li>
+                        <li><a class="hover:text-primary transition-colors"
+                                href="{% url 'pag_web:nosotros' %}">Nosotros</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Guía de Inversión</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-[#0d141b] dark:text-white font-bold mb-6">Contacto</h3>
+                    <ul class="space-y-3 text-sm text-gray-500 dark:text-gray-400">
+                        <li class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-primary text-lg mt-0.5">location_on</span>
+                            <span>1234 Real Estate Blvd,<br />Business District, City</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-lg">call</span>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-lg">mail</span>
+                            <span>info@ugsha.com</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-[#0d141b] dark:text-white font-bold mb-6">Boletín</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">Suscríbase para los últimos lanzamientos y
+                        consejos de inversión.</p>
+                    <div class="flex gap-2">
+                        <input
+                            class="w-full rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-sm px-3 py-2"
+                            placeholder="Email" type="email" />
+                        <button class="bg-primary hover:bg-primary/90 text-white rounded px-3 py-2">
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="border-t border-gray-200 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-400 text-xs">© 2024 Inmobiliarias Ugsha. Todos los derechos reservados.</p>
+                <div class="flex gap-6">
+                    <a class="text-gray-400 hover:text-primary text-xs transition-colors" href="#">Política de
+                        Privacidad</a>
+                    <a class="text-gray-400 hover:text-primary text-xs transition-colors" href="#">Términos de
+                        Servicio</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

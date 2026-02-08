@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Editar Cuota #{{ cuota.numero_cuota }} | SBR Gestión{% endblock %}
+{% block breadcrumb %}Editar Cuota{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning-subtle border-0 py-3 px-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-pencil-square fs-4 text-warning me-3"></i>
+                    <div>
+                        <h5 class="fw-bold mb-0">Editar Cuota #{{ cuota.numero_cuota }}</h5>
+                        <small class="text-muted">Contrato #{{ contrato.id }} - {{ contrato.cliente }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <!-- Información de la cuota (solo lectura) -->
+                <div class="row mb-4 g-3">
+                    <div class="col-6">
+                        <div class="bg-light rounded p-3 text-center">
+                            <small class="text-muted d-block">Cuota Base</small>
+                            <span class="fs-5 fw-bold text-dark">${{ cuota.valor_capital|intcomma }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-light rounded p-3 text-center">
+                            <small class="text-muted d-block">Vencimiento</small>
+                            <span class="fs-5 fw-bold text-dark">{{ cuota.fecha_vencimiento|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-light rounded p-3 text-center">
+                            <small class="text-muted d-block">Mora Actual</small>
+                            <span
+                                class="fs-5 fw-bold {% if cuota.valor_mora > 0 %}text-danger{% else %}text-success{% endif %}">$
+                                {{ cuota.valor_mora|intcomma }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-light rounded p-3 text-center">
+                            <small class="text-muted d-block">Total a Pagar</small>
+                            <span class="fs-5 fw-bold text-primary">${{ cuota.total_a_pagar|intcomma }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Valor Abonado ($)</label>
+                        <input type="number" step="0.01" name="valor_pagado" value="{{ cuota.valor_pagado|default:0 }}"
+                            class="form-control form-control-lg" min="0" required>
+                        <small class="text-muted">Lo que el cliente ha pagado de esta cuota (valor actual: $
+                            {{ cuota.valor_pagado|default:0|intcomma }})</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="mora_exenta" id="moraExenta" 
+                            {% if cuota.mora_exenta %}checked{% endif %}>
+                            <label class="form-check-label fw-bold" for="moraExenta">
+                                <i class="bi bi-shield-check me-1"></i> Exentar de Mora
+                            </label>
+                        </div>
+                        <small class="text-muted">Si está activado, esta cuota NO tendrá recargo aunque esté
+                            vencida</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Estado Actual</label>
+                        <div class="form-control bg-light">
+                            {% if cuota.estado == 'PAGADO' %}
+                            <span class="badge bg-success">PAGADO</span>
+                            {% elif cuota.estado == 'VENCIDO' %}
+                            <span class="badge bg-danger">MORA</span>
+                            {% elif cuota.estado == 'PARCIAL' %}
+                            <span class="badge bg-warning text-dark">PARCIAL</span>
+                            {% else %}
+                            <span class="badge bg-secondary">PENDIENTE</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">El estado se recalcula automáticamente según el abonado y la
+                            fecha</small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning flex-grow-1">
+                            <i class="bi bi-check-lg me-2"></i>Guardar Cambios
+                        </button>
+                        <a href="{% url 'detalle_contrato' contrato.id %}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

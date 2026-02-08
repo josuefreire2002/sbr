@@ -25,6 +25,10 @@ urlpatterns = [
     path('contrato/<int:pk>/cerrar/', views.cerrar_contrato_view, name='cerrar_contrato'),
     path('contrato/<int:pk>/cancelar/', views.cancelar_contrato_view, name='cancelar_contrato'),
     path('contrato/<int:pk>/devolucion/', views.devolucion_contrato_view, name='devolucion_contrato'),
+    
+    # --- GESTIÓN DE CUOTAS (Editar/Eliminar) ---
+    path('cuota/<int:pk>/editar/', views.editar_cuota_view, name='editar_cuota'),
+    path('cuota/<int:pk>/eliminar/', views.eliminar_cuota_view, name='eliminar_cuota'),
 
     # --- REPORTES Y ARCHIVOS ---
     # Ruta para descargar el PDF generado (WeasyPrint)

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Inmobiliarias Ugsha - Luxury Real Estate</title>
+    <!-- Google Fonts: Manrope -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1173d4",
+                        "background-light": "#f6f7f8", // Very light grey/cream tone
+                        "background-dark": "#101922", // Deep charcoal/blue
+                        "accent-cream": "#F9F9F6",
+                        "accent-charcoal": "#2C333A",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom scrollbar for masonry if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased selection:bg-primary selection:text-white">
+    <!-- Top Navigation -->
+    <header
+        class="fixed top-0 left-0 w-full z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                {% if config.logo %}
+                <img src="{{ config.logo.url }}" alt="Inmobiliarias Ugsha" class="h-10 w-auto object-contain">
+                {% else %}
+                <span class="material-symbols-outlined text-primary text-3xl">landscape</span>
+                {% endif %}
+                <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Inmobiliarias Ugsha</h1>
+            </div>
+            <!-- Desktop Menu -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors"
+                    href="{% url 'pag_web:lotes' %}">Lotes</a>
+                <a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors"
+                    href="{% url 'pag_web:nosotros' %}">Nosotros</a>
+                <a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors"
+                    href="{% url 'pag_web:contacto' %}">Contacto</a>
+            </nav>
+            <!-- Mobile Menu Action -->
+            <button class="md:hidden p-2 text-slate-900 dark:text-white">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <!-- CTA Button -->
+            <div class="hidden md:block">
+                <button
+                    class="bg-primary hover:bg-primary/90 text-white text-sm font-bold py-2.5 px-6 rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Solicitar Info
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content Wrapper -->
+    <main class="relative w-full overflow-hidden pt-20">
+        <!-- Split Hero Section -->
+        <section class="min-h-[calc(100vh-80px)] w-full flex flex-col lg:flex-row">
+            <!-- Left: Imagery -->
+            <div class="relative w-full lg:w-1/2 h-[50vh] lg:h-auto overflow-hidden group">
+                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
+                    data-alt="Stunning sunset over a lush green vacant lot near mountains"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDtdNO1xBkcehvEW466bCqKxr-2uOAUiozyO35ZU91jBeZ0lFxGprkwBJy8UXSOj3jrSp1WQtH8_1nmPZhsaaba7Jiaqn9P_Q4CTcR_mEHJSbRFgRFqjliQ6-HVm4A9CavbD6SDCQSVFr6S2FKFMIyiJfge8LQQjNrCOQF6QXDoKeBfH8gB9E55NOfoHN5h_8THVOS6vtkmOIoep0B0tRz1lICErWcC94VC8TF2wZeo34yCCh_FeVKzEPBnRVXSHM_cjt9AkMmHeRI');">
+                </div>
+                <!-- Overlay Gradient -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-black/10">
+                </div>
+                <div class="absolute bottom-8 left-8 lg:bottom-12 lg:left-12 text-white max-w-md">
+                    <p class="uppercase tracking-widest text-xs font-semibold mb-2 opacity-80">Ubicación Destacada</p>
+                    <h3 class="text-2xl lg:text-3xl font-light">Sunset Valley Reserve</h3>
+                </div>
+            </div>
+            <!-- Right: Content & Form -->
+            <div
+                class="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 lg:p-24 bg-background-light dark:bg-background-dark">
+                <div class="max-w-md mx-auto w-full">
+                    <div class="mb-8">
+                        <span
+                            class="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wide uppercase mb-4">
+                            Nuevas Oportunidades
+                        </span>
+                        <h1
+                            class="text-4xl lg:text-5xl font-display font-light text-slate-900 dark:text-white mb-4 leading-tight">
+                            Invierta en la Naturaleza. <br />
+                            <span class="font-bold text-slate-800 dark:text-slate-100">Construya su Legado.</span>
+                        </h1>
+                        <p class="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
+                            Lotes exclusivos disponibles en ubicaciones privilegiadas. Asegure su santuario donde el
+                            lujo se encuentra con la naturaleza. Únase a la lista de espera VIP hoy.
+                        </p>
+                    </div>
+                    <!-- Lead Capture Form -->
+                    <form
+                        class="flex flex-col gap-4 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400"
+                                for="name">Nombre Completo</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">person</span>
+                                <input
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    id="name" placeholder="Juan Pérez" type="text" />
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400"
+                                for="email">Correo Electrónico</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">mail</span>
+                                <input
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    id="email" placeholder="juan@ejemplo.com" type="email" />
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400"
+                                for="phone">Teléfono</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">call</span>
+                                <input
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    id="phone" placeholder="+593 99 999 9999" type="tel" />
+                            </div>
+                        </div>
+                        <button
+                            class="mt-2 w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 group"
+                            type="button">
+                            <span>Unirse a Lista VIP</span>
+                            <span
+                                class="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">arrow_forward</span>
+                        </button>
+                        <p class="text-center text-xs text-slate-400 mt-2">
+                            Disponibilidad limitada. Respetamos su privacidad.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </section>
+        <!-- Curated Lots (Masonry) -->
+        <section class="py-20 lg:py-28 px-6 lg:px-16 max-w-[1440px] mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                <div>
+                    <h2 class="text-3xl lg:text-4xl font-light text-slate-900 dark:text-white mb-3">Lotes Seleccionados
+                    </h2>
+                    <p class="text-slate-500 dark:text-slate-400 max-w-lg">Propiedades elegidas a mano que ofrecen el
+                        equilibrio perfecto entre privacidad y accesibilidad.</p>
+                </div>
+                <a class="flex items-center gap-1 text-primary font-bold hover:underline"
+                    href="{% url 'pag_web:lotes' %}">
+                    Ver todos los lotes <span class="material-symbols-outlined text-sm">arrow_outward</span>
+                </a>
+            </div>
+            <!-- Masonry Grid -->
+            <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                <!-- Card 1 (Large) -->
+                <div class="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer shadow-lg">
+                    <div class="aspect-[3/4] w-full bg-slate-200 relative">
+                        <img alt="Dense forest lot with sunbeams penetrating the canopy"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            data-alt="Dense forest lot with sunbeams"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0Ot3D6nUTuKkLbLZwfwxMXFGWz4d5egsPtgW9-LRobWXjfjJ6BFmIOkzvVw9uM7Mrso_icJfjLr-TvhktzCxGjZegc9E77gHfCHtDX0AXadVEn8zHGWwb1CQ6k1Ll53fHR0twaMbG2DFxfFJNXLD-mes4BO6QOYXvrE-x90tWI-EICoiIZom-okthWsE4z_UkDOuN9TRJy89zGa6b7yL4gjpWf_j0_8nsOFOkmnYSWt5hjL_2Ts0PLbLo5dPCFU5u6EiJ7VfzTt4" />
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 p-6 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-1">Forest Edge</h3>
+                                <p class="text-slate-300 text-sm flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">location_on</span>
+                                    Highlands, Sector B
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-white font-bold text-lg">$60k</p>
+                                <p class="text-slate-300 text-xs">800m²</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 (Medium) -->
+                <div class="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer shadow-lg">
+                    <div class="aspect-[4/3] w-full bg-slate-200 relative">
+                        <img alt="Open field with tall grass and blue sky"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            data-alt="Open field with tall grass"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk6y5Mly3TBx4POSMZj0FP-juPcGVuKiIcgtlQjgEn1H3XNykb2U4MtfXx_UioFuXQV15jH2trHf3NqWzHGDhCl4fRFVgG61eSXBPcHDUVG1UA_R7SuMNWstPHJR4i1sNSXNefKGOba-lo73J1_fnITMMX2KN97BFgJTUN9R44RYTVQCiwcJxRNlJ76TYotP0yWCeUifVBYHkYYQuvHbYUe5JG18sSMxeI_m3Ivj2HsaGCzCe2qQJj1a9eagK5QHaq2B9xet9czrs" />
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 p-6 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-1">Meadow View</h3>
+                                <p class="text-slate-300 text-sm flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">location_on</span>
+                                    Valley Floor
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-white font-bold text-lg">$45k</p>
+                                <p class="text-slate-300 text-xs">1200m²</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3 (Tall) -->
+                <div class="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer shadow-lg">
+                    <div class="aspect-[2/3] w-full bg-slate-200 relative">
+                        <img alt="Cliffside property with ocean view"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            data-alt="Cliffside property with view"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuClGJGi5F1Ul-yPRprpww-t3ZF9WYI6MhZXP4-T3_HY2ctYyD3qbqhnuHYVqW2Sk7wk1ZmP7Ih3pX57AafauH0iXCsIIe5Hn0ahGybuCvzYat9T7dpdclqNpnI9yhCx2tk-n7k5dAQH68KQNN-TjoMywtx3lwVFOUf2BgpN5tIMCGd8v0b2OhZq3ur9fcJAxMNour63o3QebLoyzEmSAl37W3099wqIGanpqE26bMAvA_bT5qOP2ypbBqqwPqy1nj5Twi3ROJb8n8E" />
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 p-6 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-1">Ocean Bluff</h3>
+                                <p class="text-slate-300 text-sm flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">location_on</span>
+                                    Coastal Ridge
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-white font-bold text-lg">$120k</p>
+                                <p class="text-slate-300 text-xs">950m²</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 4 (Medium) -->
+                <div class="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer shadow-lg">
+                    <div class="aspect-square w-full bg-slate-200 relative">
+                        <img alt="Riverfront property with rocks"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            data-alt="Riverfront property with rocks"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnN7H67_j7hqk35eHZaEA1OlaBtnmKYSpW55yIhd8idD0WelO3JL9XsRD38ge0-hvBil_CLwnT3dxAnisXzb_uUykE2NgYSY8CnFRqgUaRMp4d0mzn8lsQkpLnEIkShbCtZA9heupYLH6ZcGaI9cKxzPsht4FhnVLaJ42q78R1xrdwYNoT_eWZnb0pR3Y_Yzqya5W2Ur4kGHQogS6mTkcAqQFyW20XQU5iTmYJO2AYxH_n8_6-vLaTELVeymDhikY-OTv5tI-scJk" />
+                    </div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 p-6 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-1">River Run</h3>
+                                <p class="text-slate-300 text-sm flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">location_on</span>
+                                    Creek Side
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-white font-bold text-lg">$85k</p>
+                                <p class="text-slate-300 text-xs">600m²</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 5 (Text Only / CTA) -->
+                <div
+                    class="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer shadow-lg bg-primary p-8 flex flex-col justify-between min-h-[300px]">
+                    <div class="relative z-10">
+                        <span class="material-symbols-outlined text-white/50 text-5xl mb-4">maps_home_work</span>
+                        <h3 class="text-2xl font-bold text-white mb-2">¿No encuentra lo que busca?</h3>
+                        <p class="text-white/80">Disponemos de listados offline exclusivos para nuestros clientes VIP.
+                        </p>
+                    </div>
+                    <div class="relative z-10">
+                        <button class="bg-white text-primary px-4 py-2 rounded font-bold text-sm">Contactar
+                            Agente</button>
+                    </div>
+                    <!-- Decorative Circle -->
+                    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                </div>
+            </div>
+        </section>
+        <!-- Testimonials -->
+        <section class="bg-slate-100 dark:bg-slate-900 py-20">
+            <div class="max-w-[960px] mx-auto px-6 text-center">
+                <span class="material-symbols-outlined text-primary/40 text-6xl mb-6">format_quote</span>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-12">Experiencias de Clientes</h2>
+                <div class="relative">
+                    <blockquote
+                        class="text-2xl lg:text-4xl font-light italic text-slate-800 dark:text-slate-200 leading-tight mb-8">
+                        "El proceso fue impecable y la ubicación es impresionante. Inmobiliarias Ugsha nos ayudó a
+                        encontrar no solo un terreno, sino un legado para nuestros hijos."
+                    </blockquote>
+                    <div class="flex flex-col items-center justify-center gap-2">
+                        <div class="w-12 h-12 rounded-full bg-slate-300 overflow-hidden">
+                            <img class="w-full h-full object-cover" data-alt="Portrait of a smiling man"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg0UuVDDrq2K8JzZiXtbPl694dZdUXaAh8WaPXpe1Nq34Co3RbaH44GPzsHFsVG-DKugMvDrgMKP1CLuR0GXZQAytzmSH__VR0KcgmDJpeosXoXEVMJK6w68T4V-Mu2xIAzKpk5jDQGmvx6P4zXoxueE5aq7VgzVbZdBH8Wp1GW28ztEvhCcqxvMZ4d-SWPQmqI-T4uEHyZWoUk6kmHhe2ndz2akRvzxcVAPePhpQKN2a73XhRpoKozuvSyMiIDzlAPfeSSc_11WI" />
+                        </div>
+                        <div>
+                            <cite class="not-italic font-bold text-slate-900 dark:text-white block">Roberto Fox</cite>
+                            <span class="text-sm text-slate-500">Propietario, Sunset Ridge</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Map Section -->
+        <section class="relative h-[500px] w-full bg-slate-200 dark:bg-slate-800 overflow-hidden group">
+            <!-- Background Map Image placeholder -->
+            <div class="absolute inset-0 w-full h-full bg-cover bg-center grayscale opacity-80 group-hover:grayscale-0 transition-all duration-700"
+                data-location="Map of the valley area"
+                style="background-image: url('https://placeholder.pics/svg/300');">
+            </div>
+            <div class="absolute inset-0 bg-primary/10 pointer-events-none"></div>
+            <!-- Pins -->
+            <div
+                class="absolute top-1/2 left-1/3 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group/pin cursor-pointer">
+                <div
+                    class="bg-white px-3 py-1 rounded shadow-lg mb-2 opacity-0 group-hover/pin:opacity-100 transition-opacity whitespace-nowrap text-sm font-bold text-slate-800">
+                    Sunset Ridge</div>
+                <span class="material-symbols-outlined text-primary text-4xl drop-shadow-md">location_on</span>
+            </div>
+            <div
+                class="absolute top-1/3 left-2/3 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group/pin cursor-pointer">
+                <div
+                    class="bg-white px-3 py-1 rounded shadow-lg mb-2 opacity-0 group-hover/pin:opacity-100 transition-opacity whitespace-nowrap text-sm font-bold text-slate-800">
+                    Lakeside Reserve</div>
+                <span class="material-symbols-outlined text-primary text-4xl drop-shadow-md">location_on</span>
+            </div>
+            <!-- Floating CTA -->
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2">
+                <button
+                    class="bg-white dark:bg-slate-800 text-primary dark:text-white font-bold py-3 px-8 rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-2 border border-slate-100 dark:border-slate-700">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Agendar una Visita
+                </button>
+            </div>
+        </section>
+        <!-- Footer -->
+        <footer class="bg-background-dark text-slate-300 py-12 border-t border-slate-800">
+            <div class="max-w-[1440px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4 text-white">
+                        <span class="material-symbols-outlined text-primary">landscape</span>
+                        <span class="text-xl font-bold">Inmobiliarias Ugsha</span>
+                    </div>
+                    <p class="max-w-sm text-sm text-slate-400">
+                        Conectándolo con los mejores paisajes naturales. Nos especializamos en lotes premium y
+                        desarrollo de terrenos para inversores exigentes.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-wider">Enlaces Rápidos</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:lotes' %}">Lotes</a>
+                        </li>
+                        <li><a class="hover:text-primary transition-colors"
+                                href="{% url 'pag_web:nosotros' %}">Nosotros</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Inversionistas</a></li>
+                        <li><a class="hover:text-primary transition-colors"
+                                href="{% url 'pag_web:contacto' %}">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-wider">Contacto</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">location_on</span>
+                            123 Green Valley Dr, Suite 400
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">phone</span>
+                            +593 99 999 9999
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">mail</span>
+                            info@ugsharealestate.com
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                class="max-w-[1440px] mx-auto px-6 mt-12 pt-8 border-t border-slate-800 text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center">
+                <p>© 2024 Inmobiliarias Ugsha. Todos los derechos reservados.</p>
+                <div class="flex gap-4 mt-4 md:mt-0">
+                    <a class="hover:text-white" href="#">Política de Privacidad</a>
+                    <a class="hover:text-white" href="#">Términos de Servicio</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+    <script>
+        // Simple script to toggle mobile menu visibility (optional interaction)
+        // Not adding JS logic as per instructions, but placeholder for structure
+    </script>
+</body>
+
+</html>

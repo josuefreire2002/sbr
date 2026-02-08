@@ -13,8 +13,12 @@ urlpatterns = [
     # Sistema de Autenticación (Login/Logout estándar de Django)
     path('accounts/', include('django.contrib.auth.urls')),
 
-
-    # Tu Aplicación Principal (Asumiendo que la llamaste 'core' o 'ventas')
+    # Página Web Pública (Landing Page)
+    # Página Web Pública (Landing Page) - Ahora en /web/
+    path('web/', include('Aplicaciones.pag_web.urls')),
+    
+    # Sistema de Gestión Interna (sbr_app) - Requiere autenticación
+    # Ahora es la página principal por defecto
     path('', include('Aplicaciones.sbr_app.urls')), 
 ]
 

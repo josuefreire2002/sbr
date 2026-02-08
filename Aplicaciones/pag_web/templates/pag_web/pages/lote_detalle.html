@@ -1,0 +1,80 @@
+{% extends 'pag_web/base_web.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ lote.nombre|default:"Lote" }} #{{ lote.numero }} - Ugsha Inmobiliarios{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="py-5 bg-dark text-white" style="margin-top: 70px;">
+    <div class="container py-4">
+        <h1 class="fw-bold">{{ lote.nombre|default:"Lote" }} #{{ lote.numero }}</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'pag_web:index' %}" class="text-warning">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'pag_web:lotes' %}" class="text-warning">Lotes</a></li>
+                <li class="breadcrumb-item active text-white">Lote #{{ lote.numero }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Imagen -->
+            <div class="col-lg-6 fade-in">
+                {% if lote.imagen %}
+                <img src="{{ lote.imagen.url }}" class="img-fluid rounded-4 shadow" alt="{{ lote.nombre }}">
+                {% else %}
+                <div class="bg-secondary rounded-4 d-flex align-items-center justify-content-center"
+                    style="height: 400px;">
+                    <i class="bi bi-geo-alt text-white" style="font-size: 6rem;"></i>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Detalles -->
+            <div class="col-lg-6 fade-in">
+                <span class="badge bg-success fs-6 mb-3">Disponible</span>
+                <h2 class="fw-bold mb-4">{{ lote.nombre|default:"Lote" }} #{{ lote.numero }}</h2>
+
+                <div class="mb-4">
+                    <span class="price-tag fs-1">${{ lote.precio_venta|intcomma }}</span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <small class="text-muted d-block">Área</small>
+                            <strong>{{ lote.area_m2|floatformat:0 }} m²</strong>
+                        </div>
+                    </div>
+                    {% if lote.manzana %}
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <small class="text-muted d-block">Manzana</small>
+                            <strong>{{ lote.manzana }}</strong>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if lote.descripcion %}
+                <p class="text-muted mb-4">{{ lote.descripcion }}</p>
+                {% endif %}
+
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="https://wa.me/593998205377?text=Hola, me interesa el Lote %23{{ lote.numero }}"
+                        target="_blank" class="btn btn-success btn-lg px-4 rounded-pill">
+                        <i class="bi bi-whatsapp me-2"></i>Consultar por WhatsApp
+                    </a>
+                    <a href="{% url 'pag_web:contacto' %}" class="btn btn-outline-primary btn-lg px-4 rounded-pill">
+                        <i class="bi bi-envelope me-2"></i>Contactar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

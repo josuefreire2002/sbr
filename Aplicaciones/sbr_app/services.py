@@ -116,6 +116,7 @@ def actualizar_moras_contrato(contrato_id):
     """
     Versión corregida: Marca VENCIDO inmediatamente si pasa la fecha,
     y aplica mora según los días de atraso configurados en Django Admin.
+    Usa Cuota.objects.filter() para evitar caché del ORM.
     """
     contrato = Contrato.objects.get(id=contrato_id)
     hoy = date.today()
@@ -125,47 +126,41 @@ def actualizar_moras_contrato(contrato_id):
     
     # Valores por defecto si el admin olvidó configurar
     dias_leve = config.mora_leve_dias if config else 1
-    val_leve  = Decimal(str(config.mora_leve_valor)) if config else Decimal('5.00')
-    dias_med  = config.mora_media_dias if config else 10
-    val_med   = Decimal(str(config.mora_media_valor)) if config else Decimal('10.00')
-    dias_grav = config.mora_grave_dias if config else 20
-    val_grav  = Decimal(str(config.mora_grave_valor)) if config else Decimal('20.00')
+    porcentaje_mora = config.mora_porcentaje if config else Decimal('3.00')
 
-    cuotas_pendientes = contrato.cuotas.filter(
+    # IMPORTANTE: Usar Cuota.objects.filter para evitar caché del ORM
+    cuotas_no_pagadas = Cuota.objects.filter(
+        contrato_id=contrato_id,
         estado__in=['PENDIENTE', 'PARCIAL', 'VENCIDO']
     )
 
-    for cuota in cuotas_pendientes:
+    for cuota in cuotas_no_pagadas:
         # Si la fecha de vencimiento es MENOR a hoy, YA VENCIÓ.
         if cuota.fecha_vencimiento < hoy:
             
             dias_retraso = (hoy - cuota.fecha_vencimiento).days
             mora_calcular = Decimal('0.00')
 
-            # ⭐ NUEVO: Respetar exención manual de mora
+            # Respetar exención manual de mora
             if cuota.mora_exenta:
-                # Si está exenta, NO se cobra mora y el estado se visualiza "Al día" (PENDIENTE)
-                # aunque la fecha haya pasado.
-                cuota.estado = 'PENDIENTE'
+                # Si está exenta, NO se cobra mora
+                cuota.estado = 'PENDIENTE' if cuota.saldo_pendiente > 0 else 'PAGADO'
                 cuota.valor_mora = Decimal('0.00')
                 cuota.save()
                 continue
             
-            # Calcular Mora Porcentual (Nueva Lógica)
-            # Si los días de retraso superan los días de gracia (mora_leve_dias)
+            # Calcular Mora Porcentual si pasaron los días de gracia
             if dias_retraso >= dias_leve:
-                porcentaje = config.mora_porcentaje if config else Decimal('3.00')
-                mora_calcular = (cuota.valor_capital * porcentaje) / Decimal('100.00')
-                # Redondear a 2 decimales
+                mora_calcular = (cuota.valor_capital * porcentaje_mora) / Decimal('100.00')
                 mora_calcular = mora_calcular.quantize(Decimal('0.01'), rounding='ROUND_HALF_UP')
 
-            # Siempre actualizar estado y mora si está vencido y no exento
+            # Actualizar estado y mora - VENCIDO tiene prioridad sobre PARCIAL
             cuota.estado = 'VENCIDO'
             cuota.valor_mora = mora_calcular
             cuota.save()
 
     # Actualizar bandera global del contrato
-    tiene_mora = contrato.cuotas.filter(estado='VENCIDO').exists()
+    tiene_mora = Cuota.objects.filter(contrato_id=contrato_id, estado='VENCIDO').exists()
     if contrato.esta_en_mora != tiene_mora:
         contrato.esta_en_mora = tiene_mora
         contrato.save()
@@ -174,22 +169,57 @@ def actualizar_moras_contrato(contrato_id):
 # 3. PROCESADOR DE PAGOS
 # ==========================================
 @transaction.atomic
-def registrar_pago_cliente(contrato_id, monto, metodo_pago, evidencia_img, usuario_vendedor):
+def registrar_pago_cliente(contrato_id, monto, metodo_pago, evidencia_img, usuario_vendedor, fecha_pago=None, cuota_origen_id=None):
     contrato = Contrato.objects.get(id=contrato_id)
     dinero_disponible = Decimal(monto)
     
+    # 1. Validar y procesar FECHA
+    if not fecha_pago:
+        fecha_real = date.today()
+    else:
+        # Puede venir como string 'YYYY-MM-DD' o ya como objeto date
+        if isinstance(fecha_pago, str):
+            try:
+                fecha_real = datetime.strptime(fecha_pago, '%Y-%m-%d').date()
+            except ValueError:
+                fecha_real = date.today()
+        else:
+            fecha_real = fecha_pago
+
     nuevo_pago = Pago.objects.create(
         contrato=contrato,
-        fecha_pago=date.today(),
+        fecha_pago=fecha_real,
         monto=monto,
         metodo_pago=metodo_pago,
         comprobante_imagen=evidencia_img,
         registrado_por=usuario_vendedor
     )
 
-    cuotas_pendientes = contrato.cuotas.filter(
+    # 2. Definir lista de cuotas a afectar
+    # Lógica: Si elige una cuota específica, comenzamos desde esa en adelante.
+    start_numero_cuota = 0
+    
+    if cuota_origen_id:
+        try:
+            cuota_origen = contrato.cuotas.get(id=cuota_origen_id)
+            start_numero_cuota = cuota_origen.numero_cuota
+        except Cuota.DoesNotExist:
+            pass # Fallback a comportamiento normal
+            
+    # Obtenemos las pendientes desde el punto de partida (o todas si no hay punto partida)
+    # Nota: Permitimos pagar 'VENCIDO', 'PENDIENTE', 'PARCIAL'.
+    # Si el usuario selecciona la cuota #5, y debe la #3, el sistema pagará la #5 y siguientes,
+    # IGNORANDO la #3. Esto es lo que el usuario pidió ("seleccionar qué cuota estoy pagando").
+    # Si no selecciona nada, el comportamiento por defecto es pagar las más antiguas primero.
+    
+    qs = contrato.cuotas.filter(
         estado__in=['PENDIENTE', 'PARCIAL', 'VENCIDO']
-    ).order_by('numero_cuota')
+    )
+    
+    if start_numero_cuota > 0:
+        qs = qs.filter(numero_cuota__gte=start_numero_cuota)
+        
+    cuotas_pendientes = qs.order_by('numero_cuota')
 
     for cuota in cuotas_pendientes:
         if dinero_disponible <= 0: break
@@ -197,36 +227,104 @@ def registrar_pago_cliente(contrato_id, monto, metodo_pago, evidencia_img, usuar
         total_deuda_cuota = cuota.total_a_pagar
         falta_por_pagar = total_deuda_cuota - cuota.valor_pagado
 
-        # Tolerance: treat amounts under $0.01 as zero (fixes decimal precision issues)
+        # Tolerance: treat amounts under $0.01 as zero
         if falta_por_pagar < Decimal('0.01'):
             cuota.estado = 'PAGADO'
-            cuota.fecha_ultimo_pago = date.today()
+            cuota.fecha_ultimo_pago = fecha_real
             cuota.save()
             continue
 
         if dinero_disponible >= falta_por_pagar:
             cuota.valor_pagado += falta_por_pagar
             cuota.estado = 'PAGADO'
-            cuota.fecha_ultimo_pago = date.today()
+            cuota.fecha_ultimo_pago = fecha_real
             dinero_disponible -= falta_por_pagar
         else:
             cuota.valor_pagado += dinero_disponible
-            # Check if remaining balance after payment is negligible
             new_remaining = falta_por_pagar - dinero_disponible
             if new_remaining < Decimal('0.01'):
                 cuota.estado = 'PAGADO'
             else:
                 cuota.estado = 'PARCIAL'
+            cuota.fecha_ultimo_pago = fecha_real 
             dinero_disponible = 0
         
         cuota.save()
 
     if dinero_disponible > 0:
-        nuevo_pago.observacion = f"Pago procesado. Saldo a favor: ${dinero_disponible}"
+        nuevo_pago.observacion = f"Pago procesado. Saldo a favor: ${dinero_disponible:.2f}"
         nuevo_pago.save()
     
     actualizar_moras_contrato(contrato.id)
     return nuevo_pago
+
+@transaction.atomic
+def recalcular_deuda_contrato(contrato_id):
+    """
+    Restaura valor_pagado en 0 y vuelve a aplicar TODOS los pagos existentes 
+    en orden cronológico. Crucial para cuando se edita o elimina un pago intermedio.
+    NOTA: NO modifica mora_exenta (eso es control manual del admin).
+    """
+    contrato = Contrato.objects.get(id=contrato_id)
+    
+    # 1. Resetear valor_pagado de TODAS las cuotas
+    contrato.cuotas.all().update(valor_pagado=0, fecha_ultimo_pago=None)
+        
+    # 2. Obtener todos los pagos en orden cronológico
+    pagos = contrato.pago_set.all().order_by('fecha_pago', 'id')
+    
+    # 3. Re-aplicar lógica de pago para cada uno (FIFO)
+    for pago in pagos:
+        dinero_disponible = pago.monto
+        fecha_pago = pago.fecha_pago
+        
+        # Refrescar cuotas desde la BD para tener datos actualizados
+        for cuota in contrato.cuotas.order_by('numero_cuota'):
+            if dinero_disponible <= 0: 
+                break
+
+            # Refrescar el objeto desde la BD
+            cuota.refresh_from_db()
+            
+            total_deuda_cuota = cuota.total_a_pagar
+            falta_por_pagar = total_deuda_cuota - cuota.valor_pagado
+
+            if falta_por_pagar < Decimal('0.01'):
+                continue  # Ya está pagada
+
+            if dinero_disponible >= falta_por_pagar:
+                cuota.valor_pagado += falta_por_pagar
+                cuota.fecha_ultimo_pago = fecha_pago
+                dinero_disponible -= falta_por_pagar
+            else:
+                cuota.valor_pagado += dinero_disponible
+                cuota.fecha_ultimo_pago = fecha_pago
+                dinero_disponible = 0
+            
+            cuota.save(update_fields=['valor_pagado', 'fecha_ultimo_pago'])
+    
+    # 4. Recalcular estados de TODAS las cuotas basándose en pagos y fechas
+    hoy = date.today()
+    for cuota in contrato.cuotas.all():
+        cuota.refresh_from_db()  # Asegurar datos frescos
+        saldo = cuota.saldo_pendiente
+        
+        if saldo < Decimal('0.01'):
+            cuota.estado = 'PAGADO'
+        elif cuota.fecha_vencimiento < hoy and not cuota.mora_exenta:
+            # VENCIDO tiene prioridad sobre PARCIAL cuando está vencido
+            cuota.estado = 'VENCIDO'
+        elif cuota.valor_pagado > 0:
+            cuota.estado = 'PARCIAL'
+        elif cuota.fecha_vencimiento < hoy:
+            cuota.estado = 'VENCIDO'
+        else:
+            cuota.estado = 'PENDIENTE'
+        
+        cuota.save(update_fields=['estado'])
+            
+    # 5. Actualizar moras (respetando mora_exenta)
+    actualizar_moras_contrato(contrato.id)
 
 # ==========================================
 # 4. GENERADOR DE PDF

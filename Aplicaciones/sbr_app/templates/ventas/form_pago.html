@@ -33,6 +33,29 @@
                 <form method="POST" enctype="multipart/form-data" id="paymentForm">
                     {% csrf_token %}
 
+                    <!-- Nuevos campos: Fecha y Cuota Referencial -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Fecha de Pago</label>
+                            <input type="date" name="fecha_pago" class="form-control" value="{{ hoy|date:'Y-m-d' }}"
+                                required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Cuota Específica</label>
+                            <select name="cuota_id" class="form-select">
+                                <option value="">-- Automático (Más antigua) --</option>
+                                {% for c in cuotas_pendientes %}
+                                <option value="{{ c.id }}">
+                                    #{{ c.numero_cuota }} - Vence: {{ c.fecha_vencimiento|date:"d/m/Y" }}
+                                    ({{ c.get_estado_display }}) - ${{ c.saldo_pendiente }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text x-small">Si selecciona una, el pago iniciará ahí y seguirá en orden.
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted text-uppercase">Monto a Recibir ($)</label>
                         <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">

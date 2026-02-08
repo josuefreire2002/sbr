@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Pago | SBR Gestión{% endblock %}
+{% block breadcrumb %}Caja > Editar Pago{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-xl-5">
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-warning bg-gradient text-dark py-4 px-4 border-0">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white bg-opacity-50 rounded-3 p-2 me-3">
+                        <i class="bi bi-pencil-square fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-0">Editar Pago #{{ pago.id }}</h4>
+                        <p class="mb-0 opacity-75 small text-uppercase fw-medium">{{ contrato.cliente.apellidos }} {{
+                            contrato.cliente.nombres }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <div class="alert alert-warning border-0 d-flex align-items-center mb-4">
+                    <i class="bi bi-exclamation-triangle-fill fs-5 me-3"></i>
+                    <div class="small">
+                        <span class="fw-bold d-block">¡Advertencia!</span>
+                        Al guardar, se recalculará toda la deuda del contrato para mantener la consistencia contable.
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Fecha de Pago</label>
+                        <input type="date" name="fecha_pago" class="form-control"
+                            value="{{ pago.fecha_pago|date:'Y-m-d' }}" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Monto ($)</label>
+                        <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                            <span class="input-group-text bg-white border-end-0 fw-bold">$</span>
+                            <input type="number" name="monto" step="0.01"
+                                class="form-control border-start-0 ps-0 fw-bold"
+                                value="{{ pago.monto|stringformat:'.2f' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Método de Pago</label>
+                        <select name="metodo_pago" class="form-select text-center fw-medium" id="selectMetodo"
+                            onchange="toggleEvidencia()">
+                            <option value="EFECTIVO" {% if pago.metodo_pago == 'EFECTIVO' %}selected{% endif %}>Efectivo
+                            </option>
+                            <option value="TRANSFERENCIA" {% if pago.metodo_pago == 'TRANSFERENCIA' %}selected{% endif %}>
+                                Transferencia</option>
+                            <option value="DEPOSITO" {% if pago.metodo_pago == 'DEPOSITO' %}selected{% endif %}>Depósito
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4 {% if pago.metodo_pago == 'EFECTIVO' %}d-none{% endif %}" id="div_evidencia">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Comprobante</label>
+                        {% if pago.comprobante_imagen %}
+                        <div class="mb-2 text-center">
+                            <a href="{{ pago.comprobante_imagen.url }}" target="_blank"
+                                class="small text-decoration-none">Ver actual</a>
+                        </div>
+                        {% endif %}
+                        <input type="file" name="comprobante" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Observación</label>
+                        <textarea name="observacion" class="form-control" rows="2">{{ pago.observacion }}</textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg fw-bold shadow-sm">
+                            <i class="bi bi-save me-2"></i> Guardar Cambios
+                        </button>
+                        <a href="{% url 'detalle_contrato' contrato.id %}" class="btn btn-light text-muted">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleEvidencia() {
+        const metodo = document.getElementById('selectMetodo').value;
+        const div = document.getElementById('div_evidencia');
+        if (metodo !== 'EFECTIVO') {
+            div.classList.remove('d-none');
+        } else {
+            div.classList.add('d-none');
+        }
+    }
+</script>
+{% endblock %}
