@@ -9,6 +9,7 @@
     <title>Inmobiliarias Ugsha - Premium Land &amp; Lots</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link rel="icon" type="image/png" href="{% static 'img/logo_ugsha.png' %}">
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
@@ -196,24 +197,33 @@
                     </a>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Lot Card 1 -->
+                    {% for lote in lotes %}
+                    <!-- Dynamic Lot Card -->
                     <div
                         class="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
                         <div class="relative aspect-[4/3] overflow-hidden">
+                            {% if lote.foto_lista %}
                             <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                data-alt="Green valley landscape with mountain view"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4VVEnNDyO3jQLfjgDk3hsuawNoszvPXRYf_2UyOxpGEx8lJgoDjnt59Ji3ol1TArF-Y04qnV7SEBtDKIAXOjmupBgS-9F6vx2Z6_s1SUen6vS_0aC3GIsRnRwYlBfKXjbCq0uDYkYJXBNDOfYAvFtSA1N8Xk8PrJMMunnpUOYlZjGXsqf0gkcHT0cY4FFyLv6MKevDXO0_pp3bIrUuf2B0SPPfMZAd-yjrjQy9Z-r1hDIOHO3r5s0deu_jXx6YlvsnoWZokqcM2k" />
+                                src="{{ lote.foto_lista.url }}" alt="Lote {{ lote.numero_lote }}" />
+                            {% else %}
+                            <div class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-6xl text-gray-400">landscape</span>
+                            </div>
+                            {% endif %}
+
                             <div
                                 class="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-                                Nueva Etapa
+                                Disponible
                             </div>
                             <div
                                 class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-                                <p class="text-white font-bold text-lg">Lote El Mirador</p>
+                                <p class="text-white font-bold text-lg">Lote #{{ lote.numero_lote }}</p>
+                                {% if lote.manzana %}
                                 <p class="text-gray-200 text-sm flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">location_on</span>
-                                    Valle Norte, Sector 4
+                                    <span class="material-symbols-outlined text-sm">grid_3x3</span>
+                                    Manzana {{ lote.manzana }}
                                 </p>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="p-5">
@@ -221,94 +231,30 @@
                                 class="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
                                 <div>
                                     <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Precio</p>
-                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">$25,000</p>
+                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">${{
+                                        lote.precio_contado }}</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Área</p>
-                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">500 <span
-                                            class="text-base font-sans font-normal">m²</span></p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Dimensiones
+                                    </p>
+                                    <p class="text-base font-serif font-bold text-[#0d141b] dark:text-white">{{
+                                        lote.dimensiones }}</p>
                                 </div>
                             </div>
-                            <button
-                                class="w-full py-2.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white font-bold text-sm transition-colors">
+                            <a href="{% url 'pag_web:lote_detalle' lote.id %}"
+                                class="block w-full py-2.5 rounded-lg border border-primary text-center text-primary hover:bg-primary hover:text-white font-bold text-sm transition-colors">
                                 Ver Detalles
-                            </button>
+                            </a>
                         </div>
                     </div>
-                    <!-- Lot Card 2 -->
-                    <div
-                        class="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                        <div class="relative aspect-[4/3] overflow-hidden">
-                            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                data-alt="Wide field with trees and sunset"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHaURO_o-Td6DDoPyJ2Yrn6_JDgmpyfirr0nOaXU1IDu4tYAVvGgcThvFs4zCyYAxjQVZu3pGgGE1sU5rpfNCLKOhVdG0JFZu_N6_NrsaOtuEhY9EYQqh7zf0hl1lYdyiv77e5tGGbo5Qlqww4syPbpA3sN-caiQyStHoPTluNaFf6dZojDBmChYKS0RUdinUA4KB1J12aImJqIdeF7P1LyttoV90gBKsl0Ubux-aGUB6f_WBSbX3wQ4XA38u8C15FEexGDIh0lgY" />
-                            <div
-                                class="absolute top-4 left-4 bg-gold-accent text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-                                Mejor Valor
-                            </div>
-                            <div
-                                class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-                                <p class="text-white font-bold text-lg">Hacienda Verde</p>
-                                <p class="text-gray-200 text-sm flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">location_on</span>
-                                    Distrito Lagos
-                                </p>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <div
-                                class="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-                                <div>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Precio</p>
-                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">$55,000</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Área</p>
-                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">1,200 <span
-                                            class="text-base font-sans font-normal">m²</span></p>
-                                </div>
-                            </div>
-                            <button
-                                class="w-full py-2.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white font-bold text-sm transition-colors">
-                                Ver Detalles
-                            </button>
-                        </div>
+                    {% empty %}
+                    <div class="col-span-1 md:col-span-3 text-center py-10">
+                        <span
+                            class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 mb-4">gite</span>
+                        <h3 class="text-xl font-bold text-gray-500 dark:text-gray-400">Próximamente Nuevos Lotes</h3>
+                        <p class="text-gray-400 mt-2">Estamos preparando nuevas etapas para usted.</p>
                     </div>
-                    <!-- Lot Card 3 -->
-                    <div
-                        class="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                        <div class="relative aspect-[4/3] overflow-hidden">
-                            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                data-alt="Sunny meadow near forest edge"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPWomLRNhw_zIpPmczo4yfdlHo5l1-n_s5QX2zJJidKVIg_yHtcp495W_9RS-A1hIC4QNUrY3SAJCYQzuJdYakgWRYgNylACzWkNYCc70uFIdMVcHdJMxoQUHRZF9-y1W8FeDdvDAmIR6TtioNxV4PZz7eQ51Jc6XiRE3mPJnlUH4YRi-AbT_2ewYI-fP6hMCVOnax4dsNGUDqgXZoFqmhu_8H4NoPwCOB59WwXJtCHuwFyUo1tnhUhx-FSBOT_8PmrcIejd0BLSE" />
-                            <div
-                                class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-                                <p class="text-white font-bold text-lg">Parcela Santuario</p>
-                                <p class="text-gray-200 text-sm flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">location_on</span>
-                                    Borde del Bosque
-                                </p>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <div
-                                class="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-                                <div>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Precio</p>
-                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">$38,000</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Área</p>
-                                    <p class="text-xl font-serif font-bold text-[#0d141b] dark:text-white">800 <span
-                                            class="text-base font-sans font-normal">m²</span></p>
-                                </div>
-                            </div>
-                            <button
-                                class="w-full py-2.5 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white font-bold text-sm transition-colors">
-                                Ver Detalles
-                            </button>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
                 <div class="mt-12 text-center">
                     <button

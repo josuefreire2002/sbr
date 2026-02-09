@@ -677,7 +677,10 @@ def crear_lote_view(request):
             # Handle image upload
             if 'imagen' in request.FILES:
                 lote.imagen = request.FILES['imagen']
-                lote.save()
+            if 'foto_lista' in request.FILES:
+                lote.foto_lista = request.FILES['foto_lista']
+                
+            lote.save()
             messages.success(request, "Lote creado correctamente en el inventario.")
             return redirect('gestion_lotes')
         except Exception as e:
@@ -715,6 +718,9 @@ def editar_lote_view(request, pk):
             # Handle image upload
             if 'imagen' in request.FILES:
                 lote.imagen = request.FILES['imagen']
+            if 'foto_lista' in request.FILES:
+                lote.foto_lista = request.FILES['foto_lista']
+                
             lote.save()
             messages.success(request, f"Lote #{lote.id} actualizado correctamente.")
             return redirect('gestion_lotes')

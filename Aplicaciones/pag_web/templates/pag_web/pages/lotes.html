@@ -25,8 +25,9 @@
             <div class="col-lg-4 col-md-6 fade-in">
                 <div class="property-card card-hover">
                     <div class="position-relative">
-                        {% if lote.imagen %}
-                        <img src="{{ lote.imagen.url }}" class="card-img-top" alt="{{ lote.nombre }}">
+                        {% if lote.foto_lista %}
+                        <img src="{{ lote.foto_lista.url }}" class="card-img-top" alt="Lote {{ lote.numero_lote }}"
+                            style="height: 250px; object-fit: cover;">
                         {% else %}
                         <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
                             style="height: 200px;">
@@ -36,14 +37,14 @@
                         <span class="property-badge bg-success text-white">Disponible</span>
                     </div>
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-2">{{ lote.nombre|default:"Lote" }} #{{ lote.numero }}</h5>
+                        <h5 class="fw-bold mb-2">Lote #{{ lote.numero_lote }}</h5>
                         <p class="text-muted mb-3">
-                            <i class="bi bi-rulers me-1"></i>{{ lote.area_m2|floatformat:0 }} m²
+                            <i class="bi bi-rulers me-1"></i>{{ lote.dimensiones }}
                             {% if lote.manzana %}<span class="mx-2">|</span><i class="bi bi-grid-3x3 me-1"></i>Mz. {{
                             lote.manzana }}{% endif %}
                         </p>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="price-tag">${{ lote.precio_venta|intcomma }}</span>
+                            <span class="price-tag">${{ lote.precio_contado|intcomma }}</span>
                             <a href="{% url 'pag_web:lote_detalle' lote.id %}"
                                 class="btn btn-sm btn-outline-primary rounded-pill px-3">
                                 Ver más <i class="bi bi-arrow-right ms-1"></i>

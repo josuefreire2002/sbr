@@ -34,14 +34,25 @@
                         <input type="number" step="0.01" name="precio" class="form-control" placeholder="0.00"
                             value="{{ lote.precio_contado|stringformat:'.2f'|default:'' }}" required>
                     </div>
-                    <div class="col-12">
-                        <label class="form-label fw-bold">Foto del Lote (Opcional)</label>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Foto del Plano/Mapa (Opcional)</label>
                         <input type="file" name="imagen" class="form-control" accept="image/*">
                         {% if lote.imagen %}
-                        <div class="mt-2">
-                            <small class="text-muted">Imagen actual:</small>
-                            <img src="{{ lote.imagen.url }}" alt="Foto del lote" class="img-thumbnail mt-1"
-                                style="max-height: 150px;">
+                        <div class="mt-2 text-center">
+                            <small class="text-muted d-block">Actual:</small>
+                            <img src="{{ lote.imagen.url }}" alt="Plano" class="img-thumbnail mt-1"
+                                style="max-height: 100px;">
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Foto de Portada/Listado (Opcional)</label>
+                        <input type="file" name="foto_lista" class="form-control" accept="image/*">
+                        {% if lote.foto_lista %}
+                        <div class="mt-2 text-center">
+                            <small class="text-muted d-block">Actual:</small>
+                            <img src="{{ lote.foto_lista.url }}" alt="Portada" class="img-thumbnail mt-1"
+                                style="max-height: 100px;">
                         </div>
                         {% endif %}
                     </div>

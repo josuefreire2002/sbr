@@ -57,9 +57,14 @@
                             <td>{{ lote.provincia|default:"-" }}</td>
 
                             <td class="text-center">
-                                {% if lote.imagen %}
+                                {% if lote.foto_lista %}
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#imgModal{{ lote.id }}">
-                                    <img src="{{ lote.imagen.url }}" alt="Lote" class="img-thumbnail"
+                                    <img src="{{ lote.foto_lista.url }}" alt="Portada" class="img-thumbnail"
+                                        style="max-height: 40px; max-width: 60px;">
+                                </a>
+                                {% elif lote.imagen %}
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#imgModal{{ lote.id }}">
+                                    <img src="{{ lote.imagen.url }}" alt="Plano" class="img-thumbnail"
                                         style="max-height: 40px; max-width: 60px;">
                                 </a>
                                 {% else %}
@@ -99,8 +104,11 @@
 </div>
 
 <!-- Image Modals (outside of table for proper Bootstrap rendering) -->
+{% endif %}
+{% endfor %}
+
 {% for lote in lotes %}
-{% if lote.imagen %}
+{% if lote.foto_lista or lote.imagen %}
 <div class="modal fade" id="imgModal{{ lote.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -109,7 +117,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body text-center p-0">
-                <img src="{{ lote.imagen.url }}" alt="Foto del lote" class="img-fluid">
+                {% if lote.foto_lista %}
+                <img src="{{ lote.foto_lista.url }}" alt="Portada del lote" class="img-fluid mb-2">
+                {% endif %}
+                {% if lote.imagen %}
+                <img src="{{ lote.imagen.url }}" alt="Plano del lote" class="img-fluid">
+                {% endif %}
             </div>
         </div>
     </div>

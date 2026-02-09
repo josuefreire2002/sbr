@@ -8,12 +8,12 @@
 <!-- Page Header -->
 <section class="py-5 bg-dark text-white" style="margin-top: 70px;">
     <div class="container py-4">
-        <h1 class="fw-bold">{{ lote.nombre|default:"Lote" }} #{{ lote.numero }}</h1>
+        <h1 class="fw-bold">Lote #{{ lote.numero_lote }}</h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{% url 'pag_web:index' %}" class="text-warning">Inicio</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'pag_web:lotes' %}" class="text-warning">Lotes</a></li>
-                <li class="breadcrumb-item active text-white">Lote #{{ lote.numero }}</li>
+                <li class="breadcrumb-item active text-white">Lote #{{ lote.numero_lote }}</li>
             </ol>
         </nav>
     </div>
@@ -24,8 +24,9 @@
         <div class="row g-5">
             <!-- Imagen -->
             <div class="col-lg-6 fade-in">
-                {% if lote.imagen %}
-                <img src="{{ lote.imagen.url }}" class="img-fluid rounded-4 shadow" alt="{{ lote.nombre }}">
+                {% if lote.foto_lista %}
+                <img src="{{ lote.foto_lista.url }}" class="img-fluid rounded-4 shadow"
+                    alt="Lote {{ lote.numero_lote }}">
                 {% else %}
                 <div class="bg-secondary rounded-4 d-flex align-items-center justify-content-center"
                     style="height: 400px;">
@@ -37,17 +38,17 @@
             <!-- Detalles -->
             <div class="col-lg-6 fade-in">
                 <span class="badge bg-success fs-6 mb-3">Disponible</span>
-                <h2 class="fw-bold mb-4">{{ lote.nombre|default:"Lote" }} #{{ lote.numero }}</h2>
+                <h2 class="fw-bold mb-4">Lote #{{ lote.numero_lote }}</h2>
 
                 <div class="mb-4">
-                    <span class="price-tag fs-1">${{ lote.precio_venta|intcomma }}</span>
+                    <span class="price-tag fs-1">${{ lote.precio_contado|intcomma }}</span>
                 </div>
 
                 <div class="row g-3 mb-4">
                     <div class="col-6">
                         <div class="p-3 bg-light rounded-3">
-                            <small class="text-muted d-block">Área</small>
-                            <strong>{{ lote.area_m2|floatformat:0 }} m²</strong>
+                            <small class="text-muted d-block">Área/Dimensiones</small>
+                            <strong>{{ lote.dimensiones }}</strong>
                         </div>
                     </div>
                     {% if lote.manzana %}
@@ -65,7 +66,7 @@
                 {% endif %}
 
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="https://wa.me/593998205377?text=Hola, me interesa el Lote %23{{ lote.numero }}"
+                    <a href="https://wa.me/593998205377?text=Hola, me interesa el Lote %23{{ lote.numero_lote }}"
                         target="_blank" class="btn btn-success btn-lg px-4 rounded-pill">
                         <i class="bi bi-whatsapp me-2"></i>Consultar por WhatsApp
                     </a>

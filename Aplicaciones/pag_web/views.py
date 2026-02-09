@@ -39,7 +39,7 @@ def lotes_view(request):
     Página de todos los lotes disponibles.
     """
     context = get_context_base()
-    context['lotes'] = Lote.objects.filter(estado='DISPONIBLE').order_by('numero')
+    context['lotes'] = Lote.objects.filter(estado='DISPONIBLE').order_by('numero_lote')
     return render(request, 'pag_web/pages/lotes.html', context)
 
 

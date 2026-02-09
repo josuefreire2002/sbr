@@ -60,6 +60,8 @@ class Lote(models.Model):
     
     # Imagen opcional del lote
     imagen = models.ImageField(upload_to='lotes/', blank=True, null=True, help_text="Foto del lote (opcional)", validators=[validar_archivo_seguro])
+    # Nueva foto específica para listados (Portada)
+    foto_lista = models.ImageField(upload_to='lotes/portadas/', blank=True, null=True, help_text="Foto para mostrar en el listado (opcional)", validators=[validar_archivo_seguro])
     
     # Ubicación (Opcionales)
     ciudad = models.CharField(max_length=100, blank=True, null=True)
