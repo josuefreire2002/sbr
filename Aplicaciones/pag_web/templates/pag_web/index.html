@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 
 <html class="light" lang="es">
@@ -64,11 +65,7 @@
         <div class="px-4 md:px-10 py-3 max-w-[1280px] mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3 text-[#0d141b] dark:text-white">
                 <div class="h-10 w-auto flex items-center justify-center">
-                    {% if config and config.logo %}
-                    <img src="{{ config.logo.url }}" alt="Logo" class="h-full w-auto object-contain">
-                    {% else %}
-                    <span class="material-symbols-outlined text-3xl">landscape</span>
-                    {% endif %}
+                    <img src="{% static 'img/logo_ugsha.png' %}" alt="Logo" class="h-full w-auto object-contain">
                 </div>
                 <h2 class="text-xl font-bold leading-tight tracking-tight font-serif">Inmobiliarias Ugsha</h2>
             </div>

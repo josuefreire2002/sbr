@@ -361,9 +361,28 @@ def editar_cuota_view(request, pk):
         try:
             with transaction.atomic():
                 # Obtener el nuevo valor abonado (lo que el cliente ha pagado)
-                nuevo_abonado = Decimal(request.POST.get('valor_pagado', '0') or '0')
+                nuevo_abonado = Decimal(request.POST.get('valor_pagado', '0').replace(',', '.') or '0')
                 mora_exenta = 'mora_exenta' in request.POST
                 
+                # --- NUEVA LÓGICA DE CONSISTENCIA CONTABLE ---
+                valor_anterior = cuota.valor_pagado
+                diferencia = nuevo_abonado - valor_anterior
+
+                if diferencia != 0:
+                    # Crear registro en CAJA (Pago) para reflejar el movimiento manual
+                    tipo_ajuste = "Ajuste Manual (Ingreso)" if diferencia > 0 else "Ajuste Manual (Corrección)"
+                    observacion = f"{tipo_ajuste} en Cuota #{cuota.numero_cuota}. Valor anterior: {valor_anterior}, Nuevo: {nuevo_abonado}"
+                    
+                    Pago.objects.create(
+                        contrato=contrato,
+                        fecha_pago=date.today(),
+                        monto=diferencia, # Puede ser negativo
+                        metodo_pago='AJUSTE',
+                        observacion=observacion,
+                        registrado_por=request.user
+                    )
+                    print(f"DEBUG: Pago de ajuste creado por ${diferencia}")
+
                 # Actualizar valor pagado (ABONADO)
                 cuota.valor_pagado = nuevo_abonado
                 cuota.mora_exenta = mora_exenta
@@ -407,7 +426,7 @@ def editar_cuota_view(request, pk):
                 
                 print(f"  - Estado final después de actualizar_moras: {cuota.estado}")
                 
-            messages.success(request, f"Cuota #{cuota.numero_cuota} actualizada. Abonado: ${nuevo_abonado}, Pendiente: ${cuota.saldo_pendiente}")
+            messages.success(request, f"Cuota #{cuota.numero_cuota} actualizada. Abonado: ${nuevo_abonado}, Pendiente: ${cuota.saldo_pendiente}. Se generó un registro de caja por la diferencia.")
             return redirect('detalle_contrato', pk=contrato.id)
             
         except Exception as e:

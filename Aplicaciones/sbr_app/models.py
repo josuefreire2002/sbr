@@ -53,7 +53,7 @@ class Lote(models.Model):
     ]
 
     manzana = models.CharField(max_length=10)
-    numero_lote = models.CharField(max_length=10)
+    numero_lote = models.CharField(max_length=30)
     dimensiones = models.CharField(max_length=50, help_text="Ej: 10x20m")
     precio_contado = models.DecimalField(max_digits=12, decimal_places=2)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='DISPONIBLE')
