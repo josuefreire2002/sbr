@@ -14,8 +14,9 @@
                     </div>
                     <div>
                         <h4 class="fw-bold mb-0">Editar Pago #{{ pago.id }}</h4>
-                        <p class="mb-0 opacity-75 small text-uppercase fw-medium">{{ contrato.cliente.apellidos }} {{
-                            contrato.cliente.nombres }}</p>
+                        <p class="mb-0 opacity-75 small text-uppercase fw-medium">{{ contrato.cliente.apellidos }}
+                            {{contrato.cliente.nombres }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -51,11 +52,11 @@
                         <label class="form-label small fw-bold text-muted text-uppercase">Método de Pago</label>
                         <select name="metodo_pago" class="form-select text-center fw-medium" id="selectMetodo"
                             onchange="toggleEvidencia()">
-                            <option value="EFECTIVO" {% if pago.metodo_pago == 'EFECTIVO' %}selected{% endif %}>Efectivo
+                            <option value="EFECTIVO" {% if pago.metodo_pago=='EFECTIVO' %}selected{% endif %}>Efectivo
                             </option>
-                            <option value="TRANSFERENCIA" {% if pago.metodo_pago == 'TRANSFERENCIA' %}selected{% endif %}>
+                            <option value="TRANSFERENCIA" {% if pago.metodo_pago=='TRANSFERENCIA' %}selected{% endif %}>
                                 Transferencia</option>
-                            <option value="DEPOSITO" {% if pago.metodo_pago == 'DEPOSITO' %}selected{% endif %}>Depósito
+                            <option value="DEPOSITO" {% if pago.metodo_pago=='DEPOSITO' %}selected{% endif %}>Depósito
                             </option>
                         </select>
                     </div>

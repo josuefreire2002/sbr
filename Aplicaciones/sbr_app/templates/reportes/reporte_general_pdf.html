@@ -145,6 +145,7 @@
                 <th>L</th>
                 <th>V/TOTAL</th>
                 <th>V/ENT</th>
+                <th>SALDO</th>
                 <th>CUOTA</th>
                 {% for mes in meses %}
                 <th>{{ mes.label }}</th>
@@ -178,6 +179,7 @@
                 <td class="text-center">{{ row.lote.numero_lote }}</td>
                 <td class="text-right">${{ row.contrato.precio_venta_final }}</td>
                 <td class="text-right">${{ row.contrato.valor_entrada }}</td>
+                <td class="text-right">${{ row.saldo_pendiente }}</td>
                 <td class="text-right">
                     {% with primera_cuota=row.contrato.cuotas.first %}
                     {% if primera_cuota %}
@@ -206,8 +208,9 @@
         <tfoot>
             <tr>
                 <td colspan="8" class="text-right">TOTALES:</td>
-                <td class="text-right">-</td>
-                <td class="text-right">-</td>
+                <td class="text-right">${{ total_vtotal }}</td>
+                <td class="text-right">${{ total_entrada }}</td>
+                <td class="text-right">${{ total_saldo }}</td>
                 <td class="text-right">${{ total_cuotas|floatformat:2 }}</td>
                 {% for total in totales_mensuales %}
                 <td class="text-right">${{ total }}</td>
@@ -218,7 +221,7 @@
     </table>
 
     <div class="footer">
-        Generado automáticamente por UGSHA INMOBILIARIA - {{ hasta|date:"d/m/Y" }}
+        Generado automáticamente por CIUDADELA BELLAVISTA - {{ hasta|date:"d/m/Y" }}
     </div>
 </body>
 

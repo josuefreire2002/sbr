@@ -13,9 +13,11 @@
                         <i class="bi bi-cash-coin fs-3"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-0">Registrar Pago</h4>
-                        <p class="mb-0 opacity-75 small text-uppercase fw-medium">{{ contrato.cliente.apellidos }} {{
-                            contrato.cliente.nombres }}</p>
+                        <h4 class="fw-bold mb-0">{% if modo_edicion %}Editar Pago #{{ pago.id }}{% else %}Registrar
+                            Pago{% endif %}</h4>
+                        <p class="mb-0 opacity-75 small text-uppercase fw-medium">{{ contrato.cliente.apellidos }} 
+                            {{ contrato.cliente.nombres }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -62,7 +64,7 @@
                             <span class="input-group-text bg-white border-end-0 text-success fw-bold">$</span>
                             <input type="number" name="monto" id="montoInput" step="0.01"
                                 class="form-control border-start-0 ps-0 fw-bold text-success" placeholder="0.00"
-                                required>
+                                value="{% if modo_edicion %}{{ pago.monto|stringformat:'f' }}{% endif %}" required>
                         </div>
                         <div class="form-text x-small mt-2">
                             <i class="bi bi-info-circle-fill me-1"></i> El sistema prorrateará automáticamente el pago
@@ -75,7 +77,8 @@
                         <div class="row g-2" id="metodoGrid">
                             <div class="col-6">
                                 <input type="radio" class="btn-check" name="metodo_pago" id="metodoEfectivo"
-                                    value="EFECTIVO" checked autocomplete="off" onchange="toggleEvidencia()">
+                                    value="EFECTIVO" {% if not modo_edicion or pago.metodo_pago == 'EFECTIVO' %}checked{%
+                                    endif %} autocomplete="off" onchange="toggleEvidencia()">
                                 <label
                                     class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center"
                                     for="metodoEfectivo">
@@ -85,7 +88,8 @@
                             </div>
                             <div class="col-6">
                                 <input type="radio" class="btn-check" name="metodo_pago" id="metodoTransf"
-                                    value="TRANSFERENCIA" autocomplete="off" onchange="toggleEvidencia()">
+                                    value="TRANSFERENCIA" {% if modo_edicion and pago.metodo_pago != 'EFECTIVO'
+                                    %}checked{% endif %} autocomplete="off" onchange="toggleEvidencia()">
                                 <label
                                     class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center"
                                     for="metodoTransf">
@@ -105,8 +109,12 @@
                     </div>
 
                     <div class="pt-2">
-                        <button type="submit" class="btn btn-success btn-lg w-100 py-3 shadow-sm fw-bold mb-3">
-                            <i class="bi bi-check2-circle me-2"></i> PROCESAR PAGO
+                        <button type="submit"
+                            class="btn btn-{% if modo_edicion %}primary{% else %}success{% endif %} btn-lg w-100 py-3 shadow-sm fw-bold mb-3">
+                            <i class="bi bi-check2-circle me-2"></i> {% if modo_edicion %}ACTUALIZAR PAGO 
+                            {% else %}
+                            PROCESAR PAGO
+                            {% endif %}
                         </button>
                         <a href="{% url 'detalle_contrato' contrato.id %}" class="btn btn-light w-100 py-2 text-muted">
                             Volver al detalle

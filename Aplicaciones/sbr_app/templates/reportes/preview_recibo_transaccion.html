@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% load numeros_letras %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Vista Previa de Recibo - Pago #{{ pago.numero_transaccion }}</h5>
+            <div>
+                <a href="{% url 'descargar_recibo_transaccion' pago.id %}"
+                    class="btn btn-light btn-sm text-primary fw-bold">
+                    <i class="bi bi-download"></i> Descargar PDF
+                </a>
+                <a href="{% url 'detalle_contrato' contrato.id %}" class="btn btn-outline-light btn-sm ms-2">
+                    Volver
+                </a>
+            </div>
+        </div>
+        <div class="card-body bg-light d-flex justify-content-center">
+            <!-- Representación HTML simple del recibo para confirmar antes de descargar -->
+            <div class="bg-white border p-5 shadow" style="width: 210mm; min-height: 148mm; position: relative;">
+
+                <!-- Header -->
+                <div class="d-flex justify-content-between mb-4">
+                    <div class="d-flex align-items-center">
+                        <img src="{% static 'img/logo_bellavista.png' %}" width="100" class="me-3">
+                        <div>
+                            <h4 class="mb-0 fw-bold">CIUDADELA BELLAVISTA</h4>
+                            <div class="fst-italic text-muted">Líderes en Bienes Raíces</div>
+                            <small>Calle Tovar y Velasco Ibarra (Cashapamba)</small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <h4 class="fw-bold">PAGO #{{ pago.numero_transaccion }}</h4>
+                        <div class="border rounded p-2 d-inline-block text-center mt-2">
+                            <small class="d-block fw-bold bg-black text-white px-2">FECHA</small>
+                            <div>{{ fecha_pago|date:"d / m / Y" }}</div>
+                        </div>
+                        <div class="mt-2 text-end">
+                            <span class="fw-bold fs-4 border px-3 py-1 rounded shadow-sm">${{
+                                monto_pagado|floatformat:2|intcomma }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="mb-3 border-bottom pb-1">
+                    <strong class="me-2">Cliente:</strong> {{ cliente.apellidos }} {{ cliente.nombres }}
+                </div>
+                <div class="mb-3 border-bottom pb-1 d-flex justify-content-between">
+                    <div><strong class="me-2">C.I.:</strong> {{ cliente.cedula }}</div>
+                    <div><strong class="me-2">Telf.:</strong> {{ cliente.celular }}</div>
+                </div>
+                <div class="mb-3 border-bottom pb-1">
+                    <strong class="me-2">La suma de:</strong> <span class="text-primary fw-bold"
+                        style="font-family: monospace;">{{ monto_pagado|numero_a_letras }} Dólares</span>
+                </div>
+                <div class="mb-3 border-bottom pb-1">
+                    <strong class="me-2">Por concepto de:</strong> PAGO CUOTA(S) {{ cuotas_str }} - Contrato #{{
+                    contrato.id }}
+                </div>
+
+                <!-- Footer (simulated) -->
+                <div class="row mt-5 pt-5">
+                    <div class="col-4 text-center">
+                        <div class="border-top border-dark pt-2">
+                            <strong>RECIBÍ CONFORME</strong><br>
+                            <small>Guillermo Ugsha</small>
+                        </div>
+                    </div>
+                    <div class="col-4 offset-4 text-center">
+                        <div class="border-top border-dark pt-2">
+                            <strong>ENTREGUÉ CONFORME</strong><br>
+                            <small>{{ cliente.nombres }}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="position-absolute bottom-0 start-0 w-100 text-center pb-3 small text-muted">
+                    Celular: 099 820 5377 | E-mail: guilloestud@hotmail.es
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

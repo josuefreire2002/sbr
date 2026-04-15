@@ -1,530 +1,343 @@
 {% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% load numeros_letras %}
 
-{% block title %}Nueva Venta | SBR Gestión{% endblock %}
-{% block breadcrumb %}Registro de Contrato{% endblock %}
+{% block title %}Vista Previa del Contrato{% endblock %}
 
 {% block content %}
-<div class="row g-4">
-    <div class="col-12">
-        <div class="d-flex align-items-center mb-4">
-            <div class="bg-primary-subtle rounded-3 p-2 me-3">
-                <i class="bi bi-file-earmark-plus text-primary fs-3"></i>
-            </div>
-            <div>
-                <h3 class="fw-bold mb-0">Nueva Venta / Contrato</h3>
-                <p class="text-muted mb-0">Complete los datos para generar un nuevo contrato de lote.</p>
-            </div>
-        </div>
-    </div>
-
-    <form method="POST" action="{% url 'crear_venta' %}" id="formVenta" class="col-12" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row g-4">
-            <!-- Step 1: Client Information -->
-            <div class="col-lg-4">
-                <div class="card border-0 h-100 shadow-sm">
-                    <div class="card-header border-0 bg-transparent pt-4 px-4">
-                        <div class="d-flex align-items-center">
-                            <span
-                                class="badge bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center"
-                                style="width: 24px; height: 24px;">1</span>
-                            <h5 class="fw-bold mb-0">Datos del Cliente</h5>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Fecha del Contrato</label>
-                            <input type="date" name="fecha_contrato" class="form-control" required
-                                value="{% now 'Y-m-d' %}">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Cédula / RUC</label>
-                            <input type="text" name="cedula" class="form-control" placeholder="0000000000" required>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label class="form-label small fw-bold text-uppercase text-muted">Apellidos</label>
-                                <input type="text" name="apellidos" class="form-control text-uppercase"
-                                    placeholder="APELLIDOS" required>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small fw-bold text-uppercase text-muted">Nombres</label>
-                                <input type="text" name="nombres" class="form-control text-uppercase"
-                                    placeholder="NOMBRES" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Celular</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-muted"><i
-                                        class="bi bi-phone"></i></span>
-                                <input type="text" name="celular" class="form-control border-start-0 ps-0"
-                                    placeholder="0900000000" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Email (Opcional)</label>
-                            <input type="email" name="email" class="form-control" placeholder="cliente@ejemplo.com">
-                        </div>
-
-                        <div class="mb-0">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Dirección</label>
-                            <textarea name="direccion" class="form-control" rows="2"
-                                placeholder="Ciudad, Barrio, Calle..." required></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 2: Lote Assignment -->
-            <div class="col-lg-4">
-                <div class="card border-0 h-100 shadow-sm">
-                    <div class="card-header border-0 bg-transparent pt-4 px-4">
-                        <div class="d-flex align-items-center">
-                            <span
-                                class="badge bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center"
-                                style="width: 24px; height: 24px;">2</span>
-                            <h5 class="fw-bold mb-0">Asignación de Lote</h5>
-                        </div>
-                    </div>
-                    <div class="card-body p-4 text-center d-flex flex-column">
-                        <div class="mb-4 text-start">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Lotes Disponibles</label>
-                            <select class="form-select select2" name="lote_id" id="select_lote" required
-                                multiple="multiple">
-                                {% for lote in lotes_disponibles %}
-                                <option value="{{ lote.id }}" data-precio="{{ lote.precio_contado }}"
-                                    data-dim="{{ lote.dimensiones }}">
-                                    Mz {{ lote.manzana }} - Lote {{ lote.numero_lote }} ({{ lote.dimensiones }})
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div id="lote_preview"
-                            class="mt-2 flex-grow-1 d-flex flex-column justify-content-center border border-dashed rounded-4 p-4"
-                            style="border-style: dashed !important; border-width: 2px !important;">
-                            <div class="empty-selection py-4">
-                                <i class="bi bi-map text-muted opacity-25" style="font-size: 80px;"></i>
-                                <p class="text-muted mt-3">Seleccione un lote para ver sus especificaciones.</p>
-                            </div>
-
-                            <div class="lote-details d-none text-start">
-                                <div class="text-center mb-4">
-                                    <div class="bg-success-subtle d-inline-block rounded-circle p-3 mb-2">
-                                        <i class="bi bi-check-circle-fill text-success fs-3"></i>
-                                    </div>
-                                    <h5 class="fw-bold mb-0" id="preview_title">Mz 0 - Lote 0</h5>
-                                    <span class="badge bg-success rounded-pill x-small">DISPONIBLE</span>
-                                </div>
-
-                                <div class="bg-light rounded-3 p-3 mb-3">
-                                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
-                                        <span class="text-muted small">Dimensiones:</span>
-                                        <span class="fw-bold" id="lbl_dimensiones">-</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted small">Precio de Lista:</span>
-                                        <span class="fw-bold text-primary" id="lbl_precio_lista">$0.00</span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="p-2 border border-info-subtle bg-info-subtle bg-opacity-10 rounded-3 d-flex">
-                                    <i class="bi bi-info-circle text-info me-2"></i>
-                                    <small class="text-info-emphasis">Este lote está disponible para financiamiento
-                                        inmediato.</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 3: Financial Plan -->
-            <div class="col-lg-4">
-                <div class="card border-0 h-100 shadow-sm border-top border-primary border-4">
-                    <div class="card-header border-0 bg-transparent pt-4 px-4">
-                        <div class="d-flex align-items-center">
-                            <span
-                                class="badge bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center"
-                                style="width: 24px; height: 24px;">3</span>
-                            <h5 class="fw-bold mb-0">Plan Financiero</h5>
-                        </div>
-                    </div>
-                    <div class="card-body p-4 bg-light bg-opacity-25">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Precio de Venta
-                                ($)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0">$</span>
-                                <input type="number" step="0.01" name="precio_final" id="input_precio_final"
-                                    class="form-control border-start-0 ps-0 fw-bold fs-5" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Entrada / Abono
-                                ($)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 text-success">$</span>
-                                <input type="number" step="0.01" name="entrada" id="input_entrada"
-                                    class="form-control border-start-0 ps-0" required>
-                            </div>
-                        </div>
-
-                        <!-- Nueva Sección: Método de Pago de la Entrada -->
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Forma de Pago de
-                                Entrada</label>
-                            <select class="form-select" name="metodo_pago_entrada" id="select_metodo_entrada" required>
-                                <option value="EFECTIVO">Efectivo</option>
-                                <option value="TRANSFERENCIA">Transferencia Bancaria</option>
-                                <option value="DEPOSITO">Depósito</option>
-                            </select>
-                            <button type="button" class="btn btn-outline-secondary btn-sm mt-2 d-none w-100"
-                                id="btnRevisarModal">
-                                <i class="bi bi-pencil-square me-1"></i> Ver/Editar Datos Bancarios
-                            </button>
-                        </div>
-
-                        <!-- Campos Ocultos para almacenar lo del Modal -->
-                        <input type="hidden" name="banco_entrada" id="hidden_banco">
-                        <input type="hidden" name="cuenta_entrada" id="hidden_cuenta">
-
-
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Día de Cobro
-                                Mensual</label>
-                            <input type="date" name="fecha_primer_pago" class="form-control" required>
-                            <div class="form-text x-small">Define el vencimiento de todas las cuotas.</div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Plazo (Meses)</label>
-                            <div class="input-group">
-                                <input type="number" name="plazo" id="input_plazo" class="form-control"
-                                    placeholder="12, 24, 36..." required>
-                                <span class="input-group-text bg-white">meses</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Observaciones</label>
-                            <textarea name="observacion" class="form-control" rows="2"></textarea>
-                        </div>
-
-                        <div class="bg-white rounded-3 p-4 shadow-sm mb-4 border border-primary border-dashed"
-                            style="border-style: dashed !important;">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted small fw-medium">Saldo a Financiar:</span>
-                                <span class="fw-bold" id="lbl_saldo">$0.00</span>
-                                <input type="hidden" name="saldo" id="input_saldo">
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted small fw-medium">Cuota Estimada:</span>
-                                <h4 class="mb-0 text-primary fw-bold" id="lbl_cuota">$0.00</h4>
-                            </div>
-                        </div>
-
-                        <button type="submit"
-                            class="btn btn-primary w-100 py-3 shadow-sm d-flex justify-content-center align-items-center">
-                            <i class="bi bi-file-earmark-check fs-5 me-2"></i>
-                            <span class="fw-bold">GENERAR CONTRATO</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-
-<!-- Modal de Transferencia (Moved outside form) -->
-<div class="modal fade" id="modalTransferencia" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold"><i class="bi bi-bank me-2"></i>Detalle de Transferencia</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info py-2 small mb-3">
-                    <i class="bi bi-info-circle me-1"></i> Por favor complete los datos del comprobante.
-                </div>
-
-                <div id="modal_bank_fields">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Banco de Origen / Destino</label>
-                        <select class="form-select" id="modal_input_banco">
-                            <option value="">-- Seleccione --</option>
-                            <option value="PICHINCHA">Banco Pichincha</option>
-                            <option value="GUAYAQUIL">Banco Guayaquil</option>
-                            <option value="PRODUBANCO">Produbanco</option>
-                            <option value="PACIFICO">Banco del Pacífico</option>
-                            <option value="AUSTRO">Banco del Austro</option>
-                            <option value="INTERNACIONAL">Banco Internacional</option>
-                            <option value="OTRO">Otro</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Número de Cuenta / Comprobante</label>
-                        <input type="text" class="form-control" id="modal_input_cuenta" placeholder="Ej: 123456">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold small">Evidencia (Imagen o PDF) <span
-                            class="text-muted fw-normal fst-italic">(Opcional)</span></label>
-                    <!-- IMPORTANT: form="formVenta" allows this input to submit with the main form even if outside -->
-                    <input type="file" class="form-control" name="comprobante" accept="image/*,.pdf" form="formVenta">
-                    <div class="form-text x-small">Suba una foto o documento del depósito.</div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="btnCancelarModal">Cancelar (Volver a
-                    Efectivo)</button>
-                <button type="button" class="btn btn-primary" id="btnGuardarModal">Guardar Datos</button>
-            </div>
-        </div>
+<div class="d-print-none position-fixed bottom-0 end-0 p-3" style="z-index: 100">
+    <div class="btn-group shadow-lg rounded-pill" role="group">
+        <a href="{% url 'descargar_word' contrato.id %}" class="btn btn-primary px-4 rounded-start-pill">
+            <i class="bi bi-file-earmark-word me-2"></i> Descargar Word
+        </a>
+        <a href="{% url 'descargar_pdf' contrato.id %}" class="btn btn-danger px-4">
+            <i class="bi bi-file-earmark-pdf me-2"></i> Descargar PDF
+        </a>
+        <button onclick="window.print()" class="btn btn-secondary px-4 rounded-end-pill">
+            <i class="bi bi-printer-fill me-2"></i> Imprimir
+        </button>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const selectLote = document.getElementById('select_lote');
-        const inputPrecioFinal = document.getElementById('input_precio_final');
-        const inputEntrada = document.getElementById('input_entrada');
-        const inputPlazo = document.getElementById('input_plazo');
-        const lblPrecioLista = document.getElementById('lbl_precio_lista');
-        const lblDimensiones = document.getElementById('lbl_dimensiones');
-        const lblSaldo = document.getElementById('lbl_saldo');
-        const inputSaldo = document.getElementById('input_saldo');
-        const lblCuota = document.getElementById('lbl_cuota');
-        const preview_title = document.getElementById('preview_title');
+<div class="container mt-4 mb-5 d-print-none">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'detalle_contrato' contrato.id %}">Detalle Cliente</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Vista Previa Contrato</li>
+        </ol>
+    </nav>
+</div>
 
-        const selectMetodo = document.getElementById('select_metodo_entrada');
+<div class="hoja-word mx-auto bg-white shadow-sm">
+    <table class="contract-table">
+        <thead>
+            <tr>
+                <td>
+                    <div class="header-space">
+                        <header class="header-contrato">
+                            <div class="row align-items-end g-0">
+                                <div class="col-3">
+                                    <img src="{% static 'img/logo_bellavista.png' %}" alt="Logo" class="logo-img">
+                                </div>
+                                <div class="col-9">
+                                    <h1 class="titulo-proyecto">Proyecto de Urbanización La Quinta del Moral</h1>
+                                    <div class="linea-divisoria"></div>
+                                </div>
+                            </div>
+                        </header>
+                    </div>
+                </td>
+            </tr>
+        </thead>
 
-        // Modal elements
-        const modalTransferencia = new bootstrap.Modal(document.getElementById('modalTransferencia'));
-        const modalElement = document.getElementById('modalTransferencia');
-        const btnGuardarModal = document.getElementById('btnGuardarModal');
-        const btnCancelarModal = document.getElementById('btnCancelarModal');
+        <tbody>
+            <tr>
+                <td>
+                    <div class="content-body">
 
-        const modalInputBanco = document.getElementById('modal_input_banco');
-        const modalInputCuenta = document.getElementById('modal_input_cuenta');
-        const hiddenBanco = document.getElementById('hidden_banco');
-        const hiddenCuenta = document.getElementById('hidden_cuenta');
+                        <div class="subtitulo-contrato text-center mb-4 fst-italic text-secondary">
+                            CONTRATO DE RESERVA DE LOTE DE TERRENO
+                        </div>
 
-        const empty_selection = document.querySelector('.empty-selection');
-        const lote_details = document.querySelector('.lote-details');
+                        <p class="parrafo">
+                            En la ciudad de La Maná, a los <strong>{{ contrato.fecha_contrato|date:"d" }}</strong> días
+                            del mes de <strong>{{ contrato.fecha_contrato|date:"F" }}</strong> de <strong>
+                                {{contrato.fecha_contrato|date:"Y" }}</strong>, proceden a celebrar de manera libre y
+                            voluntaria, el presente contrato de <strong>reserva del lote de terreno</strong>, por una
+                            parte, el señor <strong>GUILLERMO UGSHA ILAQUICHE</strong>, con la cedula de identidad <span
+                                class="no-break">Nº 050289591-5</span>, en representación legal y propietario del
+                            <strong>"PROYECTO DE URBANIZACIÓN LA QUINTA DEL MORAL"</strong>, por sus propios derechos; y
+                            por otra parte El/la señor/a. <strong>{{ contrato.cliente.apellidos|upper }}
+                                {{contrato.cliente.nombres|upper }}</strong> con la cedula de identidad <span
+                                class="no-break">Nº {{ contrato.cliente.cedula }}</span>, en calidad de contratantes,
+                            también por sus propios derechos, todos los comparecientes son mayores de edad, con
+                            capacidad para proceder y obligarse, lo hacen de conformidad a las clausulas siguientes.
+                        </p>
 
-        const modalBankFields = document.getElementById('modal_bank_fields');
+                        <p class="parrafo">
+                            <strong>PRIMERA. –</strong> a) El señor. <strong>GUILLERMO UGSHA ILAQUICHE</strong>; Es
+                            propietario de un lote de terreno, ubicado en Cantón La Maná, sector el Moral. Bien Inmueble
+                            en el cual se desarrolla el <strong>"PROYECTO DE URBANIZACIÓN LA QUINTA DEL MORAL"</strong>,
+                            b) El mencionado proyecto se encuentra con la aprobación definitiva del <strong>GAD
+                                Municipal De Cantón La Maná</strong>. c) El/la señor/a. <strong>
+                                {{contrato.cliente.apellidos|upper }} {{ contrato.cliente.nombres|upper }}</strong> con
+                            la
+                            cedula de identidad Nº <strong>{{ contrato.cliente.cedula }}</strong>, declara sus intereses
+                            de reserva <strong>lotes de terreno</strong> con el objeto de fijar el lote de terreno que
+                            se deduzca del proyecto urbanístico tantas veces referido. –
+                        </p>
 
-        // Logic for Payment Method Selection
-        selectMetodo.addEventListener('change', function () {
-            if (this.value === 'TRANSFERENCIA') {
-                modalBankFields.classList.remove('d-none');
-                modalTransferencia.show();
-                btnRevisarModal.classList.remove('d-none');
-            } else if (this.value === 'DEPOSITO') {
-                modalBankFields.classList.add('d-none');
-                modalTransferencia.show();
-                btnRevisarModal.classList.remove('d-none');
-            } else {
-                // Clear fields if Efectivo
-                hiddenBanco.value = "";
-                hiddenCuenta.value = "";
-                modalInputBanco.value = "";
-                modalInputCuenta.value = "";
-                btnRevisarModal.classList.add('d-none');
-            }
-        });
+                        <p class="parrafo">
+                            <strong>SEGUNDA. -</strong> Con estos antecedentes El/la señor/a. <strong>
+                                {{contrato.cliente.apellidos|upper }} {{ contrato.cliente.nombres|upper }}</strong> con
+                            la
+                            cedula de identidad Nº <strong>{{ contrato.cliente.cedula }}</strong>, por sus propios y
+                            personales derechos, libre y voluntariamente, reserva para sí, <strong>
+                                {% if contrato.lotes.count > 1 %}los Lotes de terreno{% else %}un Lote de terreno
+                                {%endif %}
+                            </strong>, {% if contrato.lotes.count > 1 %}signados{% else %}signado{% endif %}
+                            {% for lote in contrato.lotes.all %}
+                            <strong># {{ lote.numero_lote }} de la MZ {{ lote.manzana }}</strong> con una superficie
+                            total de <strong>{{ lote.dimensiones }}</strong>
+                            {% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            , del <strong>“PROYECTO DE URBANIZACIÓN LA QUINTA DEL MORAL”</strong>, ubicado en la ciudad
+                            de La Maná; y declara conocer que el referido proyecto se encuentra con la aprobación
+                            definitiva, al cumplimento a las ordenanzas municipales del mismo Cantón.
+                        </p>
 
-        // Review Button Logic
-        btnRevisarModal.addEventListener('click', function () {
-            modalTransferencia.show();
-        });
+                        <p class="parrafo">
+                            <strong>TERCERA. –</strong> Por otra parte el señor <strong>GUILLERMO UGSHA
+                                ILAQUICHE</strong>, acepta la pretensión de los contratantes aclarado por el presente
+                            contrato tiene por propósito fijar y congelar el precio, a objeto que no pueda variar en lo
+                            posterior, una vez que se obtenga la aprobación del proyecto de urbanización: además señala
+                            que la Urbanización se ajusta a las ordenanzas municipales del GAD municipal del cantón La
+                            Maná; En el que contempla la ejecución de servicio básico tales como: agua potable, aceras y
+                            bordillo, vías y energía eléctrica.
+                        </p>
 
-        // Save Modal Data
-        btnGuardarModal.addEventListener('click', function () {
-            // Validate only if Transferencia
-            if (selectMetodo.value === 'TRANSFERENCIA') {
-                if (modalInputBanco.value === "") {
-                    alert("Por favor seleccione un banco.");
-                    return;
-                }
-                if (modalInputCuenta.value === "") {
-                    alert("Por favor ingrese el número de cuenta o comprobante.");
-                    return;
-                }
-            }
+                        <p class="parrafo">
+                            <strong>CUARTA. –</strong> Precio y forma de pago, pactado para la presente separación del
+                            lote de terreno especificado en la cláusula segunda; es de <strong>$
+                                {{contrato.precio_venta_final|intcomma }}</strong>
+                            ({{contrato.precio_venta_final|numero_a_letras }}) dólares americanos. Pagaderos de la
+                            siguiente forma los <strong>$ {{ contrato.valor_entrada|intcomma }}</strong>
+                            ({{contrato.valor_entrada|numero_a_letras }} dólares americanos), se cancelará en la firma
+                            del
+                            presente contrato, y la diferencia en {{ contrato.numero_cuotas }} pagos mensuales.
+                        </p>
 
-            // Always save values (will be empty for Deposito if hidden/cleared, or whatever was there)
-            // Ideally should clear if Deposito
-            if (selectMetodo.value === 'DEPOSITO') {
-                hiddenBanco.value = "";
-                hiddenCuenta.value = "";
-            } else {
-                hiddenBanco.value = modalInputBanco.value;
-                hiddenCuenta.value = modalInputCuenta.value;
-            }
+                        <p class="parrafo">
+                            <strong>QUINTA. –</strong> En caso del promitente comprador desista del compromiso de la
+                            promesa de compra y venta, por cualquier motivo o causa ajena a la voluntad del promitente
+                            vendedor - se procederá a descontar el 25% del precio pactado entre partes, en la cláusula
+                            cuarta, por gastos administrativos y otros, además el saldo que hubiere favor de promitente
+                            comprador se liquidará cuando se proceda a la nueva venta del mismo lote de terreno que se
+                            motiva este contrato.
+                        </p>
 
-            modalTransferencia.hide();
-        });
+                        <p class="parrafo">
+                            <strong>SEXTA. –</strong> El <strong>promitente propietario</strong> está obligado a
+                            entregar la escritura respectiva por el lote de terreno una vez que esté construido la
+                            infraestructura del mismo proyecto de la urbanización.
+                        </p>
 
-        // Cancel Modal (Revert to Efectivo only if initial open, or just close)
-        btnCancelarModal.addEventListener('click', function () {
-            // If we are cancelling and there is no data saved (and not Deposito which might have no data), revert to Cash
-            if (hiddenBanco.value === "" && selectMetodo.value === 'TRANSFERENCIA') {
-                selectMetodo.value = 'EFECTIVO';
-                btnRevisarModal.classList.add('d-none');
-            }
-            // For Deposito, if hiddenBanco is empty it's fine. Maybe check file? But file is optional.
-            // Simplified: if nothing confirmed, revert? 
-            // Let's stick to: if we click cancel, and we haven't "Saved" before (implied by hidden values), revert.
-            // But hidden values are set on Save.
-            // Let's keep it simple: Just hide. Using logic "if empty fields -> Revert" is tricky if fields are optional.
-            // Reverting to Efectivo if "Cancelled" immediately after open is safer UX.
+                        <p class="parrafo">
+                            <strong>SÉPTIMA. -</strong> Los contratantes declara conocer que el <strong>“PROYECTO DE
+                                URBANIZACIÓN LA QUINTA DEL MORAL”</strong>, se encuentra con la aprobación definitiva,
+                            que el presente contrato no constituye privado de promesa de compraventa y que desiste de
+                            proseguir acción alguna contemplada en el artículo 201 del COIP, y lo que busca es congelar
+                            el precio pacto sobre la reserva de lotes de terreno tantas veces referido; y que, en todo
+                            caso, el presente documento constituya un título ejecutivo, con el fin de garantizar las
+                            obligaciones de reserva de los lotes de terreno.
+                        </p>
 
-            // Check if we have "saved" state. 
-            // Using the previous logic: if hidden inputs are empty, we assume no data was committed.
-            if (hiddenBanco.value === "" && selectMetodo.value === 'TRANSFERENCIA') {
-                selectMetodo.value = 'EFECTIVO';
-                btnRevisarModal.classList.add('d-none');
-            } else if (selectMetodo.value === 'DEPOSITO') {
-                // How to know if we saved for deposito? We don't save bank info.
-                // Assuming if they click cancel they changed their mind.
-                // But what if they just opened to check?
-                // Let's rely on the hidden.bs.modal for the "Revert if empty" logic
-            }
+                        <p class="parrafo">
+                            <strong>OCTAVO. –</strong> Todo el gasto relativo a la ejecución de la escritura definitiva,
+                            el derecho a la plusvalía, alcabala, derechos notariales, timbres, registro de la propiedad.
+                            Será cuenta del promitente cliente.
+                        </p>
 
-            modalTransferencia.hide();
-        });
+                        <p class="parrafo mb-5">
+                            Para constancia de todo lo estipulado, los contratos suscriben el presente, en dos
+                            ejemplares idénticos, en el mismo lugar y fecha ya indicados.
+                        </p>
 
-        // Handle manual close of modal (X button or click outside)
-        modalElement.addEventListener('hidden.bs.modal', function () {
-            // Logic to revert if no valid data is "set". 
-            // For Transferencia: if hiddenBanco is empty -> Revert.
-            // For Deposito: We don't have a required text field to check.
-            // We can add a hidden flag 'modalDataSaved'
-            if (selectMetodo.value === 'TRANSFERENCIA' && hiddenBanco.value === "") {
-                selectMetodo.value = 'EFECTIVO';
-                btnRevisarModal.classList.add('d-none');
-            }
-            if (selectMetodo.value === 'DEPOSITO') {
-                // For Deposito, since fields are optional/hidden, maybe we don't strictly revert?
-                // Or we can check if the user explicitly clicked "Guardar" using a flag?
-                // For now, let's NOT revert Deposito automatically on close, assuming they might have just viewed it.
-                // OR revert if they didn't click Save? 
-                // Let's leave Deposito as is (don't revert automatically) for better UX unless they manually cancel?
-                // Actually, if they close without saving, the form will submit empty/default.
-            }
-        });
+                        <div class="firmas-container mt-5 pt-3">
+                            <div class="row">
+                                <div class="col-6 text-center">
+                                    <div class="mx-4 pt-2 border-top border-dark border-1">
+                                        <p class="mb-0 fw-bold">Sr. GUILLERMO UGSHA ILQ.</p>
+                                        <p class="mb-0">C.I. 050289591-5</p>
+                                        <small class="fw-bold">PROMITENTE VENDEDOR</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div class="mx-4 pt-2 border-top border-dark border-1">
+                                        <p class="mb-0 fw-bold">Sr. {{ contrato.cliente.apellidos|upper }}
+                                            {{contrato.cliente.nombres|upper }}</p>
+                                        <p class="mb-0">C.I. {{ contrato.cliente.cedula }}</p>
+                                        <small class="fw-bold">PROMITENTE COMPRADOR</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
 
-        // 1. Al cambiar lote (selección múltiple), sumar precios y actualizar vista
-        $('#select_lote').on('change', function (e) {
-            const selectedOptions = $(this).select2('data');
+        <tfoot>
+            <tr>
+                <td>
+                    <div class="footer-space" style="height: 50px;">&nbsp;</div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 
-            if (selectedOptions && selectedOptions.length > 0) {
-                let totalPrecio = 0;
-                let nombresLotes = [];
-                let primerDim = "";
+<style>
+    /* FUENTES */
+    @font-face {
+        font-family: 'Yu Gothic UI Light';
+        src: local('Yu Gothic UI Light'), local('Yu Gothic UI'), local('Segoe UI Light'), sans-serif;
+    }
 
-                selectedOptions.forEach(function (item) {
-                    // item.element es el <option> original
-                    const precio = parseFloat(item.element.dataset.precio) || 0;
-                    totalPrecio += precio;
+    @font-face {
+        font-family: 'TituloSerif';
+        src: local('Cambria Italic'), local('Times New Roman Italic'), serif;
+    }
 
-                    // Limpiar texto para obtener "Mz X - Lote Y"
-                    const textoLimpio = item.text.split('(')[0].trim();
-                    nombresLotes.push(textoLimpio);
+    body {
+        background-color: #f2f2f2;
+    }
 
-                    if (!primerDim) primerDim = item.element.dataset.dim;
-                });
+    /* CONTENEDOR TIPO WORD */
+    .hoja-word {
+        width: 21cm;
+        min-height: 29.7cm;
+        background-color: white;
+        padding: 1cm 2.5cm 2.5cm 2.5cm;
+        /* Márgenes visuales en pantalla */
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
 
-                lblPrecioLista.innerText = `$${totalPrecio.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-                // Si hay más de uno, mostramos "Lotes combinados" o la lista
-                if (selectedOptions.length === 1) {
-                    lblDimensiones.innerText = primerDim;
-                } else {
-                    lblDimensiones.innerText = "Múltiples";
-                }
+    /* TABLA HACK PARA IMPRESIÓN */
+    .contract-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-                // Mostrar nombres concatenados en el título
-                // Si son muchos, acortar
-                if (nombresLotes.length > 2) {
-                    preview_title.innerText = `${nombresLotes.length} Lotes Seleccionados`;
-                } else {
-                    preview_title.innerText = nombresLotes.join(' + ');
-                }
+    /* HEADER */
+    .header-contrato {
+        margin-bottom: 20px;
+    }
 
-                // Show details
-                empty_selection.classList.add('d-none');
-                lote_details.classList.remove('d-none');
+    .header-space {
+        height: 140px;
+        /* Altura reservada para el header en cada página */
+    }
 
-                // Auto-llenar el precio final con el precio TOTAL formateado para input
-                // input type="number" usa punto flotante
-                inputPrecioFinal.value = totalPrecio.toFixed(2);
-            } else {
-                // Nada seleccionado
-                lblPrecioLista.innerText = "$0.00";
-                lblDimensiones.innerText = "-";
-                preview_title.innerText = "Sin Lote";
+    .logo-img {
+        width: 100%;
+        max-width: 140px;
+        /* Ajuste visual del logo */
+    }
 
-                empty_selection.classList.remove('d-none');
-                lote_details.classList.add('d-none');
+    .titulo-proyecto {
+        font-family: 'TituloSerif', serif;
+        font-style: italic;
+        color: #B4C485;
+        /* Color verde pálido extraído de la imagen */
+        font-size: 19pt;
+        /* Tamaño grande del título */
+        text-align: right;
+        margin-bottom: 5px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
 
-                inputPrecioFinal.value = 0;
-            }
+    .linea-divisoria {
+        height: 3px;
+        background-color: #888;
+        width: 100%;
+    }
 
-            calcular();
-        });
+    /* TEXTO DEL CUERPO */
+    .content-body {
+        font-family: 'Yu Gothic UI Light', 'Segoe UI Light', sans-serif;
+        /* Fuente solicitada */
+        font-size: 12pt;
+        /* Tamaño solicitado */
+        color: #000;
+        line-height: 1.3;
+        /* Espacio entre líneas */
+        text-align: justify;
+        /* Justificado completo */
+    }
 
-        // 2. Función de cálculo
-        function calcular() {
-            const precio = parseFloat(inputPrecioFinal.value) || 0;
-            const entrada = parseFloat(inputEntrada.value) || 0;
-            const plazo = parseInt(inputPlazo.value) || 0;
+    .subtitulo-contrato {
+        font-family: 'Yu Gothic UI Light', sans-serif;
+        font-size: 12pt;
+        letter-spacing: 1px;
+    }
 
-            const saldo = Math.max(0, precio - entrada);
+    /* PÁRRAFOS CON SANGRÍA */
+    .parrafo {
+        text-indent: 1.25cm;
+        /* Sangría de primera línea estilo Word */
+        margin-bottom: 1.2rem;
+        /* Espacio entre párrafos */
+    }
 
-            lblSaldo.innerText = `$${saldo.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            inputSaldo.value = saldo.toFixed(2);
+    .no-break {
+        white-space: nowrap;
+    }
 
-            if (plazo > 0 && saldo > 0) {
-                const cuota = saldo / plazo;
-                lblCuota.innerText = `$${cuota.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            } else {
-                lblCuota.innerText = "$0.00";
-            }
+    /* IMPRESIÓN */
+    @media print {
+        @page {
+            size: A4;
+            margin: 0;
+            /* Sin márgenes de navegador para ocultar encabezados */
         }
 
-        // Event Listeners
-        inputPrecioFinal.addEventListener('input', calcular);
-        inputEntrada.addEventListener('input', calcular);
-        inputPlazo.addEventListener('input', calcular);
-    });
-</script>
-<style>
-    .border-dashed {
-        border-style: dashed !important;
-    }
+        body {
+            background-color: white;
+            margin: 0;
+        }
 
-    .x-small {
-        font-size: 0.75rem;
-    }
+        .hoja-word {
+            width: 100%;
+            margin: 0;
+            padding: 1.5cm 2.5cm 1.5cm 2.5cm !important;
+            /* Márgenes internos simulados */
+            box-shadow: none !important;
+        }
 
-    .bg-primary-subtle {
-        background-color: #ebf5ff;
+        .d-print-none {
+            display: none !important;
+        }
+
+        /* El thead se repetirá automáticamente en cada hoja nueva */
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-footer-group;
+        }
+
+        /* Ocultar elementos del navbar de Django */
+        nav,
+        footer,
+        .navbar,
+        .sidebar {
+            display: none !important;
+        }
     }
 </style>
 {% endblock %}

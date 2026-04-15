@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestor de Gastos - Ugsha Inmobiliaria{% endblock %}
+{% block breadcrumb %}Gestor de Gastos / Caja Chica{% endblock %}
+
+{% block extra_head %}
+<!-- Flatpickr CSS para el calendario moderno -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<style>
+    /* Estilos Premium para las Tarjetas KPI */
+    .kpi-card {
+        border: none;
+        border-radius: 12px;
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .kpi-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: scale(1);
+        transition: transform 0.5s ease;
+    }
+
+    .kpi-card:hover::after {
+        transform: scale(1.5);
+    }
+
+    .kpi-card-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+        background: rgba(255, 255, 255, 0.2);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Gradientes Específicos */
+    .bg-balance {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    /* Azul */
+    .bg-income {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    /* Verde */
+    .bg-expense {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    /* Rojo */
+
+    /* Modal Styling Premium */
+    .modal-content {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        border-bottom: none;
+    }
+
+    .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* Tabla Hover Suave */
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table thead th {
+        background-color: #f8fafc;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* Etiqueta Tipo */
+    .badge-tipo {
+        padding: 0.4em 0.8em;
+        border-radius: 6px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-tipo.ingreso {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #059669;
+    }
+
+    .badge-tipo.gasto {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+    <!-- Título y Botón Principal -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-gray-800 mb-1">Caja y Tiempos</h2>
+            <p class="text-muted mb-0">Control operativo de Ingresos y Gastos</p>
+        </div>
+        <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm px-4 py-2" data-bs-toggle="modal"
+            data-bs-target="#nuevoMovimientoModal">
+            <i class="bi bi-plus-lg fs-5"></i>
+            <span class="fw-semibold">Nuevo Movimiento</span>
+        </button>
+    </div>
+
+    <!-- 🌟 KPIs Superiores (Cards) -->
+    <div class="row g-4 mb-5">
+        <!-- 1. SALDO ACTUAL -->
+        <div class="col-xl-4 col-md-6">
+            <div class="kpi-card bg-balance h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                    <div>
+                        <p class="mb-1 text-white-50 text-uppercase fw-bold"
+                            style="font-size: 0.9rem; letter-spacing: 1px;">Saldo Actual en Caja</p>
+                        <h2 class="fw-bolder mb-0 display-5">${{ saldo_actual|floatformat:2 }}</h2>
+                    </div>
+                    <div class="kpi-card-icon">
+                        <i class="bi bi-safe text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. TOTAL INGRESOS -->
+        <div class="col-xl-4 col-md-6">
+            <div class="kpi-card bg-income h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                    <div>
+                        <p class="mb-1 text-white-50 text-uppercase fw-bold"
+                            style="font-size: 0.9rem; letter-spacing: 1px;">Total Ingresos Adicionales</p>
+                        <h2 class="fw-bolder mb-0 display-5">+${{ total_ingresos|floatformat:2 }}</h2>
+                    </div>
+                    <div class="kpi-card-icon">
+                        <i class="bi bi-arrow-down-circle text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. TOTAL GASTOS -->
+        <div class="col-xl-4 col-md-12">
+            <div class="kpi-card bg-expense h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                    <div>
+                        <p class="mb-1 text-white-50 text-uppercase fw-bold"
+                            style="font-size: 0.9rem; letter-spacing: 1px;">Total Gastos / Salidas</p>
+                        <h2 class="fw-bolder mb-0 display-5">-${{ total_gastos|floatformat:2 }}</h2>
+                    </div>
+                    <div class="kpi-card-icon">
+                        <i class="bi bi-arrow-up-circle text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📊 Tabla Histórica Modernizada -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between border-0">
+            <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-clock-history me-2 text-primary"></i>Historial de
+                Movimientos</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaMovimientos" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Folio</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Usuario</th>
+                            <th class="text-end pe-4">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mov in movimientos %}
+                        <tr>
+                            <td class="ps-4 text-muted fw-medium">#{{ mov.id }}</td>
+                            <td>{{ mov.fecha|date:"d M Y" }}</td>
+                            <td>
+                                {% if mov.tipo == 'INGRESO' %}
+                                <span class="badge-tipo ingreso"><i
+                                        class="bi bi-arrow-down-short me-1"></i>Ingreso</span>
+                                {% else %}
+                                <span class="badge-tipo gasto"><i class="bi bi-arrow-up-short me-1"></i>Gasto</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="text-truncate d-inline-block" style="max-width: 250px;"
+                                    title="{{ mov.descripcion }}">
+                                    {{ mov.descripcion|default:"<i class='text-muted'>Sin descripción</i>"|safe }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2 border"
+                                        style="width:28px; height:28px;">
+                                        <i class="bi bi-person text-secondary small"></i>
+                                    </div>
+                                    {{ mov.registrado_por.username|default:"Sistema" }}
+                                </div>
+                            </td>
+                            <td
+                                class="text-end pe-4 fw-bold {% if mov.tipo == 'INGRESO' %}text-success{% else %}text-danger{% endif %}">
+                                {% if mov.tipo == 'INGRESO' %}+{% else %}-{% endif %}${{ mov.monto|floatformat:2 }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-inbox fs-1 text-muted opacity-50 mb-3 d-block"></i>
+                                <span class="text-muted fs-5">No hay movimientos registrados en la caja.</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ➕ Modal Nuevo Movimiento -->
+<div class="modal fade" id="nuevoMovimientoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-3">
+                <h5 class="modal-title fw-bold"><i class="bi bi-cash-stack me-2"></i>Registrar Movimiento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form action="{% url 'registrar_movimiento' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4 bg-light">
+
+                    <!-- Radio Buttons Elegantes para Tipo -->
+                    <div class="btn-group w-100 mb-4 shadow-sm" role="group">
+                        <input type="radio" class="btn-check" name="tipo" id="tipoIngreso" value="INGRESO"
+                            autocomplete="off" checked>
+                        <label class="btn btn-outline-success fw-bold py-2" for="tipoIngreso">
+                            <i class="bi bi-arrow-down-circle me-1"></i> INGRESO
+                        </label>
+
+                        <input type="radio" class="btn-check" name="tipo" id="tipoGasto" value="GASTO"
+                            autocomplete="off">
+                        <label class="btn btn-outline-danger fw-bold py-2" for="tipoGasto">
+                            <i class="bi bi-arrow-up-circle me-1"></i> GASTO
+                        </label>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Monto ($)</label>
+                            <div class="input-group input-group-lg shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-success fw-bold"
+                                    id="montoIcon">$</span>
+                                <input type="number" class="form-control border-start-0 ps-0 fw-bold" name="monto"
+                                    step="0.01" min="0.01" required placeholder="0.00" style="font-size: 1.25rem;">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Fecha</label>
+                            <div class="input-group input-group-lg shadow-sm">
+                                <span class="input-group-text bg-white border-end-0"><i
+                                        class="bi bi-calendar3"></i></span>
+                                <input type="text" class="form-control border-start-0 bg-white flatpickr" name="fecha"
+                                    required placeholder="Seleccionar..." value="{{ hoy|date:'Y-m-d' }}"
+                                    style="font-size: 1rem;">
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Concepto /
+                                Descripción <span class="fw-normal text-muted text-lowercase">(opcional)</span></label>
+                            <textarea class="form-control shadow-sm border-0" name="descripcion" rows="3"
+                                placeholder="Ej: Pago de servicios básicos, Venta de material extra..."
+                                style="resize: none;"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-white pt-2 pb-4 px-4 rounded-bottom-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">Guardar Movimiento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Flatpickr (Calendario) JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<!-- DataTables JS para tablaturas interactivas -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Init Flatpickr con idioma local
+        flatpickr(".flatpickr", {
+            locale: "es",
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+
+        // Cambio dinámico de color en el ícono de $ dependiendo si es Gasto o Ingreso
+        $('input[name="tipo"]').on('change', function () {
+            if ($('#tipoGasto').is(':checked')) {
+                $('#montoIcon').removeClass('text-success').addClass('text-danger');
+            } else {
+                $('#montoIcon').removeClass('text-danger').addClass('text-success');
+            }
+        });
+
+        // Init DataTable de Historial
+        $('#tablaMovimientos').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+                search: "",       // Oculta la etiqueta "Buscar:"
+                searchPlaceholder: "🔍 Buscar en movimientos..."
+            },
+            order: [[0, 'desc']], // Ordenar por Folio descendente (por def)
+            pageLength: 10,
+            dom: '<"row align-items-center mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-end"f>>' +
+                '<"row"<"col-sm-12"tr>>' +
+                '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            drawCallback: function () {
+                $('.dataTables_filter input').addClass('form-control shadow-sm border-0 bg-light');
+                $('.dataTables_length select').addClass('form-select form-select-sm shadow-sm border-0 bg-light');
+            }
+        });
+    });
+</script>
+{% endblock %}

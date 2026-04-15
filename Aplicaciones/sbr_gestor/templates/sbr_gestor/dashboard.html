@@ -1,0 +1,1022 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestor de Transacciones - Sistema de Gastos{% endblock %}
+{% block breadcrumb %}Gestor de Transacciones / Inicio{% endblock %}
+
+{% block extra_head %}
+<!-- Flatpickr CSS para el calendario moderno -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<style>
+    /* Estilos Premium para las Tarjetas KPI */
+    .kpi-card {
+        border: none;
+        border-radius: 12px;
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .kpi-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: scale(1);
+        transition: transform 0.5s ease;
+    }
+
+    .kpi-card:hover::after {
+        transform: scale(1.5);
+    }
+
+    .kpi-card-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+        background: rgba(255, 255, 255, 0.2);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Gradientes Específicos */
+    .bg-balance {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .bg-income {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .bg-expense {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .bg-lotes {
+        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    }
+
+    /* Modal Styling Premium */
+    .modal-content {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header {
+        background: var(--primary-gradient, linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%));
+        color: white;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        border-bottom: none;
+    }
+
+    .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* Tabla Premium */
+    .table-responsive {
+        border-radius: 12px;
+        background: transparent;
+        padding-bottom: 0.5rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .table-custom {
+        border-collapse: separate !important;
+        border-spacing: 0 10px !important;
+        margin-top: -10px !important;
+    }
+
+    .table-custom thead th {
+        border: none !important;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        padding: 1rem 1.5rem;
+        background: transparent;
+    }
+
+    .table-custom tbody tr {
+        background-color: #ffffff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 10px;
+    }
+
+    .table-custom tbody tr:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+        position: relative;
+        z-index: 2;
+    }
+
+    .table-custom tbody td {
+        border-top: 1px solid transparent !important;
+        border-bottom: 1px solid transparent !important;
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        color: #334155;
+    }
+
+    .table-custom tbody td:first-child {
+        border-left: 1px solid transparent !important;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+
+    .table-custom tbody td:last-child {
+        border-right: 1px solid transparent !important;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    /* Paginacion Datatables */
+    .dataTables_wrapper .pagination .page-item a.page-link {
+        border: none;
+        border-radius: 8px;
+        margin: 0 4px;
+        color: #64748b;
+        font-weight: 600;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .dataTables_wrapper .pagination .page-item.active a.page-link {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Etiqueta Tipo */
+    .badge-tipo {
+        padding: 0.4em 0.8em;
+        border-radius: 6px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-tipo.ingreso {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #059669;
+    }
+
+    .badge-tipo.gasto {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+    }
+
+    /* Media Queries Responsive */
+    @media (max-width: 768px) {
+        .kpi-card {
+            padding: 1rem;
+        }
+
+        .kpi-card h3 {
+            font-size: 1.5rem;
+            /* Letra más pequeña en móviles */
+        }
+
+        .kpi-card-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+        }
+
+        .header-actions {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+
+        .filtro-mes {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .btn-nueva-transaccion {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Ajustar DataTable Paginación para móviles */
+        .dataTables_wrapper .row {
+            text-align: center;
+        }
+
+        .dataTables_wrapper .d-flex.justify-content-end {
+            justify-content: center !important;
+            margin-top: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+    <!-- Título y Botón Principal -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-gray-800 mb-1">Caja y Transacciones</h2>
+            <p class="text-muted mb-0">Gestor principal de Ingresos y Gastos</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 header-actions flex-wrap">
+            <!-- Filtro de Mes -->
+            <form method="GET"
+                class="d-flex align-items-center bg-white rounded-pill px-3 py-1 shadow-sm border filtro-mes">
+                <i class="bi bi-calendar-check text-muted me-2"></i>
+                <input type="month" name="mes_filtro" class="form-control border-0 bg-transparent shadow-none px-1"
+                    value="{{ mes_filtro }}" onchange="this.form.submit()" style="width: 120px; cursor: pointer;">
+                {% if mes_filtro %}
+                <a href="{% url 'gestor_dashboard' %}" class="btn btn-link text-danger p-0 ms-2 text-decoration-none"
+                    title="Limpiar Filtro"><i class="bi bi-x-circle-fill"></i></a>
+                {% endif %}
+            </form>
+
+            <button
+                class="btn btn-primary d-flex align-items-center justify-content-center gap-2 shadow-sm px-3 py-2 rounded-pill w-sm-auto btn-nueva-transaccion"
+                data-bs-toggle="modal" data-bs-target="#nuevoMovimientoModal">
+                <i class="bi bi-plus-lg fs-5"></i>
+                <span class="fw-semibold d-none d-sm-inline">Nueva Transacción</span>
+                <span class="fw-semibold d-inline d-sm-none">Nuevo</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 🌟 KPIs Superiores (Cards) -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-4 col-md-6">
+            <div class="kpi-card bg-income h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                    <div>
+                        <p class="mb-1 text-white-50 text-uppercase fw-bold"
+                            style="font-size: 0.8rem; letter-spacing: 1px;">Ingresos{% if mes_filtro %} (Mes){% endif %}
+                        </p>
+                        <h3 class="fw-bolder mb-0" id="kpi-ingresos">+${{ total_ingresos|floatformat:2 }}</h3>
+                    </div>
+                    <div class="kpi-card-icon" style="width:50px; height:50px; font-size:2rem;"><i
+                            class="bi bi-arrow-down-circle text-white"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="kpi-card bg-expense h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                    <div>
+                        <p class="mb-1 text-white-50 text-uppercase fw-bold"
+                            style="font-size: 0.8rem; letter-spacing: 1px;">Total Gastos{% if mes_filtro %} (Mes)
+                            {% endif %}</p>
+                        <h3 class="fw-bolder mb-0" id="kpi-gastos">-${{ total_gastos|floatformat:2 }}</h3>
+                    </div>
+                    <div class="kpi-card-icon" style="width:50px; height:50px; font-size:2rem;"><i
+                            class="bi bi-arrow-up-circle text-white"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="kpi-card bg-balance h-100 shadow-sm border border-2 border-white">
+                <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                    <div>
+                        <p class="mb-1 text-white-50 text-uppercase fw-bold"
+                            style="font-size: 0.8rem; letter-spacing: 1px;">Saldo en caja</p>
+                        <h3 class="fw-bolder mb-0" id="kpi-saldo">${{ saldo_actual|floatformat:2 }}</h3>
+                    </div>
+                    <div class="kpi-card-icon" style="width:50px; height:50px; font-size:2rem;"><i
+                            class="bi bi-safe text-white"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 📊 Tabla Histórica Modernizada (Ancho Completo) -->
+    <div class="row mb-5">
+        <div class="col-12 d-flex">
+            <div class="card shadow-sm border-0 w-100">
+                <div
+                    class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between border-0 gap-2">
+                    <h5 class="mb-0 fw-bold text-gray-800"><i
+                            class="bi bi-clock-history me-2 text-primary"></i>Historial de Transacciones</h5>
+                    <button id="btnToggleLotes" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm"
+                        type="button">
+                        <i class="bi bi-eye"></i> <span id="textToggleLotes">Mostrar transacciones de lotes</span>
+                    </button>
+                </div>
+                <div class="card-body p-0"
+                    style="background-color: #f8fafc; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+                    <div class="table-responsive">
+                        <table class="table table-custom align-middle mb-0 text-nowrap" id="tablaMovimientos"
+                            style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Folio</th>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Categoría</th>
+                                    <th>Monto</th>
+                                    <th>Descripción</th>
+                                    <th>Recibo</th>
+                                    <th class="text-end pe-4">Acciones</th>
+                                </tr>
+                            </thead>
+                            {% for mov in movimientos %}
+                            <tr class="{% if mov.is_lote %}fila-lote{% endif %}">
+                                <td class="ps-4 text-muted fw-medium">{% if mov.is_lote %}<span
+                                        class="badge bg-secondary bg-opacity-25 text-secondary border">APP</span>
+                                    {% else %}
+                                    #{{ mov.id }}{% endif %}</td>
+                                <td>{{ mov.fecha|date:"d M Y" }}</td>
+                                <td>
+                                    {% if mov.tipo == 'INGRESO' %}
+                                    <span class="badge-tipo ingreso"><i
+                                            class="bi bi-arrow-down-short me-1"></i>Ingreso</span>
+                                    {% else %}
+                                    <span class="badge-tipo gasto"><i class="bi bi-arrow-up-short me-1"></i>Gasto</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ mov.categoria_nombre }}</span>
+                                </td>
+                                <td>
+                                    <strong class="text-dark fs-6">${{ mov.valor|floatformat:2 }}</strong>
+                                </td>
+                                <td style="white-space: normal; min-width: 200px;">
+                                    {{ mov.descripcion|default:"<i class='text-muted'>Sin descripción</i>"|safe }}
+                                </td>
+                                <td>
+                                    {% if mov.numero_recibo or mov.foto_url %}
+                                    {% if mov.foto_url %}
+                                    <a href="{{ mov.foto_url }}" target="_blank"
+                                        class="btn btn-sm btn-outline-primary mt-1" style="font-size: 10px;"
+                                        title="{{ mov.numero_recibo|default:'Ver foto' }}">
+                                        <i class="bi bi-image me-1"></i>Foto
+                                    </a>
+                                    {% else %}
+                                    <span class="badge bg-light text-dark border" style="font-size: 10px;"><i
+                                            class="bi bi-receipt me-1"></i>{{ mov.numero_recibo }}</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="text-muted small">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    {% if mov.is_lote %}
+                                    <a href="{% url 'detalle_contrato' mov.contrato_id %}"
+                                        class="btn btn-sm btn-light text-success border" title="Ver Contrato Original">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% else %}
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-light text-primary border" data-bs-toggle="modal"
+                                            data-bs-target="#editarMovimientoModal{{ mov.id }}"
+                                            title="Editar Transacción">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-light text-danger border" data-bs-toggle="modal"
+                                            data-bs-target="#eliminarMovimientoModal{{ mov.id }}"
+                                            title="Eliminar Transacción">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🪟 ZONA DE MODALES (Extraídos fuera de la tabla para prevenir bugs del DOM) -->
+    {% for mov in movimientos %}
+    {% if not mov.is_lote %}
+    {% with m=mov.mov_obj %}
+
+    <!-- ⚙️ Modal Editar Transacción Específica -->
+    <div class="modal fade" id="editarMovimientoModal{{ m.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-3">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Transacción #{{ m.id }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <form action="{% url 'editar_transaccion' m.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body p-4 bg-light text-start">
+                        <div
+                            class="alert {% if m.tipo == 'INGRESO' %}alert-success{% else %}alert-danger{% endif %} border-0 py-2 d-inline-block fw-bold mb-3 shadow-sm">
+                            TIPO: {{ m.tipo }}
+                        </div>
+
+                        <div class="row g-3 text-start">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-secondary small text-uppercase">Monto
+                                    ($)</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0 fw-bold">$</span>
+                                    <input type="number" class="form-control border-start-0 ps-0 fw-bold text-dark"
+                                        name="monto" step="0.01" min="0.01" value="{{ m.valor|stringformat:'f' }}"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-secondary small text-uppercase">Fecha</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0"><i
+                                            class="bi bi-calendar3"></i></span>
+                                    <input type="date" class="form-control border-start-0 bg-white" name="fecha"
+                                        required value="{{ m.fecha|date:'Y-m-d' }}">
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-3 text-start">
+                                <label
+                                    class="form-label fw-semibold text-secondary small text-uppercase">Categoría</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0"><i
+                                            class="bi bi-tags"></i></span>
+                                    <select name="categoria" class="form-select border-start-0 categoria-select">
+                                        <option value="">-- Sin categoría --</option>
+                                        {% for cat in categorias %}
+                                        <option value="{{ cat.id }}" {% if m.categoria_id == cat.id %}selected{% endif %}>
+                                            {{ cat.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="button"
+                                        class="btn btn-outline-primary border-start-0 btn-nueva-categoria"
+                                        title="Añadir Categoría">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-3 text-start">
+                                <label class="form-label fw-semibold text-secondary small text-uppercase">Nro. de
+                                    Recibo</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0"><i
+                                            class="bi bi-receipt"></i></span>
+                                    <input type="text" class="form-control border-start-0" name="numero_recibo"
+                                        value="{{ m.numero_recibo|default:'' }}">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-3 text-start">
+                                <label class="form-label fw-semibold text-secondary small text-uppercase">Foto
+                                    (Opcional)</label>
+                                <input type="file" class="form-control shadow-sm" name="foto_recibo" accept="image/*">
+                                {% if m.foto_recibo %}
+                                <small class="text-muted"><i class="bi bi-check-circle-fill text-success"></i> Ya existe
+                                    una foto adjunta. Sube una nueva para reemplazarla.</small>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-12 mt-3 text-start">
+                                <label class="form-label fw-semibold text-secondary small text-uppercase">Concepto /
+                                    Descripción</label>
+                                <textarea class="form-control shadow-sm border-0" name="descripcion" rows="2" required
+                                    style="resize: none;">{{ m.descripcion }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 bg-white pt-2 pb-4 px-4 rounded-bottom-4">
+                        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">Actualizar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🗑️ Modal Eliminar Transacción Específica -->
+    <div class="modal fade" id="eliminarMovimientoModal{{ m.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white border-0">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Eliminar Transacción
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <form action="{% url 'eliminar_transaccion' m.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body p-4 text-center">
+                        <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                        <h4 class="mt-3">¿Estás seguro?</h4>
+                        <p class="text-muted">Si eliminas este <strong>{% if m.tipo == 'INGRESO' %}Ingreso{% else
+                                %}Gasto{% endif %} (${{ m.valor }})</strong>, tu saldo general de la caja cambiará. Esta
+                            acción no se puede deshacer.</p>
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center bg-light">
+                        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger px-4 shadow-sm">Sí, Eliminar
+                            Definitivamente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% endwith %}
+    {% endif %}
+    {% endfor %}
+    <!-- FIN ZONA MODALES -->
+
+    <!-- 📊 Gráficos Inferiores -->
+    <div class="row g-4 mb-4">
+
+        <!-- Gráfico de Ingresos -->
+        <div class="col-xl-6 col-12 d-flex">
+            <div class="card shadow-sm border-0 w-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-pie-chart me-2 text-success"></i>Ingresos por
+                        Categoría / Lotes</h5>
+                </div>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                    {% if total_ingresos > 0 %}
+                    <canvas id="ingresosChart" style="max-height: 260px;"></canvas>
+                    {% else %}
+                    <div class="text-center text-muted opacity-50 py-5">
+                        <i class="bi bi-bar-chart fs-1 mb-2"></i>
+                        <p>No hay ingresos registrados en este periodo.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Gastos -->
+        <div class="col-xl-6 col-12 d-flex">
+            <div class="card shadow-sm border-0 w-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-pie-chart me-2 text-danger"></i>Gastos por
+                        Categoría</h5>
+                </div>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                    {% if total_gastos > 0 %}
+                    <canvas id="gastosChart" style="max-height: 260px;"></canvas>
+                    {% else %}
+                    <div class="text-center text-muted opacity-50 py-5">
+                        <i class="bi bi-bar-chart fs-1 mb-2"></i>
+                        <p>No hay gastos registrados en este periodo.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ➕ Modal Nueva Transacción -->
+<div class="modal fade" id="nuevoMovimientoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-3">
+                <h5 class="modal-title fw-bold"><i class="bi bi-cash-stack me-2"></i>Registrar Transacción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <form action="{% url 'registrar_transaccion' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body p-4 bg-light">
+
+                    <!-- Radio Buttons Elegantes para Tipo -->
+                    <div class="btn-group w-100 mb-4 shadow-sm" role="group">
+                        <input type="radio" class="btn-check" name="tipo" id="tipoIngreso" value="INGRESO"
+                            autocomplete="off" checked>
+                        <label class="btn btn-outline-success fw-bold py-2" for="tipoIngreso">
+                            <i class="bi bi-arrow-down-circle me-1"></i> INGRESO
+                        </label>
+
+                        <input type="radio" class="btn-check" name="tipo" id="tipoGasto" value="GASTO"
+                            autocomplete="off">
+                        <label class="btn btn-outline-danger fw-bold py-2" for="tipoGasto">
+                            <i class="bi bi-arrow-up-circle me-1"></i> GASTO
+                        </label>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Monto ($)</label>
+                            <div class="input-group input-group-lg shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-success fw-bold"
+                                    id="montoIcon">$</span>
+                                <input type="number" class="form-control border-start-0 ps-0 fw-bold" name="monto"
+                                    step="0.01" min="0.01" required placeholder="0.00" style="font-size: 1.25rem;">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Fecha</label>
+                            <div class="input-group input-group-lg shadow-sm">
+                                <span class="input-group-text bg-white border-end-0"><i
+                                        class="bi bi-calendar3"></i></span>
+                                <input type="text" class="form-control border-start-0 bg-white flatpickr" name="fecha"
+                                    required placeholder="Seleccionar..." value="{{ hoy|date:'Y-m-d' }}"
+                                    style="font-size: 1rem;">
+                            </div>
+                        </div>
+
+                        <!-- SELECT CATEGORIA -->
+                        <div class="col-12 mt-3">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Categoría <span
+                                    class="fw-normal text-muted text-lowercase">(opcional)</span></label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-tags"></i></span>
+                                <select name="categoria" class="form-select border-start-0 categoria-select">
+                                    <option value="">-- Sin categoría --</option>
+                                    {% for cat in categorias %}
+                                    <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                                <!-- Botón Añadir Categoría Rápidamente -->
+                                <button type="button" class="btn btn-outline-primary border-start-0 btn-nueva-categoria"
+                                    title="Añadir Categoría">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- NUEVOS CAMPOS: Número de Recibo y Foto (Opcionales) -->
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Nro. de Recibo
+                                <span class="fw-normal text-muted text-lowercase">(opcional)</span></label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0"><i
+                                        class="bi bi-receipt"></i></span>
+                                <input type="text" class="form-control border-start-0" name="numero_recibo"
+                                    placeholder="Ej: 001-002-000456">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Foto del Recibo
+                                <span class="fw-normal text-muted text-lowercase">(opcional)</span></label>
+                            <input type="file" class="form-control shadow-sm" name="foto_recibo" accept="image/*">
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Concepto /
+                                Descripción</label>
+                            <textarea class="form-control shadow-sm border-0" name="descripcion" rows="3"
+                                placeholder="Descripción detallada de la transacción..." required
+                                style="resize: none;"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-white pt-2 pb-4 px-4 rounded-bottom-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">Guardar Transacción</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ➕ Modal Pequeño para Crear Categoria (AJAX) -->
+<div class="modal fade" id="modalCrearCategoria" tabindex="-1" style="z-index: 1060;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header border-0 pb-2">
+                <h6 class="modal-title fw-bold"><i class="bi bi-tag me-1"></i>Nueva Categoría</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <input type="text" id="inputNombreCategoria" class="form-control mb-3 shadow-sm"
+                    placeholder="Ej: Pago Lotes, Oficina...">
+                <button type="button" class="btn btn-primary w-100 fw-bold shadow-sm"
+                    id="btnGuardarCategoria">Añadir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Flatpickr (Calendario) JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js Plugin Datalabels -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<script>
+    // Registrar el plugin de etiquetas de datos globalmente
+    Chart.register(ChartDataLabels);
+
+    $(document).ready(function () {
+        // Init Calendars
+        flatpickr(".flatpickr", {
+            locale: "es",
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+
+        // Ingreso/Gasto Toggle effect
+        $('input[name="tipo"]').on('change', function () {
+            if ($('#tipoGasto').is(':checked')) {
+                $('#montoIcon').removeClass('text-success').addClass('text-danger');
+            } else {
+                $('#montoIcon').removeClass('text-danger').addClass('text-success');
+            }
+        });
+
+        // Lógica para ocultar/mostrar lotes
+        var mostrarLotes = false;
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                if (settings.nTable.id !== 'tablaMovimientos') return true;
+                var row = settings.aoData[dataIndex].nTr;
+                if (!mostrarLotes && $(row).hasClass('fila-lote')) {
+                    return false;
+                }
+                return true;
+            }
+        );
+
+        // Init DataTable
+        var tablaMovimientos = $('#tablaMovimientos').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+                search: "",
+                searchPlaceholder: "🔍 Buscar..."
+            },
+            order: [[0, 'desc']],
+            pageLength: 5,
+            dom: '<"row align-items-center mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-end"f>>' +
+                '<"row"<"col-sm-12"tr>>' +
+                '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            drawCallback: function () {
+                $('.dataTables_filter input').addClass('form-control shadow-sm border-0 bg-light px-3 py-1').css('border-radius', '20px');
+                $('.dataTables_length select').addClass('form-select form-select-sm shadow-sm border-0 bg-light').css('border-radius', '8px');
+            }
+        });
+
+        // Toggle Event Lotes
+        $('#btnToggleLotes').click(function () {
+            mostrarLotes = !mostrarLotes;
+            if (mostrarLotes) {
+                $('#textToggleLotes').text('Ocultar transacciones de lotes');
+                $(this).removeClass('btn-outline-secondary').addClass('btn-outline-primary');
+                $(this).find('i').removeClass('bi-eye').addClass('bi-eye-slash');
+            } else {
+                $('#textToggleLotes').text('Mostrar transacciones de lotes');
+                $(this).removeClass('btn-outline-primary').addClass('btn-outline-secondary');
+                $(this).find('i').removeClass('bi-eye-slash').addClass('bi-eye');
+            }
+            tablaMovimientos.draw();
+        });
+
+        // Lógica: Añadir Categoria por AJAX
+        $('.btn-nueva-categoria').click(function (e) {
+            e.preventDefault();
+            // Cierra modales actuales (aunque el z-index lo maneja bien, lo dejamos flotando encima)
+            $('#modalCrearCategoria').modal('show');
+            $('#inputNombreCategoria').val('');
+            $('#inputNombreCategoria').focus();
+        });
+
+        $('#btnGuardarCategoria').click(function () {
+            const nombreCat = $('#inputNombreCategoria').val();
+            if (!nombreCat) {
+                alert("Ingrese un nombre válido");
+                return;
+            }
+
+            $.ajax({
+                url: "{% url 'api_crear_categoria' %}",
+                type: "POST",
+                data: {
+                    nombre: nombreCat,
+                    tipo: 'GASTO' // Default general
+                },
+                success: function (res) {
+                    if (res.success) {
+                        // Append to all category selects
+                        const newOption = new Option(res.nombre, res.id, false, true);
+                        $('.categoria-select').append(newOption);
+                        $('#modalCrearCategoria').modal('hide');
+                    } else {
+                        alert("Error: " + res.error);
+                    }
+                },
+                error: function () {
+                    alert("Ocurrió un error en el servidor.");
+                }
+            });
+        });
+
+        // ------------------ CHART.JS (Gastos) ------------------
+        const chartDataStr = '{{ chart_data|escapejs }}';
+        if (chartDataStr && chartDataStr !== "{}" && chartDataStr !== '{"labels": [], "data": []}') {
+            try {
+                const chartData = JSON.parse(chartDataStr);
+                const ctx = document.getElementById('gastosChart');
+
+                if (ctx && chartData.labels && chartData.labels.length > 0) {
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: chartData.labels,
+                            datasets: [{
+                                data: chartData.data,
+                                backgroundColor: [
+                                    '#ef4444', '#f59e0b', '#ec4899', '#6366f1',
+                                    '#8b5cf6', '#14b8a6', '#64748b'
+                                ],
+                                borderWidth: 0,
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: { boxWidth: 12, font: { size: 11, family: "'Inter', sans-serif" } }
+                                },
+                                datalabels: {
+                                    color: '#fff',
+                                    font: {
+                                        weight: 'bold',
+                                        size: 11
+                                    },
+                                    formatter: (value) => {
+                                        return '$' + value.toLocaleString();
+                                    },
+                                    display: (context) => {
+                                        return context.dataset.data[context.dataIndex] > 0;
+                                    }
+                                }
+                            },
+                            cutout: '70%'
+                        }
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // ------------------ CHART.JS (Ingresos) ------------------
+        const chartIngresosStr = '{{ chart_ingresos|escapejs }}';
+        if (chartIngresosStr && chartIngresosStr !== "{}" && chartIngresosStr !== '{"labels": [], "data": []}') {
+            try {
+                const chartData = JSON.parse(chartIngresosStr);
+                const ctx = document.getElementById('ingresosChart');
+
+                if (ctx && chartData.labels && chartData.labels.length > 0) {
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: chartData.labels,
+                            datasets: [{
+                                data: chartData.data,
+                                backgroundColor: [
+                                    '#8b5cf6', '#10b981', '#3b82f6', '#14b8a6', '#64748b'
+                                ],
+                                borderWidth: 0,
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: { boxWidth: 12, font: { size: 11, family: "'Inter', sans-serif" } }
+                                },
+                                datalabels: {
+                                    color: '#fff',
+                                    font: {
+                                        weight: 'bold',
+                                        size: 11
+                                    },
+                                    formatter: (value) => {
+                                        return '$' + value.toLocaleString();
+                                    },
+                                    display: (context) => {
+                                        return context.dataset.data[context.dataIndex] > 0;
+                                    }
+                                }
+                            },
+                            cutout: '70%' // Hace que sea una dona en lugar de pastel
+                        }
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // ------------------ AJAX FORM SUBMISSION (Registrar y Editar) ------------------
+        $('form').on('submit', function (e) {
+            // Solo interceptar formularios de creación y edición (dentro de modales)
+            if ($(this).closest('.modal').length > 0 && $(this).attr('id') !== 'formX') {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                var formData = new FormData(this);
+
+                // Efecto visual de carga
+                var btn = form.find('button[type="submit"]');
+                var originalText = btn.html();
+
+                // Limpiar alertas previas
+                form.find('.form-alert-error').remove();
+
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...');
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    success: function (res) {
+                        if (res.success) {
+                            form.closest('.modal').modal('hide');
+                            $('.modal-backdrop').remove();
+                            $('body').removeClass('modal-open').css('padding-right', '');
+                            actualizarYRecargarYFlash();
+                        } else {
+                            // Mostrar mensaje de error integrado en el modal visualmente
+                            const errorHtml = `<div class="alert alert-danger alert-dismissible fade show form-alert-error mt-3" role="alert">
+                                                  <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Error:</strong> ${res.error}
+                                                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                               </div>`;
+                            form.find('.modal-body').prepend(errorHtml);
+                            btn.prop('disabled', false).html(originalText);
+                        }
+                    },
+                    error: function () {
+                        const errorHtml = `<div class="alert alert-danger alert-dismissible fade show form-alert-error mt-3" role="alert">
+                                              <i class="bi bi-wifi-off me-2"></i><strong>Fallo de Red:</strong> Ocurrió un error en el servidor.
+                                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                           </div>`;
+                        form.find('.modal-body').prepend(errorHtml);
+                        btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            }
+        });
+
+        function actualizarYRecargarYFlash() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mes_filtro = urlParams.get('mes_filtro') || '';
+
+            // Llamamos a la API de totales ultra rápida que creamos
+            $.get("{% url 'api_totales' %}?mes_filtro=" + mes_filtro, function (data) {
+                if (data.success) {
+                    // Update DOM (Efecto en vivo Instantáneo)
+                    $('#kpi-ingresos').text('+$' + data.total_ingresos);
+                    $('#kpi-gastos').text('-$' + data.total_gastos);
+                    $('#kpi-saldo').text('$' + data.saldo_actual);
+
+                    // Efecto de destello visual
+                    $('.kpi-card h3').fadeOut(150).fadeIn(150);
+
+                    // Recargamos la tabla, gráficos y DOM general silenciosamente luego de 500ms
+                    // Como quitamos calcular_ganancias_lotes, esta recarga toma menos de 0.1s !
+                    setTimeout(() => window.location.reload(), 600);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

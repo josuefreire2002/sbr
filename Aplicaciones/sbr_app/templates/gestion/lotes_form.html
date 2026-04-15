@@ -37,10 +37,10 @@
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Foto del Plano/Mapa (Opcional)</label>
                         <input type="file" name="imagen" class="form-control" accept="image/*">
-                        {% if lote.imagen %}
+                        {% if lote.plano %}
                         <div class="mt-2 text-center">
                             <small class="text-muted d-block">Actual:</small>
-                            <img src="{{ lote.imagen.url }}" alt="Plano" class="img-thumbnail mt-1"
+                            <img src="{{ lote.plano.url }}" alt="Plano" class="img-thumbnail mt-1"
                                 style="max-height: 100px;">
                         </div>
                         {% endif %}

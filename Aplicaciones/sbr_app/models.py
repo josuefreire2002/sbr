@@ -5,16 +5,6 @@ from .validators import validar_archivo_seguro
 import bleach
 
 class ConfiguracionSistema(models.Model):
-    # Moras configurables (días y montos)
-    mora_leve_dias = models.IntegerField(default=5, help_text="Días para aplicar primera mora")
-    mora_leve_valor = models.DecimalField(max_digits=10, decimal_places=2, default=5.00)
-    
-    mora_media_dias = models.IntegerField(default=10)
-    mora_media_valor = models.DecimalField(max_digits=10, decimal_places=2, default=10.00)
-    
-    mora_grave_dias = models.IntegerField(default=20)
-    mora_grave_valor = models.DecimalField(max_digits=10, decimal_places=2, default=20.00)
-
     # Mora Porcentual (Nueva Lógica)
     mora_porcentaje = models.DecimalField(
         max_digits=5, 
@@ -58,8 +48,8 @@ class Lote(models.Model):
     precio_contado = models.DecimalField(max_digits=12, decimal_places=2)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='DISPONIBLE')
     
-    # Imagen opcional del lote
-    imagen = models.ImageField(upload_to='lotes/', blank=True, null=True, help_text="Foto del lote (opcional)", validators=[validar_archivo_seguro])
+    # Imagen del plano (Renombrado de imagen a plano)
+    plano = models.ImageField(upload_to='lotes/planos/', blank=True, null=True, help_text="Imagen del plano/mapa del lote", validators=[validar_archivo_seguro])
     # Nueva foto específica para listados (Portada)
     foto_lista = models.ImageField(upload_to='lotes/portadas/', blank=True, null=True, help_text="Foto para mostrar en el listado (opcional)", validators=[validar_archivo_seguro])
     
@@ -248,6 +238,7 @@ class Pago(models.Model):
 
     contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     fecha_pago = models.DateField()
+    numero_transaccion = models.IntegerField(null=True, blank=True, help_text="Número secuencial del pago dentro del contrato")
     monto = models.DecimalField(max_digits=12, decimal_places=2)
     metodo_pago = models.CharField(max_length=20, choices=METODOS)
     
@@ -256,6 +247,10 @@ class Pago(models.Model):
     
     observacion = models.TextField(blank=True, null=True)
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) # Auditoría
+    
+    # NUEVOS CAMPOS: Para control de recálculo y auditoría
+    es_entrada = models.BooleanField(default=False, help_text="Indica si este pago corresponde a la cuota de entrada no amortizable")
+    cuota_origen = models.ForeignKey('Cuota', on_delete=models.SET_NULL, null=True, blank=True, help_text="Si seleccionó una cuota intencionalmente al pagar, este campo la guarda para recordarlo")
 
     def save(self, *args, **kwargs):
         # Sanitización de Inputs (Bleach)
@@ -265,6 +260,18 @@ class Pago(models.Model):
 
     def __str__(self):
         return f"Pago ${self.monto} - {self.contrato}"
+
+
+class DetallePago(models.Model):
+    pago = models.ForeignKey(Pago, related_name='detalles', on_delete=models.CASCADE)
+    cuota = models.ForeignKey(Cuota, related_name='pagos_asociados', on_delete=models.CASCADE)
+    monto_aplicado = models.DecimalField(max_digits=10, decimal_places=2, help_text="Monto de este pago destinado a esta cuota")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Detalle Pago #{self.pago.id} -> Cuota #{self.cuota.numero_cuota}: ${self.monto_aplicado}"
+
+
 class LogActividad(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     accion = models.CharField(max_length=255) # Ej: "Login Exitoso", "Vio CV de Juan"
@@ -279,3 +286,24 @@ class LogActividad(models.Model):
         verbose_name = "Log de Actividad"
         verbose_name_plural = "Logs de Actividad"
         ordering = ['-fecha']
+
+class MovimientoCaja(models.Model):
+    TIPO_CHOICES = [
+        ('INGRESO', 'Ingreso'),
+        ('GASTO', 'Gasto'),
+    ]
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
+    monto = models.DecimalField(max_digits=12, decimal_places=2)
+    fecha = models.DateField()
+    descripcion = models.TextField(blank=True, null=True)
+    
+    registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.descripcion:
+            self.descripcion = bleach.clean(self.descripcion, tags=[], attributes={}, strip=True)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.tipo} - ${self.monto} ({self.fecha})"

@@ -12,7 +12,7 @@ import base64
 import os
 from django.contrib.staticfiles import finders
 # Importamos Modelos
-from .models import Cliente, Lote, Contrato, Pago, Cuota, ConfiguracionSistema
+from .models import Cliente, Lote, Contrato, Pago, Cuota, ConfiguracionSistema, DetallePago, MovimientoCaja
 
 # Importamos Servicios (La lógica pesada)
 from .services import (
@@ -145,7 +145,8 @@ def crear_venta_view(request):
                         metodo_pago=metodo_modelo,
                         comprobante_imagen=request.FILES.get('comprobante'),
                         observacion=observacion_pago,
-                        registrado_por=request.user
+                        registrado_por=request.user,
+                        es_entrada=True
                     )
 
                 # Marcar lotes como vendidos
@@ -186,12 +187,18 @@ def lista_clientes_view(request):
     # Filtro de seguridad: Vendedor solo ve lo suyo
     if request.user.is_superuser:
         clientes = Cliente.objects.all()
-        print(f"DEBUG: Superuser {request.user} viendo TODOS. Total: {clientes.count()}")
+        contratos_activos = Contrato.objects.filter(estado='ACTIVO')
+        contratos = Contrato.objects.select_related('cliente').prefetch_related('lotes').order_by('fecha_contrato', 'id')
     else:
         clientes = Cliente.objects.filter(vendedor=request.user)
-        print(f"DEBUG: Vendedor {request.user} filtrando propios. Total: {clientes.count()}")
+        contratos_activos = Contrato.objects.filter(estado='ACTIVO', cliente__vendedor=request.user)
+        contratos = Contrato.objects.filter(cliente__vendedor=request.user).select_related('cliente').prefetch_related('lotes').order_by('fecha_contrato', 'id')
     
-    return render(request, 'ventas/lista_clientes.html', {'clientes': clientes})
+    # NUEVA LÓGICA: Forzar recálculo masivo de moras en tiempo real para todos los contratos listados
+    from .services import actualizar_moras_masivo
+    actualizar_moras_masivo(contratos_activos)
+    
+    return render(request, 'ventas/lista_clientes.html', {'clientes': clientes, 'contratos': contratos})
 
 # ==========================================
 # 4. DETALLE CONTRATO (Panel Cliente)
@@ -207,8 +214,17 @@ def detalle_contrato_view(request, pk):
     # 1. Actualizar cálculo matemático al instante
     actualizar_moras_contrato(contrato.id)
 
+    from django.db.models import Sum
+
     # IMPORTANTE: Usar Cuota.objects.filter para evitar caché del ORM de relaciones
-    cuotas = Cuota.objects.filter(contrato=contrato).order_by('numero_cuota')
+    # Se añade prefetch_related('pagos_asociados', 'pagos_asociados__pago') para acceder a los detalles en el template
+    # Se añade annotate(total_transaccion=Sum('pagos_asociados__pago__monto')) para mostrar el monto total de los pagos involucrados
+    cuotas = Cuota.objects.filter(contrato=contrato).order_by('numero_cuota').prefetch_related(
+        'pagos_asociados', 
+        'pagos_asociados__pago',
+        'pagos_asociados__pago__detalles',
+        'pagos_asociados__pago__detalles__cuota'
+    ).annotate(total_transaccion=Sum('pagos_asociados__pago__monto'))
     
     # 2. Filtrar las vencidas
     cuotas_vencidas = cuotas.filter(estado='VENCIDO')
@@ -226,6 +242,58 @@ def detalle_contrato_view(request, pk):
     # Próxima a pagar (La primera PENDIENTE o PARCIAL, excluyendo VENCIDO para el indicador)
     proxima_cuota = cuotas.filter(estado__in=['PENDIENTE', 'PARCIAL']).first()
 
+    # --- NUEVA LÓGICA: Historial de Pagos con Detalles ---
+    pagos_historial = contrato.pago_set.all().order_by('-fecha_pago', '-id').prefetch_related('detalles', 'detalles__cuota')
+
+    # Lógica para determinar "Cuota Principal" vs "Abastecida"
+    # 1. Mapear cada Pago ID a su Cuota Inicial (la del numero_cuota más bajo)
+    pago_inicio_map = {} # {pago_id: numero_cuota_minimo}
+    
+    # Usamos los detalles ya cargados en pagos_historial para mayor eficiencia
+    # O mejor, una query directa liviana a DetallePago
+    detalles_all = DetallePago.objects.filter(pago__contrato=contrato).select_related('cuota', 'pago')
+    
+    for d in detalles_all:
+        pid = d.pago_id
+        q_num = d.cuota.numero_cuota
+        if pid not in pago_inicio_map:
+            pago_inicio_map[pid] = q_num
+        else:
+            if q_num < pago_inicio_map[pid]:
+                pago_inicio_map[pid] = q_num
+                
+    # 2. Marcar cada cuota
+    for c in cuotas:
+        c.es_principal_de_algun_pago = False
+        c.monto_real_abonado = Decimal('0.00')
+        origenes = set()
+        
+        # Iterar sobre los pagos que afectaron a esta cuota
+        # Gracias al prefetch en 'cuotas', podemos iterar c.pagos_asociados.all()
+        for detalle in c.pagos_asociados.all():
+             pago_id = detalle.pago_id
+             inicio_num = pago_inicio_map.get(pago_id)
+             
+             # Annotate for template use
+             detalle.pago.cuota_inicial_numero = inicio_num
+             
+             if inicio_num == c.numero_cuota:
+                 c.es_principal_de_algun_pago = True
+                 # Sumar el monto total de la transacción original radicada en esta cuota
+                 c.monto_real_abonado += detalle.pago.monto
+             else:
+                 # Es secundario (surplus)
+                 origenes.add(inicio_num)
+        
+        c.lista_origenes = sorted(list(origenes))
+        
+        # Failsafe para pagos antiguos sin DetallePago:
+        # Si la cuota tiene dinero pagado pero no registraba pago_raiz,
+        # mostramos el dinero pagado directamente para evitar que salga $0 en la tabla.
+        if c.monto_real_abonado == 0 and c.valor_pagado > 0:
+            c.monto_real_abonado = c.valor_pagado
+
+
     context = {
         'contrato': contrato,
         'cuotas': cuotas,
@@ -233,7 +301,8 @@ def detalle_contrato_view(request, pk):
         'hay_vencidas': hay_vencidas, 
         'proxima_cuota': proxima_cuota,
         'saldo_pendiente_total': saldo_pendiente_total,
-        'puede_cerrar': saldo_pendiente_total <= 0 and contrato.estado == 'ACTIVO'
+        'puede_cerrar': saldo_pendiente_total <= 0 and contrato.estado == 'ACTIVO',
+        'pagos_historial': pagos_historial
     }
     return render(request, 'ventas/detalle_cliente.html', context)
 
@@ -352,89 +421,117 @@ def editar_cuota_view(request, pk):
     cuota = get_object_or_404(Cuota, pk=pk)
     contrato = cuota.contrato
     
-    # Solo superusuarios pueden editar cuotas
     if not request.user.is_superuser:
-        messages.error(request, "Acceso denegado. Solo administradores pueden editar cuotas.")
+        messages.error(request, "Acceso denegado. Solo administradores pueden editar transacciones.")
         return redirect('detalle_contrato', pk=contrato.id)
         
+    # Buscar cuál es el Pago principal que afectó a esta cuota
+    detalle_principal = DetallePago.objects.filter(cuota=cuota).order_by('-monto_aplicado').first()
+    
+    if not detalle_principal:
+        messages.error(request, f"La Cuota #{cuota.numero_cuota} no tiene ningún pago asociado para editar. Si desea registrar uno nuevo, use el botón Pagar del contrato.")
+        return redirect('detalle_contrato', pk=contrato.id)
+        
+    pago = detalle_principal.pago
+    
     if request.method == 'POST':
         try:
             with transaction.atomic():
-                # Obtener el nuevo valor abonado (lo que el cliente ha pagado)
-                nuevo_abonado = Decimal(request.POST.get('valor_pagado', '0').replace(',', '.') or '0')
-                mora_exenta = 'mora_exenta' in request.POST
+                nuevo_monto = Decimal(request.POST.get('monto', '0').replace(',', '.') or '0')
+                nueva_fecha = request.POST.get('fecha_pago')
+                nuevo_metodo = request.POST.get('metodo_pago')
                 
-                # --- NUEVA LÓGICA DE CONSISTENCIA CONTABLE ---
-                valor_anterior = cuota.valor_pagado
-                diferencia = nuevo_abonado - valor_anterior
-
-                if diferencia != 0:
-                    # Crear registro en CAJA (Pago) para reflejar el movimiento manual
-                    tipo_ajuste = "Ajuste Manual (Ingreso)" if diferencia > 0 else "Ajuste Manual (Corrección)"
-                    observacion = f"{tipo_ajuste} en Cuota #{cuota.numero_cuota}. Valor anterior: {valor_anterior}, Nuevo: {nuevo_abonado}"
+                # Opcional: Actualizar el comprobante si suben uno nuevo
+                if 'comprobante' in request.FILES:
+                    pago.comprobante_imagen = request.FILES['comprobante']
+                
+                pago.monto = nuevo_monto
+                if nueva_fecha:
+                     pago.fecha_pago = nueva_fecha
+                if nuevo_metodo:
+                     pago.metodo_pago = nuevo_metodo
+                
+                # Eliminar el rastro del saldo a favor de la observación para que el recálculo lo regenere limpio
+                if pago.observacion and " | Saldo a favor remanente:" in pago.observacion:
+                    pago.observacion = pago.observacion.split(" | Saldo a favor remanente:")[0]
                     
-                    Pago.objects.create(
-                        contrato=contrato,
-                        fecha_pago=date.today(),
-                        monto=diferencia, # Puede ser negativo
-                        metodo_pago='AJUSTE',
-                        observacion=observacion,
-                        registrado_por=request.user
-                    )
-                    print(f"DEBUG: Pago de ajuste creado por ${diferencia}")
-
-                # Actualizar valor pagado (ABONADO)
-                cuota.valor_pagado = nuevo_abonado
-                cuota.mora_exenta = mora_exenta
+                pago.save()
                 
-                # Si exentamos la mora, limpiamos el valor de mora actual
-                if mora_exenta:
-                    cuota.valor_mora = Decimal('0.00')
+                # EL MOTOR MAGICO DE RECALCULO QUE REPARAMOS ANTERIORMENTE
+                from .services import recalcular_deuda_contrato
+                recalcular_deuda_contrato(contrato.id)
                 
-                # Calcular saldo pendiente
-                total_a_pagar = cuota.valor_capital + (cuota.valor_mora or Decimal('0'))
-                saldo = total_a_pagar - nuevo_abonado
+                messages.success(request, f"¡Pago #{pago.id} actualizado exitosamente! La deuda y las distribuciones han sido recalculadas.")
+                return redirect('detalle_contrato', pk=contrato.id)
                 
-                # DEBUG: Ver fechas
-                print(f"DEBUG: Cuota #{cuota.numero_cuota}")
-                print(f"  - Fecha vencimiento: {cuota.fecha_vencimiento}")
-                print(f"  - Hoy: {date.today()}")
-                print(f"  - Vencida? {cuota.fecha_vencimiento < date.today()}")
-                print(f"  - Mora exenta? {mora_exenta}")
-                print(f"  - Saldo: {saldo}")
-                
-                # Determinar el estado correcto
-                if saldo < Decimal('0.01'):
-                    cuota.estado = 'PAGADO'
-                elif cuota.fecha_vencimiento < date.today() and not mora_exenta:
-                    cuota.estado = 'VENCIDO'
-                elif nuevo_abonado > 0:
-                    cuota.estado = 'PARCIAL'
-                else:
-                    cuota.estado = 'PENDIENTE'
-                
-                print(f"  - Estado calculado: {cuota.estado}")
-                
-                cuota.save()
-                
-                # Actualizar moras del contrato
-                from .services import actualizar_moras_contrato
-                actualizar_moras_contrato(contrato.id)
-                
-                # Refrescar para obtener valores actualizados
-                cuota.refresh_from_db()
-                
-                print(f"  - Estado final después de actualizar_moras: {cuota.estado}")
-                
-            messages.success(request, f"Cuota #{cuota.numero_cuota} actualizada. Abonado: ${nuevo_abonado}, Pendiente: ${cuota.saldo_pendiente}. Se generó un registro de caja por la diferencia.")
-            return redirect('detalle_contrato', pk=contrato.id)
-            
         except Exception as e:
-            import traceback
-            print(f"ERROR: {traceback.format_exc()}")
-            messages.error(request, f"Error al editar cuota: {e}")
-            
-    return render(request, 'ventas/form_cuota_editar.html', {'cuota': cuota, 'contrato': contrato})
+            messages.error(request, f"Error al modificar el pago: {str(e)}")
+            return redirect('detalle_contrato', pk=contrato.id)
+
+    # Si es GET, mostramos el formulario
+    cuotas_pendientes = contrato.cuotas.filter(
+        estado__in=['PENDIENTE', 'PARCIAL', 'VENCIDO']
+    ).order_by('numero_cuota')
+    
+    return render(request, 'ventas/form_pago.html', {
+        'contrato': contrato,
+        'cuotas_pendientes': cuotas_pendientes,
+        'hoy': pago.fecha_pago, # Pre-cargar fecha
+        'pago': pago, # Pasar el objeto pago para pre-llenar inputs
+        'modo_edicion': True
+    })
+
+@login_required
+def editar_pago_view(request, pago_id):
+    """Edita directamente un Pago específico (por su pago_id), independientemente de la cuota."""
+    from .models import Pago
+    pago = get_object_or_404(Pago, pk=pago_id)
+    contrato = pago.contrato
+
+    if not request.user.is_superuser and contrato.cliente.vendedor != request.user:
+        messages.error(request, "No tiene permisos para editar este pago.")
+        return redirect('detalle_contrato', pk=contrato.id)
+
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                nuevo_monto = Decimal(request.POST.get('monto', '0').replace(',', '.') or '0')
+                nueva_fecha = request.POST.get('fecha_pago')
+                nuevo_metodo = request.POST.get('metodo_pago')
+
+                if 'comprobante' in request.FILES:
+                    pago.comprobante_imagen = request.FILES['comprobante']
+
+                pago.monto = nuevo_monto
+                if nueva_fecha:
+                    pago.fecha_pago = nueva_fecha
+                if nuevo_metodo:
+                    pago.metodo_pago = nuevo_metodo
+
+                # Limpiar rastro de saldo a favor para que el recalculo lo regenere limpio
+                if pago.observacion and " | Saldo a favor remanente:" in pago.observacion:
+                    pago.observacion = pago.observacion.split(" | Saldo a favor remanente:")[0]
+
+                pago.save()
+
+                from .services import recalcular_deuda_contrato
+                recalcular_deuda_contrato(contrato.id)
+
+                messages.success(request, f"¡Pago #{pago.id} actualizado exitosamente! La deuda ha sido recalculada.")
+                return redirect('detalle_contrato', pk=contrato.id)
+
+        except Exception as e:
+            messages.error(request, f"Error al modificar el pago: {str(e)}")
+            return redirect('detalle_contrato', pk=contrato.id)
+
+    # GET: mostrar formulario con datos del pago pre-cargados
+    return render(request, 'ventas/form_pago.html', {
+        'contrato': contrato,
+        'cuotas_pendientes': contrato.cuotas.filter(estado__in=['PENDIENTE', 'PARCIAL', 'VENCIDO']).order_by('numero_cuota'),
+        'hoy': pago.fecha_pago,
+        'pago': pago,
+        'modo_edicion': True,
+    })
 
 @login_required
 def eliminar_cuota_view(request, pk):
@@ -652,11 +749,13 @@ def ver_comprobante_view(request, pago_id):
         return FileResponse(pago.comprobante_imagen.open())
     return HttpResponse("No hay imagen asociada.", status=404)
 
+@login_required
 def gestion_lotes_view(request):
     # Lista tipo Excel de todos los lotes
     lotes = Lote.objects.all().order_by('manzana', 'numero_lote')
     return render(request, 'gestion/lotes_lista.html', {'lotes': lotes})
 
+@login_required
 def crear_lote_view(request):
     if request.method == 'POST':
         try:
@@ -674,9 +773,9 @@ def crear_lote_view(request):
                 provincia=request.POST.get('provincia'),
                 canton=request.POST.get('canton')
             )
-            # Handle image upload
+            # Handle image uploads
             if 'imagen' in request.FILES:
-                lote.imagen = request.FILES['imagen']
+                lote.plano = request.FILES['imagen']
             if 'foto_lista' in request.FILES:
                 lote.foto_lista = request.FILES['foto_lista']
                 
@@ -715,9 +814,9 @@ def editar_lote_view(request, pk):
             lote.parroquia = request.POST.get('parroquia')
             lote.provincia = request.POST.get('provincia')
             lote.canton = request.POST.get('canton')
-            # Handle image upload
+            # Handle image uploads
             if 'imagen' in request.FILES:
-                lote.imagen = request.FILES['imagen']
+                lote.plano = request.FILES['imagen']
             if 'foto_lista' in request.FILES:
                 lote.foto_lista = request.FILES['foto_lista']
                 
@@ -732,96 +831,170 @@ def editar_lote_view(request, pk):
 # ==========================================
 # REPORTE MENSUAL DE INGRESOS Y MORA
 # ==========================================
-@login_required
-def reporte_mensual_view(request):
+def _obtener_datos_mensuales(user, mes_str, anio_str):
     from datetime import date
+    from dateutil.relativedelta import relativedelta
     from decimal import Decimal
     
     hoy = date.today()
-    primer_dia_mes = hoy.replace(day=1)
+    es_anual = False
     
-    # Filtro de seguridad por vendedor
-    if request.user.is_superuser:
-        contratos = Contrato.objects.filter(estado='ACTIVO')
-        pagos_mes = Pago.objects.filter(fecha_pago__gte=primer_dia_mes, fecha_pago__lte=hoy)
-    else:
-        contratos = Contrato.objects.filter(estado='ACTIVO', cliente__vendedor=request.user)
-        pagos_mes = Pago.objects.filter(
-            fecha_pago__gte=primer_dia_mes, 
-            fecha_pago__lte=hoy,
-            contrato__cliente__vendedor=request.user
-        )
+    mes = hoy.month
+    anio = hoy.year
     
-    # === INGRESOS DEL MES ===
-    ingresos_por_cliente = {}
-    for pago in pagos_mes:
-        cliente = pago.contrato.cliente
-        if cliente.id not in ingresos_por_cliente:
-            ingresos_por_cliente[cliente.id] = {
-                'cliente': cliente,
-                'contrato': pago.contrato,
-                'total_pagado': Decimal('0.00')
-            }
-        ingresos_por_cliente[cliente.id]['total_pagado'] += pago.monto
-    
-    total_ingresos = sum(c['total_pagado'] for c in ingresos_por_cliente.values())
-    
-    # === CLIENTES EN MORA ===
-    clientes_en_mora = {}
-    for contrato in contratos.filter(esta_en_mora=True):
-        cuotas_vencidas = contrato.cuotas.filter(estado='VENCIDO')
-        deuda_total = sum(c.saldo_pendiente for c in cuotas_vencidas)
+    try:
+        if anio_str:
+            anio = int(anio_str)
+            if mes_str == 'anual':
+                es_anual = True
+                mes = 'anual'
+            elif mes_str:
+                mes = int(mes_str)
+    except ValueError:
+        pass
         
-        if deuda_total > 0:
-            clientes_en_mora[contrato.cliente.id] = {
+    if es_anual:
+        primer_dia_mes = date(anio, 1, 1)
+        ultimo_dia_mes = date(anio, 12, 31)
+    else:
+        if not isinstance(mes, int):
+            mes = hoy.month
+        primer_dia_mes = date(anio, mes, 1)
+        ultimo_dia_mes = primer_dia_mes + relativedelta(months=1) - relativedelta(days=1)
+    
+    if user.is_superuser:
+        contratos_todos = Contrato.objects.all().prefetch_related('pago_set__detalles__cuota', 'cliente', 'lote')
+        contratos_activos = Contrato.objects.filter(estado='ACTIVO').prefetch_related('pago_set__detalles__cuota', 'cliente', 'lote')
+    else:
+        contratos_todos = Contrato.objects.filter(cliente__vendedor=user).prefetch_related('pago_set__detalles__cuota', 'cliente', 'lote')
+        contratos_activos = Contrato.objects.filter(estado='ACTIVO', cliente__vendedor=user).prefetch_related('pago_set__detalles__cuota', 'cliente', 'lote')
+        
+    es_mes_pasado = ultimo_dia_mes < hoy
+
+    # 1. Ingresos Cash Flow: TODO pago recibido en el mes (incluyendo abono inicial y de contratos que ahora estén inactivos)
+    #    Una fila por TRANSACCION (no por cliente), con fecha y cuotas cubiertas
+    cobros_lista_raw = []   # lista de transacciones individuales
+    total_cobrado_mes = Decimal('0.00')
+    total_entradas    = Decimal('0.00')
+    total_ingresos    = Decimal('0.00')
+
+    for contrato in contratos_todos:
+        cliente = contrato.cliente
+        pago_entrada = contrato.pago_set.order_by('id').first()
+
+        for pago in contrato.pago_set.all().order_by('fecha_pago'):
+            # Solo pagos cuya fecha real de cobro cae en el período (Cash Flow)
+            if not (primer_dia_mes <= pago.fecha_pago <= ultimo_dia_mes):
+                continue
+
+            es_entrada = pago.es_entrada or (pago == pago_entrada and not pago.detalles.exists())
+
+            # Cuotas que cubre este pago (números de cuota)
+            if es_entrada:
+                cuotas_cubiertas = ['Entrada']
+            else:
+                numeros = list(
+                    pago.detalles.select_related('cuota')
+                    .values_list('cuota__numero_cuota', flat=True)
+                    .order_by('cuota__numero_cuota')
+                )
+                cuotas_cubiertas = [f'#{n}' for n in numeros] if numeros else ['—']
+
+            cobros_lista_raw.append({
+                'cliente':          cliente,
+                'contrato':         contrato,
+                'fecha_pago':       pago.fecha_pago,
+                'metodo':           pago.metodo_pago,
+                'cuotas_cubiertas': ', '.join(cuotas_cubiertas),
+                'es_entrada':       es_entrada,
+                'monto_cuotas':     Decimal('0.00') if es_entrada else pago.monto,
+                'monto_entrada':    pago.monto if es_entrada else Decimal('0.00'),
+                'total_cobrado':    pago.monto,
+            })
+
+            total_cobrado_mes += pago.monto
+            if es_entrada:
+                total_entradas += pago.monto
+            else:
+                total_ingresos += pago.monto
+
+    # Ordenar: por fecha_pago, luego por apellido
+    cobros_lista_raw.sort(key=lambda x: (x['fecha_pago'], x['cliente'].apellidos))
+
+    # 2. Proyección Restante (Cuotas venciendo este mes, aún no pagadas totalmente)
+    #    SOLO DE CONTRATOS ACTIVOS
+    proyeccion_por_cliente = {}
+    if not es_mes_pasado:
+        for contrato in contratos_activos:
+            cuotas_proyeccion = contrato.cuotas.filter(
+                fecha_vencimiento__gte=primer_dia_mes,
+                fecha_vencimiento__lte=ultimo_dia_mes,
+                estado__in=['PENDIENTE', 'PARCIAL', 'VENCIDO']
+            )
+            deuda = sum(c.saldo_pendiente for c in cuotas_proyeccion)
+            if deuda > 0:
+                proyeccion_por_cliente[contrato.id] = {
+                    'cliente': contrato.cliente,
+                    'contrato': contrato,
+                    'cuotas_count': cuotas_proyeccion.count(),
+                    'deuda_total': deuda
+                }
+    total_proyeccion = sum(p['deuda_total'] for p in proyeccion_por_cliente.values())
+
+    # 3. Mora Histórica (Cuotas vencidas ANTES de este mes, no pagadas)
+    #    SOLO DE CONTRATOS ACTIVOS
+    mora_historica = {}
+    for contrato in contratos_activos:
+        if es_mes_pasado:
+            # Si es mes pasado, TODO lo impago vencido hasta el fin de ESE mes se considera mora actual acumulada a la fecha de ese mes.
+            cuotas_mora = contrato.cuotas.filter(
+                fecha_vencimiento__lte=ultimo_dia_mes,
+                estado__in=['PENDIENTE', 'PARCIAL', 'VENCIDO']
+            )
+        else:
+            cuotas_mora = contrato.cuotas.filter(
+                fecha_vencimiento__lt=primer_dia_mes,
+                estado__in=['PENDIENTE', 'PARCIAL', 'VENCIDO']
+            )
+        deuda = sum(c.saldo_pendiente for c in cuotas_mora)
+        if deuda > 0:
+            mora_historica[contrato.id] = {
                 'cliente': contrato.cliente,
                 'contrato': contrato,
-                'cuotas_vencidas': cuotas_vencidas.count(),
-                'deuda_total': deuda_total
+                'cuotas_count': cuotas_mora.count(),
+                'deuda_total': deuda
             }
-    
-    total_mora = sum(c['deuda_total'] for c in clientes_en_mora.values())
+    total_mora_historica = sum(m['deuda_total'] for m in mora_historica.values())
 
-    # === DEVOLUCIONES DEL MES ===
-    # Contratos que cambiaron a estado 'DEVOLUCION' en este rango de fecha
-    contratos_devolucion = Contrato.objects.filter(
-        estado='DEVOLUCION',
-        fecha_fin_contrato__gte=primer_dia_mes,
-        fecha_fin_contrato__lte=hoy
-    )
-    if not request.user.is_superuser:
-        contratos_devolucion = contratos_devolucion.filter(cliente__vendedor=request.user)
+    # 4. Devoluciones del mes (REMOVIDO A PETICION DEL USUARIO)
 
-    devoluciones_lista = []
-    total_devoluciones = Decimal('0.00')
-
-    for c in contratos_devolucion:
-        # Sumamos todos los pagos realizados a este contrato
-        monto_devuelto = sum(p.monto for p in c.pago_set.all())
-        total_devoluciones += monto_devuelto
-        
-        devoluciones_lista.append({
-            'cliente': c.cliente,
-            'contrato': c,
-            'monto': monto_devuelto
-        })
-
-    # Ingreso Neto: (Ingresos Reales) - (Mora Pendiente) - (Devoluciones)
-    # Nota: Restar Mora es criterio del usuario, aunque contablemente es solo lo que NO entró.
-    # Restar Devoluciones es salida de efectivo.
-    ingreso_neto = total_ingresos - total_mora - total_devoluciones
-    
-    context = {
+    return {
         'fecha_inicio': primer_dia_mes,
-        'fecha_fin': hoy,
-        'ingresos_lista': sorted(ingresos_por_cliente.values(), key=lambda x: x['total_pagado'], reverse=True),
+        'fecha_fin': ultimo_dia_mes,
+        'mes_actual': mes,
+        'anio_actual': anio,
+        'es_anual': es_anual,
+        'es_mes_pasado': es_mes_pasado,
+        # --- Cobros: una fila por transacción (fecha + cuota + monto) ---
+        'cobros_lista': cobros_lista_raw,
+        'total_cobrado_mes': total_cobrado_mes,
+        'total_entradas': total_entradas,
         'total_ingresos': total_ingresos,
-        'mora_lista': sorted(clientes_en_mora.values(), key=lambda x: x['deuda_total'], reverse=True),
-        'total_mora': total_mora,
-        'devoluciones_lista': devoluciones_lista,
-        'total_devoluciones': total_devoluciones,
-        'ingreso_neto': ingreso_neto,
+        # --- Para backward-compat ---
+        'entradas_lista': [c for c in cobros_lista_raw if c['es_entrada']],
+        'ingresos_lista': [c for c in cobros_lista_raw if not c['es_entrada']],
+        # --- Proyeccion y mora ---
+        'proyeccion_lista': sorted(proyeccion_por_cliente.values(), key=lambda x: x['deuda_total'], reverse=True),
+        'total_proyeccion': total_proyeccion,
+        'mora_historica_lista': sorted(mora_historica.values(), key=lambda x: x['deuda_total'], reverse=True),
+        'total_mora_historica': total_mora_historica,
     }
+
+@login_required
+def reporte_mensual_view(request):
+    mes = request.GET.get('mes')
+    anio = request.GET.get('anio')
+    context = _obtener_datos_mensuales(request.user, mes, anio)
     return render(request, 'reportes/reporte_mensual.html', context)
 
 
@@ -887,6 +1060,9 @@ def reporte_general_view(request):
     total_saldo = Decimal('0.00')  # Suma de saldos pendientes
     
     for contrato in contratos_qs:
+        # Actualizar moras para que el saldo pendiente sea exacto al del detalle_cliente
+        actualizar_moras_contrato(contrato.id)
+        
         # Basic data
         row = {
             'contrato': contrato,
@@ -907,41 +1083,107 @@ def reporte_general_view(request):
         if primera_cuota:
             total_cuotas += primera_cuota.valor_capital
         
-        # For each month, calculate total paid based on CUOTA due date
-        for i, mes in enumerate(meses):
-            mes_inicio = date(mes['year'], mes['month'], 1)
-            mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
-            
-            # Sum valor_pagado for cuotas that are DUE in this month
-            cuotas_mes = contrato.cuotas.filter(
-                fecha_vencimiento__gte=mes_inicio,
-                fecha_vencimiento__lte=mes_fin
-            )
-            total_mes = sum(c.valor_pagado for c in cuotas_mes)
-            row['pagos_mensuales'].append(total_mes)
-            
-            # Add to monthly totals (subtract if devolucion)
-            if row['es_devolucion']:
-                totales_mensuales[i] -= total_mes
-            else:
-                totales_mensuales[i] += total_mes
-        
-        # Calcular saldo pendiente REAL: suma de saldo_pendiente de TODAS las cuotas
-        # Usa el mismo property que detalle_cliente.html (cuota.saldo_pendiente)
-        row['saldo_pendiente'] = sum(c.saldo_pendiente for c in contrato.cuotas.all())
-        total_saldo += row['saldo_pendiente']
-        
-        # Calcular total_pagado REAL: entrada + todos los pagos de cuotas (no solo filtradas)
-        row['total_pagado'] = (contrato.valor_entrada or Decimal('0.00')) + sum(
-            c.valor_pagado or Decimal('0.00') for c in contrato.cuotas.all()
+        cuotas_en_rango = contrato.cuotas.filter(
+            fecha_vencimiento__gte=desde,
+            fecha_vencimiento__lte=hasta
         )
         
+        # Calcular saldo pendiente y Total Pagado desde las cuotas (fuente de verdad)
+        # Total Pagado = V.Entrada + sum(cuota.valor_pagado) → independiente del rango de fechas
+        todas_cuotas = list(contrato.cuotas.all())
+        row['saldo_pendiente'] = sum(
+            c.total_a_pagar - c.valor_pagado
+            for c in todas_cuotas
+        )
+        row['total_pagado'] = contrato.valor_entrada or Decimal('0.00')
+
+        # Inicializar columnas mensuales (se llenarán con pagos del rango seleccionado)
+        row['pagos_mensuales'] = [Decimal('0.00')] * len(meses)
+
+        # Ubicar la entrada en el mes correspondiente (COMENTADO: El usuario no quiere ver la entrada en la matriz de meses)
+        # Esto evita que aparezca como una "cuota gigante" en el reporte
+        """
+        pago_entrada_obj = contrato.pago_set.filter(es_entrada=True).order_by('id').first()
+        if not pago_entrada_obj:
+            pago_entrada_obj = contrato.pago_set.order_by('id').first()
+        if pago_entrada_obj:
+            fecha_entrada = pago_entrada_obj.fecha_pago
+            for i, mes in enumerate(meses):
+                mes_inicio = date(mes['year'], mes['month'], 1)
+                mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
+                if mes_inicio <= fecha_entrada <= mes_fin:
+                    monto_e = contrato.valor_entrada or Decimal('0.00')
+                    row['pagos_mensuales'][i] += monto_e
+                    if not row['es_devolucion']:
+                        totales_mensuales[i] += monto_e
+                    else:
+                        totales_mensuales[i] -= monto_e
+                    break
+        """
+        # IDs de pagos de entrada para excluirlos de la lógica "Legacy" (sin detalles)
+        ids_entradas = set(contrato.pago_set.filter(es_entrada=True).values_list('id', flat=True))
+        if contrato.valor_entrada > 0 and not ids_entradas:
+            # Fallback: Solo si hay deuda de entrada pero no hay flag, tomamos el primer pago como entrada
+            pago_entrada_obj_fallback = contrato.pago_set.order_by('id').first()
+            if pago_entrada_obj_fallback:
+                ids_entradas.add(pago_entrada_obj_fallback.id)
+
+        # Procesar cuotas
+        for pago in contrato.pago_set.all():
+            # Saltar el pago de entrada en ambas ramas: ya fue sumado en la línea de valor_entrada
+            if pago.id in ids_entradas:
+                continue
+
+            detalles = pago.detalles.select_related('cuota')
+            
+            if detalles.exists():
+                # SIEMPRE procesar detalles (son cuotas/mora reales)
+                for detalle in detalles:
+
+                    fecha_pago_real = pago.fecha_pago
+                    monto = detalle.monto_aplicado
+                    
+                    # Distribuir en meses (Cash Flow: usando fecha_pago_real)
+                    for i, mes in enumerate(meses):
+                        mes_inicio = date(mes['year'], mes['month'], 1)
+                        mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
+                        if mes_inicio <= fecha_pago_real <= mes_fin:
+                            row['pagos_mensuales'][i] += monto
+                            if not row['es_devolucion']:
+                                totales_mensuales[i] += monto
+                            else:
+                                totales_mensuales[i] -= monto
+                            break # Ya lo encontró
+                            
+                    # Sumar SIEMPRE al histórico de Total Pagado
+                    row['total_pagado'] += monto
+            else:
+                # Pago legacy sin detalles
+
+                fecha_ref = pago.fecha_pago
+                monto = pago.monto
+                
+                # Distribuir en meses
+                for i, mes in enumerate(meses):
+                    mes_inicio = date(mes['year'], mes['month'], 1)
+                    mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
+                    if mes_inicio <= fecha_ref <= mes_fin:
+                        row['pagos_mensuales'][i] += monto
+                        if not row['es_devolucion']:
+                            totales_mensuales[i] += monto
+                        else:
+                            totales_mensuales[i] -= monto
+                        break
+                        
+                # Sumar SIEMPRE al histórico de Total Pagado
+                row['total_pagado'] += monto
         # Add to general total
         if row['es_devolucion']:
             total_general -= row['total_pagado']
         else:
             total_general += row['total_pagado']
         
+        total_saldo += row['saldo_pendiente']
         reporte_data.append(row)
     
     context = {
@@ -1005,42 +1247,126 @@ def reporte_general_pdf_view(request):
     totales_mensuales = [Decimal('0.00') for _ in meses]
     total_general = Decimal('0.00')
     total_cuotas = Decimal('0.00')
+    total_vtotal = Decimal('0.00')
+    total_entrada = Decimal('0.00')
+    total_saldo = Decimal('0.00')
+
     
     for contrato in contratos_qs:
+        # Actualizar moras para exactitud financiera
+        actualizar_moras_contrato(contrato.id)
+        
+        hasta_fin_de_mes = hasta.replace(day=1) + relativedelta(months=1) - relativedelta(days=1)
+        cuotas_en_rango = contrato.cuotas.filter(
+            fecha_vencimiento__gte=desde.replace(day=1),
+            fecha_vencimiento__lte=hasta_fin_de_mes
+        )
+        
+        total_vtotal += contrato.precio_venta_final or Decimal('0.00')
+        total_entrada += contrato.valor_entrada or Decimal('0.00')
+        
         row = {
+
             'contrato': contrato,
             'cliente': contrato.cliente,
             'lote': contrato.lote,
             'pagos_mensuales': [],
             'total_pagado': Decimal('0.00'),
-            'es_devolucion': contrato.estado == 'DEVOLUCION'
+            'es_devolucion': contrato.estado == 'DEVOLUCION',
+            # Deuda pendiente TOTAL del contrato (igual que "Deuda Pendiente" en detalle_cliente)
+            'saldo_pendiente': sum(
+                c.total_a_pagar - c.valor_pagado
+                for c in contrato.cuotas.all()
+            )
         }
         
         primera_cuota = contrato.cuotas.first()
         if primera_cuota:
             total_cuotas += primera_cuota.valor_capital
         
-        for i, mes in enumerate(meses):
-            mes_inicio = date(mes['year'], mes['month'], 1)
-            mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
+        # Inicializar los totales de este contrato
+        row['pagos_mensuales'] = [Decimal('0.00')] * len(meses)
+        # Sumar el valor de entrada siempre, sin importar el rango de fechas
+        row['total_pagado'] = contrato.valor_entrada or Decimal('0.00')
+        hasta_fin_de_mes_range = hasta.replace(day=1) + relativedelta(months=1) - relativedelta(days=1)
+
+        # Ubicar la entrada en el mes correspondiente (COMENTADO: El usuario no quiere ver la entrada en la matriz de meses)
+        """
+        pago_entrada_obj = contrato.pago_set.filter(es_entrada=True).order_by('id').first()
+        if not pago_entrada_obj:
+            pago_entrada_obj = contrato.pago_set.order_by('id').first()
+        if pago_entrada_obj:
+            fecha_entrada = pago_entrada_obj.fecha_pago
+            for i, mes in enumerate(meses):
+                mes_inicio = date(mes['year'], mes['month'], 1)
+                mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
+                if mes_inicio <= fecha_entrada <= mes_fin:
+                    monto_e = contrato.valor_entrada or Decimal('0.00')
+                    row['pagos_mensuales'][i] += monto_e
+                    if not row['es_devolucion']:
+                        totales_mensuales[i] += monto_e
+                    else:
+                        totales_mensuales[i] -= monto_e
+                    break
+        """
+        # IDs de pagos de entrada para excluirlos de la lógica "Legacy"
+        ids_entradas = set(contrato.pago_set.filter(es_entrada=True).values_list('id', flat=True))
+        if contrato.valor_entrada > 0 and not ids_entradas:
+            pago_entrada_obj_fallback = contrato.pago_set.order_by('id').first()
+            if pago_entrada_obj_fallback:
+                ids_entradas.add(pago_entrada_obj_fallback.id)
+
+        # Procesar cuotas
+        for pago in contrato.pago_set.all():
+            detalles = pago.detalles.select_related('cuota')
             
-            cuotas_mes = contrato.cuotas.filter(
-                fecha_vencimiento__gte=mes_inicio,
-                fecha_vencimiento__lte=mes_fin
-            )
-            total_mes = sum(c.valor_pagado for c in cuotas_mes)
-            row['pagos_mensuales'].append(total_mes)
-            row['total_pagado'] += total_mes
-            
-            if row['es_devolucion']:
-                totales_mensuales[i] -= total_mes
-            else:
-                totales_mensuales[i] += total_mes
+            if detalles.exists():
+                # SIEMPRE procesar detalles
+                for detalle in detalles:
+                    fecha_pago_real = pago.fecha_pago
+                    monto = detalle.monto_aplicado
+                    
+                    # Distribuir en meses
+                    for i, mes in enumerate(meses):
+                        mes_inicio = date(mes['year'], mes['month'], 1)
+                        mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
+                        if mes_inicio <= fecha_pago_real <= mes_fin:
+                            row['pagos_mensuales'][i] += monto
+                            if not row['es_devolucion']:
+                                totales_mensuales[i] += monto
+                            else:
+                                totales_mensuales[i] -= monto
+                            break
+                            
+                    # Sumar SIEMPRE al histórico de Total Pagado
+                    row['total_pagado'] += monto
+            elif pago.id not in ids_entradas:
+                # Pago legacy
+
+                fecha_ref = pago.fecha_pago
+                monto = pago.monto
+                
+                # Distribuir en meses
+                for i, mes in enumerate(meses):
+                    mes_inicio = date(mes['year'], mes['month'], 1)
+                    mes_fin = mes_inicio + relativedelta(months=1) - relativedelta(days=1)
+                    if mes_inicio <= fecha_ref <= mes_fin:
+                        row['pagos_mensuales'][i] += monto
+                        if not row['es_devolucion']:
+                            totales_mensuales[i] += monto
+                        else:
+                            totales_mensuales[i] -= monto
+                        break
+                        
+                # Sumar SIEMPRE al histórico de Total Pagado
+                row['total_pagado'] += monto
         
         if row['es_devolucion']:
             total_general -= row['total_pagado']
         else:
             total_general += row['total_pagado']
+            
+        total_saldo += row['saldo_pendiente']
         
         reporte_data.append(row)
     
@@ -1052,7 +1378,11 @@ def reporte_general_pdf_view(request):
         'totales_mensuales': totales_mensuales,
         'total_general': total_general,
         'total_cuotas': total_cuotas,
+        'total_entrada': total_entrada,
+        'total_vtotal': total_vtotal,
+        'total_saldo': total_saldo,
     }
+
     
     html_string = render_to_string('reportes/reporte_general_pdf.html', context)
     result_file = BytesIO()
@@ -1064,71 +1394,22 @@ def reporte_general_pdf_view(request):
 
 @login_required
 def reporte_mensual_pdf_view(request):
-    from datetime import date
-    from decimal import Decimal
     from io import BytesIO
     from django.template.loader import render_to_string
     from xhtml2pdf import pisa
     from .services import link_callback
     
-    hoy = date.today()
-    primer_dia_mes = hoy.replace(day=1)
-    
-    if request.user.is_superuser:
-        contratos = Contrato.objects.filter(estado='ACTIVO')
-        pagos_mes = Pago.objects.filter(fecha_pago__gte=primer_dia_mes, fecha_pago__lte=hoy)
-    else:
-        contratos = Contrato.objects.filter(estado='ACTIVO', cliente__vendedor=request.user)
-        pagos_mes = Pago.objects.filter(
-            fecha_pago__gte=primer_dia_mes, 
-            fecha_pago__lte=hoy,
-            contrato__cliente__vendedor=request.user
-        )
-    
-    ingresos_por_cliente = {}
-    for pago in pagos_mes:
-        cliente = pago.contrato.cliente
-        if cliente.id not in ingresos_por_cliente:
-            ingresos_por_cliente[cliente.id] = {
-                'cliente': cliente,
-                'contrato': pago.contrato,
-                'total_pagado': Decimal('0.00')
-            }
-        ingresos_por_cliente[cliente.id]['total_pagado'] += pago.monto
-    
-    total_ingresos = sum(c['total_pagado'] for c in ingresos_por_cliente.values())
-    
-    clientes_en_mora = {}
-    for contrato in contratos.filter(esta_en_mora=True):
-        cuotas_vencidas = contrato.cuotas.filter(estado='VENCIDO')
-        deuda_total = sum(c.saldo_pendiente for c in cuotas_vencidas)
-        if deuda_total > 0:
-            clientes_en_mora[contrato.cliente.id] = {
-                'cliente': contrato.cliente,
-                'contrato': contrato,
-                'cuotas_vencidas': cuotas_vencidas.count(),
-                'deuda_total': deuda_total
-            }
-    
-    total_mora = sum(c['deuda_total'] for c in clientes_en_mora.values())
-    ingreso_neto = total_ingresos - total_mora
-    
-    context = {
-        'fecha_inicio': primer_dia_mes,
-        'fecha_fin': hoy,
-        'ingresos_lista': sorted(ingresos_por_cliente.values(), key=lambda x: x['total_pagado'], reverse=True),
-        'total_ingresos': total_ingresos,
-        'mora_lista': sorted(clientes_en_mora.values(), key=lambda x: x['deuda_total'], reverse=True),
-        'total_mora': total_mora,
-        'ingreso_neto': ingreso_neto,
-    }
+    mes = request.GET.get('mes')
+    anio = request.GET.get('anio')
+    context = _obtener_datos_mensuales(request.user, mes, anio)
     
     html_string = render_to_string('reportes/reporte_mensual_pdf.html', context)
     result_file = BytesIO()
     pisa.CreatePDF(html_string, dest=result_file, link_callback=link_callback)
     
     response = HttpResponse(result_file.getvalue(), content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Reporte_Mensual_{hoy.strftime("%Y-%m")}.pdf"'
+    fecha_str = context['fecha_inicio'].strftime("%Y-%m")
+    response['Content-Disposition'] = f'attachment; filename="Reporte_Mensual_{fecha_str}.pdf"'
     return response
 
 # ==========================================
@@ -1190,7 +1471,7 @@ def descargar_contrato_pdf(request, pk):
     # 1. Obtener Logo y convertirlo a base64
     logo_base64 = ""
     try:
-        abs_path = finders.find('img/logo_ugsha.png')
+        abs_path = finders.find('img/logo_bellavista.png')
         if abs_path:
             with open(abs_path, 'rb') as img_file:
                 logo_base64 = base64.b64encode(img_file.read()).decode('utf-8')
@@ -1200,10 +1481,12 @@ def descargar_contrato_pdf(request, pk):
         print(f"Error cargando logo: {e}")
 
     # Contexto similar a visualizar pero para PDF
+    saldo_pendiente = contrato.precio_venta_final - contrato.valor_entrada
     context = {
         'contrato': contrato,
         'fecha_actual': date.today(),
         'logo_url': logo_base64,
+        'saldo_pendiente': saldo_pendiente,
         # Datos de empresa si se requieran
     }
     
@@ -1222,3 +1505,140 @@ def descargar_contrato_pdf(request, pk):
     response['Content-Disposition'] = f'inline; filename="{filename}"'
     return response
 
+@login_required
+def preview_recibo_transaccion(request, pago_id):
+    """
+    Vista para previsualizar el recibo de una transacción (con botones de acción).
+    """
+    from .models import Pago, ConfiguracionSistema
+    from datetime import date
+    
+    config = ConfiguracionSistema.objects.first()
+    pago = get_object_or_404(Pago, pk=pago_id)
+    contrato = pago.contrato
+    
+    # Calcular datos para el preview (similares al PDF)
+    monto_pagado = pago.monto
+    fecha_pago = pago.fecha_pago
+    cuotas_cubiertas = [str(d.cuota.numero_cuota) for d in pago.detalles.all().order_by('cuota__numero_cuota')]
+    cuotas_str = ", ".join(cuotas_cubiertas) if cuotas_cubiertas else "Abono General"
+    
+    saldo_pendiente = sum(c.total_a_pagar - c.valor_pagado for c in contrato.cuotas.all())
+
+    # Determinar método de pago y detalles
+    metodo_real = 'EFECTIVO'
+    datos_bancarios = None
+    
+    obs = pago.observacion or ""
+    if 'TRANSFERENCIA' in obs or pago.metodo_pago == 'TRANSFERENCIA':
+        metodo_real = 'TRANSFERENCIA BANCARIA'
+    elif 'DEPOSITO' in obs:
+        metodo_real = 'DEPÓSITO'
+        
+    context = {
+        'contrato': contrato,
+        'cliente': contrato.cliente,
+        'pago': pago,
+        'empresa': config,
+        'monto_pagado': monto_pagado,
+        'fecha_pago': fecha_pago,
+        'cuotas_str': cuotas_str,
+        'saldo_pendiente': saldo_pendiente,
+        'metodo_real': metodo_real,
+        'fecha_actual': date.today(),
+        'pago_id': pago.id, # Para el boton de descargar
+    }
+    return render(request, 'reportes/preview_recibo_transaccion.html', context)
+
+@login_required
+def descargar_recibo_transaccion_pdf(request, pago_id):
+    """
+    Genera y descarga el PDF del recibo de una transacción.
+    """
+    from .services import generar_recibo_transaccion_buffer
+    from .models import Pago
+    
+    buffer = generar_recibo_transaccion_buffer(pago_id)
+    
+    if not buffer:
+        messages.error(request, "No se pudo generar el recibo.")
+        # Fallback redirect if something goes wrong
+        return redirect('dashboard')
+        
+    response = HttpResponse(buffer, content_type='application/pdf')
+    pago = Pago.objects.get(pk=pago_id)
+    filename = f"Recibo_Pago_{pago.numero_transaccion}_{pago.contrato.cliente.apellidos}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+# ==========================================
+# GESTOR DE GASTOS Y FLUJO DE CAJA
+# ==========================================
+@login_required
+def gestor_gastos_view(request):
+    """
+    Vista principal del dashboard del gestor de gastos.
+    Muestra los KPIs (Saldo, Ingresos, Gastos) e historial.
+    """
+    # Obtener todos los movimientos ordenados por fecha de registro (más reciente primero)
+    movimientos = MovimientoCaja.objects.all().order_by('-fecha_registro', '-id')
+    
+    # Calcular KPIs
+    total_ingresos = sum(m.monto for m in movimientos if m.tipo == 'INGRESO')
+    total_gastos = sum(m.monto for m in movimientos if m.tipo == 'GASTO')
+    saldo_actual = total_ingresos - total_gastos
+    
+    context = {
+        'movimientos': movimientos,
+        'total_ingresos': total_ingresos,
+        'total_gastos': total_gastos,
+        'saldo_actual': saldo_actual,
+        'hoy': date.today()
+    }
+    return render(request, 'gestion/gestor_gastos.html', context)
+
+@login_required
+def registrar_movimiento_view(request):
+    """
+    Vista que procesa el formulario modalidad POST unicamente
+    para registrar un nuevo Ingreso o Gasto en la caja.
+    """
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo', '')
+        monto_str = request.POST.get('monto', '0')
+        fecha = request.POST.get('fecha', '')
+        descripcion = request.POST.get('descripcion', '')
+        
+        try:
+            monto = Decimal(monto_str.replace(',', '.'))
+            
+            if monto <= 0:
+                messages.error(request, "El monto debe ser mayor a 0.")
+                return redirect('gestor_gastos')
+                
+            if tipo not in ['INGRESO', 'GASTO']:
+                messages.error(request, "Tipo de movimiento no válido.")
+                return redirect('gestor_gastos')
+                
+            # Validar que si es un GASTO, no deje la caja en negativo (opcional/regla de negocio)
+            # if tipo == 'GASTO':
+            #    ingresos = sum(m.monto for m in MovimientoCaja.objects.filter(tipo='INGRESO'))
+            #    gastos = sum(m.monto for m in MovimientoCaja.objects.filter(tipo='GASTO'))
+            #    if (ingresos - gastos) < monto:
+            #        messages.error(request, "⚠️ No hay suficientes fondos en caja para este gasto.")
+            #        return redirect('gestor_gastos')
+
+            MovimientoCaja.objects.create(
+                tipo=tipo,
+                monto=monto,
+                fecha=fecha,
+                descripcion=descripcion,
+                registrado_por=request.user
+            )
+            
+            messages.success(request, f"¡{tipo.capitalize()} por ${monto:.2f} registrado con éxito!")
+            
+        except Exception as e:
+            messages.error(request, f"Error al registrar movimiento: {str(e)}")
+            
+    return redirect('gestor_gastos')

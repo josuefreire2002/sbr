@@ -5,8 +5,6 @@
 {% block breadcrumb %}Reporte General de Pagos{% endblock %}
 
 {% block extra_head %}
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <style>
     .table-report thead th {
         background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
@@ -15,6 +13,10 @@
         text-transform: uppercase;
         white-space: nowrap;
         padding: 0.75rem 0.5rem;
+        /* Sticky header: sigue al hacer scroll vertical */
+        position: sticky;
+        top: 0;
+        z-index: 2;
     }
 
     .table-report tbody td {
@@ -175,8 +177,14 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table id="reporteTable" class="table table-bordered table-report align-middle mb-0" style="width:100%">
+            {# Search box nativo - sin DataTables #}
+            <div class="mb-3 no-print">
+                <input type="text" id="buscarTabla" class="form-control form-control-sm w-auto"
+                    placeholder="🔍 Buscar cliente, cédula..." style="min-width:260px">
+            </div>
+
+            <div style="overflow-x:auto; overflow-y:auto; max-height:75vh; width:100%;">
+                <table id="reporteTable" class="table table-bordered table-report align-middle mb-0">
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
@@ -274,28 +282,19 @@
                 </table>
             </div>
 
-            <!-- Totals Row (outside DataTable for proper printing) -->
-
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $('#reporteTable').DataTable({
-            paging: false,
-            searching: true,
-            ordering: true,
-            info: false,
-            scrollX: true,
-            language: {
-                search: "Buscar:",
-                zeroRecords: "No se encontraron resultados"
-            }
+    document.getElementById('buscarTabla').addEventListener('keyup', function () {
+        var filtro = this.value.toLowerCase();
+        var filas = document.querySelectorAll('#reporteTable tbody tr');
+        filas.forEach(function (fila) {
+            var texto = fila.textContent.toLowerCase();
+            fila.style.display = texto.includes(filtro) ? '' : 'none';
         });
     });
 </script>

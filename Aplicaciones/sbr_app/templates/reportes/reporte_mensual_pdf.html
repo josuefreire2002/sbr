@@ -148,28 +148,36 @@
 <body>
     <div class="header">
         <h1>Reporte Mensual de Ingresos y Mora</h1>
-        <div class="period">Período: {{ fecha_inicio|date:"d/m/Y" }} al {{ fecha_fin|date:"d/m/Y" }}</div>
+        <div class="period">Período:
+            {% if es_anual %}
+            Todo el Año {{ anio_actual }}
+            {% else %}
+            {{ fecha_inicio|date:"d/m/Y" }} al {{ fecha_fin|date:"d/m/Y" }}
+            {% endif %}
+        </div>
     </div>
 
     <div class="summary">
         <table style="width: 100%;">
             <tr>
-                <td style="width: 33%; padding: 10px;">
-                    <div class="summary-box green">
-                        <div class="label">Ingresos Mensual</div>
+                <td style="width: 33.33%; padding: 5px;">
+                    <div class="summary-box green" style="width: 90%; padding: 10px;">
+                        <div class="label">Ingresos Cobrados</div>
                         <div class="value">${{ total_ingresos }}</div>
                     </div>
                 </td>
-                <td style="width: 33%; padding: 10px;">
-                    <div class="summary-box red">
-                        <div class="label">Pendiente por Mora</div>
-                        <div class="value">${{ total_mora }}</div>
+                {% if not es_mes_pasado %}
+                <td style="width: 33.33%; padding: 5px;">
+                    <div class="summary-box blue" style="width: 90%; padding: 10px;">
+                        <div class="label">{% if es_mes_pasado %}Deuda Pendiente Mes{% else %}Proyección Mes{% endif %}</div>
+                        <div class="value">${{ total_proyeccion }}</div>
                     </div>
                 </td>
-                <td style="width: 33%; padding: 10px;">
-                    <div class="summary-box blue">
-                        <div class="label">Ingresos Totales Netos</div>
-                        <div class="value">${{ ingreso_neto }}</div>
+                {% endif %}
+                <td style="width: 33.33%; padding: 5px;">
+                    <div class="summary-box red" style="width: 90%; padding: 10px;">
+                        <div class="label">Mora Histórica</div>
+                        <div class="value">${{ total_mora_historica }}</div>
                     </div>
                 </td>
             </tr>
@@ -202,7 +210,38 @@
         </tbody>
     </table>
 
-    <h2>Detalle de Mora ({{ mora_lista|length }} clientes)</h2>
+    {% if not es_mes_pasado %}
+    <h2>{% if es_mes_pasado %}Deuda Pendiente del Mes{% else %}Proyección Restante del Mes{% endif %} ({{ proyeccion_lista|length }} clientes)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Cédula</th>
+                <th>Lote</th>
+                <th class="text-center">Cuotas Venciendo</th>
+                <th class="text-right">Ganancia Esperada</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in proyeccion_lista %}
+            <tr>
+                <td>{{ item.cliente.apellidos }} {{ item.cliente.nombres }}</td>
+                <td>{{ item.cliente.cedula }}</td>
+                <td>Mz {{ item.contrato.lote.manzana }} - Lote {{ item.contrato.lote.numero_lote }}</td>
+                <td class="text-center"><span class="badge" style="background-color:#3b82f6;">{{ item.cuotas_count
+                        }}</span></td>
+                <td class="text-right" style="color:#3b82f6;"><strong>${{ item.deuda_total }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">{% if es_mes_pasado %}Todas las cuotas de este mes fueron pagadas.{% else %}No hay cuotas por cobrar este mes.{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <h2>{% if es_mes_pasado %}Deuda Histórica Arrastrada{% else %}Mora Histórica Arrastrada{% endif %} ({{ mora_historica_lista|length }} clientes)</h2>
     <table>
         <thead>
             <tr>
@@ -210,28 +249,28 @@
                 <th>Cédula</th>
                 <th>Lote</th>
                 <th class="text-center">Cuotas Vencidas</th>
-                <th class="text-right">Deuda Total</th>
+                <th class="text-right">Deuda Atrasada</th>
             </tr>
         </thead>
         <tbody>
-            {% for item in mora_lista %}
+            {% for item in mora_historica_lista %}
             <tr>
                 <td>{{ item.cliente.apellidos }} {{ item.cliente.nombres }}</td>
                 <td>{{ item.cliente.cedula }}</td>
                 <td>Mz {{ item.contrato.lote.manzana }} - Lote {{ item.contrato.lote.numero_lote }}</td>
-                <td class="text-center"><span class="badge">{{ item.cuotas_vencidas }}</span></td>
+                <td class="text-center"><span class="badge">{{ item.cuotas_count }}</span></td>
                 <td class="text-right text-danger"><strong>${{ item.deuda_total }}</strong></td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" class="text-center">No hay clientes en mora. ¡Excelente!</td>
+                <td colspan="5" class="text-center">No hay clientes con deuda histórica arrastrada.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
     <div class="footer">
-        Generado automáticamente por UGSHA INMOBILIARIA - {{ fecha_fin|date:"d/m/Y" }}
+        Generado automáticamente por CIUDADELA BELLAVISTA - {{ fecha_fin|date:"d/m/Y" }}
     </div>
 </body>
 

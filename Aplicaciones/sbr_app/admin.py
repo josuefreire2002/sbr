@@ -18,7 +18,8 @@ admin.site.register(User, UserAdmin)
 # 1. Configuración del Sistema (Para las reglas de Mora)
 @admin.register(ConfiguracionSistema)
 class ConfiguracionAdmin(admin.ModelAdmin):
-    list_display = ('nombre_empresa', 'ruc_empresa', 'mora_leve_dias', 'mora_grave_dias')
+    list_display = ('nombre_empresa', 'ruc_empresa', 'mora_porcentaje')
+    list_editable = ('mora_porcentaje',)
     # Esto evita que creen más de una configuración (Solo debe haber 1)
     def has_add_permission(self, request):
         if self.model.objects.exists():
@@ -44,18 +45,59 @@ class ClienteAdmin(admin.ModelAdmin):
 class CuotaInline(admin.TabularInline):
     model = Cuota
     extra = 0
-    readonly_fields = ('saldo_pendiente', 'total_a_pagar')
-    can_delete = False
+    # Enable editing and deletion within contract
+    can_delete = True
 
 # 5. Contratos
+@admin.action(description='Resetear pagos de cuotas (Dejar solo Entrada inicial)')
+def resetear_pagos_contrato(modeladmin, request, queryset):
+    from .services import recalcular_deuda_contrato
+    from .models import Pago
+    
+    count = 0
+    for contrato in queryset:
+        # 1. Identificar el Abono Inicial (El primer pago cronológico, o el marcado como entrada)
+        # Asumimos que es_entrada=True lo identifica perfectamente, si no, el primer pago.
+        pagos_a_borrar = Pago.objects.filter(contrato=contrato).exclude(es_entrada=True)
+        
+        # Eliminar físicamente los recibos (DetallePago se va en cascada)
+        if pagos_a_borrar.exists():
+            pagos_a_borrar.delete()
+            
+            # Recalcular matemáticamente las cuotas a 0 (excepto la entrada, que no afecta a las cuotas regulares)
+            recalcular_deuda_contrato(contrato.id)
+            count += 1
+            
+    modeladmin.message_user(request, f"Se han reseteado a $0.00 las cuotas regulares de {count} contrato(s).")
+
 @admin.register(Contrato)
 class ContratoAdmin(admin.ModelAdmin):
     list_display = ('id', 'cliente', 'lote', 'fecha_contrato', 'saldo_a_financiar', 'esta_en_mora')
     list_filter = ('esta_en_mora', 'fecha_contrato')
     search_fields = ('cliente__cedula', 'cliente__apellidos')
     inlines = [CuotaInline] # Muestra las cuotas ahí mismo
+    actions = [resetear_pagos_contrato]
 
-# 6. Pagos
+# 6. Cuotas (Standalone Registration for Deep Intervention)
+@admin.register(Cuota)
+class CuotaAdmin(admin.ModelAdmin):
+    list_display = ('contrato', 'numero_cuota', 'fecha_vencimiento', 'valor_capital', 'valor_mora', 'valor_pagado', 'estado', 'mora_exenta')
+    list_filter = ('estado', 'mora_exenta')
+    search_fields = ('contrato__cliente__nombres', 'contrato__cliente__apellidos', 'contrato__id')
+    list_editable = ('valor_mora', 'valor_pagado', 'estado', 'mora_exenta')
+    
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        from .services import recalcular_deuda_contrato
+        recalcular_deuda_contrato(obj.contrato.id)
+        
+    def delete_model(self, request, obj):
+        contrato_id = obj.contrato.id
+        super().delete_model(request, obj)
+        from .services import recalcular_deuda_contrato
+        recalcular_deuda_contrato(contrato_id)
+
+# 7. Pagos
 @admin.register(Pago)
 class PagoAdmin(admin.ModelAdmin):
     list_display = ('fecha_pago', 'contrato', 'monto', 'metodo_pago', 'registrado_por')
@@ -91,6 +133,23 @@ from .models import *
 
 # Registramos tus modelos existentes si no lo están
 # (Asumo que ya tienes algunos, pero agrego LogActividad explícitamente)
+
+# 8. Detalles de Pago (Para corregir distribuciones defectuosas manualmente)
+@admin.register(DetallePago)
+class DetallePagoAdmin(admin.ModelAdmin):
+    list_display = ('pago', 'cuota', 'monto_aplicado')
+    search_fields = ('pago__contrato__cliente__apellidos', 'pago__id')
+    
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        from .services import recalcular_deuda_contrato
+        recalcular_deuda_contrato(obj.pago.contrato.id)
+        
+    def delete_model(self, request, obj):
+        contrato_id = obj.pago.contrato.id
+        super().delete_model(request, obj)
+        from .services import recalcular_deuda_contrato
+        recalcular_deuda_contrato(contrato_id)
 
 @admin.register(LogActividad)
 class LogActividadAdmin(admin.ModelAdmin):

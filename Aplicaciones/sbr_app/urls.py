@@ -29,6 +29,7 @@ urlpatterns = [
     # --- GESTIÓN DE CUOTAS (Editar/Eliminar) ---
     path('cuota/<int:pk>/editar/', views.editar_cuota_view, name='editar_cuota'),
     path('cuota/<int:pk>/eliminar/', views.eliminar_cuota_view, name='eliminar_cuota'),
+    path('pago/<int:pago_id>/editar/', views.editar_pago_view, name='editar_pago'),
 
     # --- REPORTES Y ARCHIVOS ---
     # Ruta para descargar el PDF generado (WeasyPrint)
@@ -45,6 +46,8 @@ urlpatterns = [
     
     # Ruta para ver el recibo de transferencia (imagen)
     path('pago/<int:pago_id>/ver-comprobante/', views.ver_comprobante_view, name='ver_comprobante'),
+    path('pago/<int:pago_id>/descargar-recibo/', views.descargar_recibo_transaccion_pdf, name='descargar_recibo_transaccion'),
+    path('pago/<int:pago_id>/preview-recibo/', views.preview_recibo_transaccion, name='preview_recibo_transaccion'),
 
     # Reporte mensual de ingresos y mora
     path('reportes/mensual/', views.reporte_mensual_view, name='reporte_mensual'),
@@ -58,4 +61,8 @@ urlpatterns = [
     
     # Control manual de mora
     path('cuota/<int:cuota_id>/toggle-mora/', views.toggle_mora_cuota, name='toggle_mora_cuota'),
+    
+    # Gestor de Gastos y Flujo de Caja
+    path('caja/', views.gestor_gastos_view, name='gestor_gastos'),
+    path('caja/registrar/', views.registrar_movimiento_view, name='registrar_movimiento'),
 ]

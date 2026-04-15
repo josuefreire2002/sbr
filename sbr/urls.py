@@ -20,6 +20,7 @@ urlpatterns = [
     # Sistema de Gestión Interna (sbr_app) - Requiere autenticación
     # Ahora es la página principal por defecto
     path('', include('Aplicaciones.sbr_app.urls')), 
+    path('gestor/', include('Aplicaciones.sbr_gestor.urls')), 
 ]
 
 # Configuración para servir archivos subidos (Fotos recibos y PDFs) en modo DEBUG

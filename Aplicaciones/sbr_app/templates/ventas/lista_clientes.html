@@ -218,15 +218,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for cliente in clientes %}
-                        {% with contrato=cliente.contrato_set.last %}
-                        <tr class="client-row {% if contrato and contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}table-danger-subtle{% elif contrato and contrato.estado == 'CANCELADO' %}table-warning-subtle{% elif contrato and contrato.estado == 'DEVOLUCION' %}table-secondary-subtle{% endif %}"
-                            data-status="{% if contrato and contrato.estado == 'ACTIVO' %}con-contrato{% else %}sin-contrato{% endif %}"
-                            data-mora="{% if contrato and contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}en-mora{% else %}al-dia{% endif %}">
+                        {% for contrato in contratos %}
+                        {% with cliente=contrato.cliente %}
+                        <tr class="client-row {% if contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}table-danger-subtle{% elif contrato.estado == 'CANCELADO' %}table-warning-subtle{% elif contrato.estado == 'DEVOLUCION' %}table-secondary-subtle{% endif %}"
+                            data-status="{% if contrato.estado == 'ACTIVO' %}con-contrato{% else %}sin-contrato{% endif %}"
+                            data-mora="{% if contrato.estado == 'ACTIVO' and contrato.esta_en_mora %}en-mora{% else %}al-dia{% endif %}">
 
                             <td class="text-center fw-bold text-muted">{{ forloop.counter }}</td>
 
-                            <td>
+                            <td
+                                data-sort="{% if contrato %}{{ contrato.fecha_contrato|date:'Y-m-d' }}{% else %}0000-00-00{% endif %}">
                                 {% if contrato %}
                                 <span class="text-nowrap">{{ contrato.fecha_contrato|date:"d/m/Y" }}</span>
                                 {% else %}
@@ -371,9 +372,8 @@
 </div>
 
 <!-- Image Modals (outside of table for proper Bootstrap rendering) -->
-{% for cliente in clientes %}
-{% with contrato=cliente.contrato_set.last %}
-{% if contrato and contrato.lote_principal.imagen %}
+{% for contrato in contratos %}
+{% if contrato.lote_principal.imagen %}
 <div class="modal fade" id="loteImgModal{{ contrato.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -388,13 +388,10 @@
     </div>
 </div>
 {% endif %}
-{% endwith %}
 {% endfor %}
 
 <!-- Modal for Entry Payment Details -->
-{% for cliente in clientes %}
-{% with contrato=cliente.contrato_set.last %}
-{% if contrato %}
+{% for contrato in contratos %}
 {% with pago_entrada=contrato.pago_set.first %}
 {% if pago_entrada and pago_entrada.metodo_pago != 'EFECTIVO' %}
 <div class="modal fade" id="entradaModal{{ contrato.id }}" tabindex="-1" aria-hidden="true">
@@ -442,8 +439,6 @@
 </div>
 {% endif %}
 {% endwith %}
-{% endif %}
-{% endwith %}
 {% endfor %}
 {% endblock %}
 
@@ -489,6 +484,7 @@
             pageLength: 10,
             searching: true,
             ordering: true,
+            order: [[1, 'asc']], // Sort by "F/Contrato" column ascending
             info: true,
             autoWidth: false,
             responsive: false,
