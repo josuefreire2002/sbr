@@ -758,15 +758,27 @@ def gestion_lotes_view(request):
 @login_required
 def crear_lote_view(request):
     if request.method == 'POST':
+        manzana = (request.POST.get('manzana') or '').strip().upper()
+        numero_lote = (request.POST.get('numero_lote') or '').strip()
+
+        # --- Validación: no permitir duplicados (manzana + número de lote) ---
+        if Lote.objects.filter(manzana__iexact=manzana, numero_lote=numero_lote).exists():
+            messages.error(
+                request,
+                f"Ya existe un lote con Manzana '{manzana}' y Número de Lote '{numero_lote}'. "
+                "La combinación de manzana y número de lote debe ser única."
+            )
+            return render(request, 'gestion/lotes_form.html')
+
         try:
             lote = Lote.objects.create(
-                manzana=request.POST.get('manzana'),
-                numero_lote=request.POST.get('numero_lote'),
+                manzana=manzana,
+                numero_lote=numero_lote,
                 dimensiones=request.POST.get('dimensiones'),
                 precio_contado=request.POST.get('precio'),
                 estado='DISPONIBLE',
-                creado_por=request.user, # Asignar el creador
-                
+                creado_por=request.user,
+
                 # Campos nuevos (Opcionales)
                 ciudad=request.POST.get('ciudad'),
                 parroquia=request.POST.get('parroquia'),
@@ -778,13 +790,13 @@ def crear_lote_view(request):
                 lote.plano = request.FILES['imagen']
             if 'foto_lista' in request.FILES:
                 lote.foto_lista = request.FILES['foto_lista']
-                
+
             lote.save()
             messages.success(request, "Lote creado correctamente en el inventario.")
             return redirect('gestion_lotes')
         except Exception as e:
             messages.error(request, f"Error al crear lote: {e}")
-    
+
     return render(request, 'gestion/lotes_form.html')
 
 @login_required
@@ -803,12 +815,24 @@ def editar_lote_view(request, pk):
         return redirect('gestion_lotes')
 
     if request.method == 'POST':
+        nueva_manzana = (request.POST.get('manzana') or '').strip().upper()
+        nuevo_numero = (request.POST.get('numero_lote') or '').strip()
+
+        # --- Validación: no permitir duplicados (excluyendo el propio lote en edición) ---
+        if Lote.objects.filter(manzana__iexact=nueva_manzana, numero_lote=nuevo_numero).exclude(pk=lote.pk).exists():
+            messages.error(
+                request,
+                f"Ya existe otro lote con Manzana '{nueva_manzana}' y Número de Lote '{nuevo_numero}'. "
+                "La combinación de manzana y número de lote debe ser única."
+            )
+            return render(request, 'gestion/lotes_form.html', {'lote': lote})
+
         try:
-            lote.manzana = request.POST.get('manzana')
-            lote.numero_lote = request.POST.get('numero_lote')
+            lote.manzana = nueva_manzana
+            lote.numero_lote = nuevo_numero
             lote.dimensiones = request.POST.get('dimensiones')
             lote.precio_contado = request.POST.get('precio')
-            
+
             # Nuevos campos
             lote.ciudad = request.POST.get('ciudad')
             lote.parroquia = request.POST.get('parroquia')
@@ -819,7 +843,7 @@ def editar_lote_view(request, pk):
                 lote.plano = request.FILES['imagen']
             if 'foto_lista' in request.FILES:
                 lote.foto_lista = request.FILES['foto_lista']
-                
+
             lote.save()
             messages.success(request, f"Lote #{lote.id} actualizado correctamente.")
             return redirect('gestion_lotes')

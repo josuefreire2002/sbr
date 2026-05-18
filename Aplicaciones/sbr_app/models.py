@@ -65,6 +65,11 @@ class Lote(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='lotes_creados')
     
     # Para saber si está ocupado rápido
+    class Meta:
+        unique_together = [('manzana', 'numero_lote')]
+        verbose_name = "Lote"
+        verbose_name_plural = "Lotes"
+
     def __str__(self):
         return f"Mz. {self.manzana} - Lote {self.numero_lote} ({self.estado})"
 
