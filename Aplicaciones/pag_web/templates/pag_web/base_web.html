@@ -216,17 +216,6 @@
                 </a>
             </nav>
 
-            <!-- Actions Right (CTA Contactar Asesor WhatsApp) -->
-            <div class="hidden sm:flex items-center gap-3">
-                <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20asesoría%20sobre%20los%20lotes%20disponibles."
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95">
-                    <span class="material-symbols-outlined text-[18px]">chat</span>
-                    <span>Contactar Asesor</span>
-                </a>
-            </div>
-            
             <!-- Mobile Hamburger Button -->
             <button id="mobile-menu-toggle"
                     aria-label="Abrir Menú"
@@ -268,16 +257,6 @@
                     <span class="material-symbols-outlined text-primary dark:text-gold-accent">mail</span>
                     <span>Contacto y Visitas</span>
                 </a>
-
-                <div class="pt-4 mt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-3">
-                    <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20asesoría%20sobre%20los%20lotes%20disponibles."
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm text-center shadow-md flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">chat</span>
-                        <span>Escribir por WhatsApp</span>
-                    </a>
-                </div>
             </nav>
         </div>
     </header>
@@ -353,7 +332,7 @@
                     <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">
                         Respaldamos cada transacción con un gestor interno avanzado que garantiza la seguridad de su inversión.
                     </p>
-                    <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 text-sm font-bold text-gold-accent hover:text-yellow-600 transition-colors">
+                    <a href="{% url 'pag_web:nosotros' %}" class="inline-flex items-center gap-2 text-sm font-bold text-gold-accent hover:text-yellow-600 transition-colors">
                         Conocer más <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                     </a>
                 </div>
