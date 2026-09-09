@@ -99,79 +99,172 @@
 </section>
 
 <!-- Simulator Section -->
-<section class="py-16 px-4 md:px-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-    <div class="max-w-[1000px] mx-auto">
+<section id="simulador-lote" class="py-16 px-4 md:px-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+    <div class="max-w-[1050px] mx-auto">
         <div class="text-center mb-10">
-            <span class="material-symbols-outlined text-primary text-5xl mb-3">calculate</span>
-            <h2 class="text-3xl font-serif font-bold text-slate-900 dark:text-white">Simulador de Financiamiento Directo</h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-2">Calcule su plan de pagos fácilmente. 0% de interés el primer año disponible en proyectos seleccionados.</p>
+            <span class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-gold-accent/15 text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-3 border border-gold-accent/30 shadow-sm">
+                <span class="material-symbols-outlined text-[16px]">calculate</span>
+                Simulador Personalizado
+            </span>
+            <h2 class="text-3xl font-serif font-bold text-slate-900 dark:text-white">
+                Financiamiento Directo para el Lote {{ lote.numero_lote }}
+            </h2>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 max-w-xl mx-auto text-sm">
+                Ajuste el valor de entrada y el número de cuotas para calcular su plan de pagos exacto. Sin bancos ni requisitos complicados.
+            </p>
         </div>
 
-        <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 md:p-8 shadow-inner border border-slate-200 dark:border-slate-700">
-            <form id="simulador-form" class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Data for JS -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Form Controls (7 cols) -->
+            <div class="lg:col-span-7 bg-slate-50 dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700 space-y-6">
+                <!-- Hidden Price -->
                 <input type="hidden" id="precio-lote" value="{{ lote.precio_contado|stringformat:'f' }}">
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Precio Total</label>
-                    <input type="text" value="${{ lote.precio_contado|intcomma }}" class="w-full bg-slate-200 dark:bg-slate-700 border-none rounded-lg text-slate-900 dark:text-white font-bold cursor-not-allowed text-lg" disabled>
-                </div>
-                
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Entrada ($)</label>
-                    <input type="number" id="sim-entrada" min="0" placeholder="Ej. 5000" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 focus:border-primary focus:ring-primary rounded-lg text-slate-900 dark:text-white" required>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Plazo (Meses)</label>
-                    <select id="sim-plazo" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 focus:border-primary focus:ring-primary rounded-lg text-slate-900 dark:text-white cursor-pointer">
-                        <option value="12">12 Meses</option>
-                        <option value="24">24 Meses</option>
-                        <option value="36">36 Meses</option>
-                        <option value="48">48 Meses</option>
-                        <option value="60">60 Meses</option>
-                    </select>
+                <!-- Precio Contado -->
+                <div>
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">Precio Total del Lote</label>
+                    <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        <span class="text-2xl font-serif font-bold text-slate-900 dark:text-white">${{ lote.precio_contado|intcomma }}</span>
+                        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                            0% Interés Directo
+                        </span>
+                    </div>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Interés Anual (%)</label>
-                    <input type="number" id="sim-interes" value="12" step="0.1" min="0" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 focus:border-primary focus:ring-primary rounded-lg text-slate-900 dark:text-white">
+                <!-- Entrada Inicial -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                            Monto de Entrada ($)
+                        </label>
+                        <span class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded" id="lote-sim-entrada-badge">
+                            20%
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center mb-3">
+                        <div class="sm:col-span-2">
+                            <input type="range" id="lote-sim-entrada-range" min="500" max="{{ lote.precio_contado|stringformat:'f' }}" step="100"
+                                   class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">$</span>
+                            <input type="number" id="lote-sim-entrada-input" min="0" max="{{ lote.precio_contado|stringformat:'f' }}" step="50"
+                                   class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl pl-7 pr-3 py-2 text-sm font-bold focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Botones de % rápido -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-[11px] text-slate-400 mr-1">Atajos:</span>
+                        <button type="button" class="lote-pct-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-emerald-500 transition-colors" data-pct="10">10%</button>
+                        <button type="button" class="lote-pct-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm border border-emerald-600" data-pct="20">20%</button>
+                        <button type="button" class="lote-pct-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-emerald-500 transition-colors" data-pct="30">30%</button>
+                        <button type="button" class="lote-pct-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-emerald-500 transition-colors" data-pct="50">50%</button>
+                    </div>
                 </div>
 
-                <div class="md:col-span-4 mt-4">
-                    <button type="submit" class="w-full bg-gradient-to-r from-gold-accent to-yellow-600 hover:from-yellow-500 hover:to-gold-accent text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-gold-accent/30 transform hover:-translate-y-1 flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined">payments</span>
-                        Calcular Cuotas
-                    </button>
+                <!-- Plazo en Meses -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                            Plazo de Financiamiento
+                        </label>
+                        <span class="text-xs font-mono font-bold text-primary dark:text-gold-accent" id="lote-sim-plazo-badge">
+                            36 Meses
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        <button type="button" class="lote-plazo-btn py-2 px-1 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-primary text-slate-700 dark:text-slate-300 transition-all text-center" data-meses="12">12m</button>
+                        <button type="button" class="lote-plazo-btn py-2 px-1 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-primary text-slate-700 dark:text-slate-300 transition-all text-center" data-meses="24">24m</button>
+                        <button type="button" class="lote-plazo-btn py-2 px-1 rounded-xl text-xs font-bold border-2 border-primary dark:border-gold-accent bg-primary/10 dark:bg-gold-accent/20 text-primary dark:text-gold-accent shadow-sm transition-all text-center" data-meses="36">36m ⭐</button>
+                        <button type="button" class="lote-plazo-btn py-2 px-1 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-primary text-slate-700 dark:text-slate-300 transition-all text-center" data-meses="48">48m</button>
+                        <button type="button" class="lote-plazo-btn py-2 px-1 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-primary text-slate-700 dark:text-slate-300 transition-all text-center col-span-2 sm:col-span-1" data-meses="60">60m</button>
+                    </div>
                 </div>
-            </form>
-        </div>
 
-        <!-- Resultados del Simulador -->
-        <div id="simulador-resultados" class="hidden mt-10">
-            <div class="bg-primary/10 border border-primary/20 rounded-2xl p-8 mb-8 text-center">
-                <p class="text-slate-600 dark:text-slate-300 font-bold uppercase tracking-widest text-sm mb-2">Cuota Mensual Estimada</p>
-                <div class="text-5xl font-serif font-bold text-primary dark:text-primary-light" id="res-cuota">$0.00</div>
-                <div class="mt-4 flex justify-center gap-6 text-sm">
-                    <div><span class="text-slate-500">Monto a Financiar:</span> <strong class="text-slate-800 dark:text-slate-200" id="res-monto">$0.00</strong></div>
-                    <div><span class="text-slate-500">Total Intereses:</span> <strong class="text-slate-800 dark:text-slate-200" id="res-interes">$0.00</strong></div>
+                <!-- Garantías -->
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                    <p class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                        <span class="material-symbols-outlined text-[16px]">verified</span>
+                        Sin comisiones bancarias ni penalización por abonos a capital.
+                    </p>
                 </div>
             </div>
 
-            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <table class="w-full text-left border-collapse">
+            <!-- Result Card (5 cols) -->
+            <div class="lg:col-span-5 bg-gradient-to-br from-primary/5 via-white to-primary/10 dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-900 rounded-3xl p-6 sm:p-8 border-2 border-primary/20 dark:border-primary/40 shadow-xl flex flex-col justify-between">
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400 block mb-2">Cuota Estimada</span>
+                    
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700 text-center mb-6 shadow-sm">
+                        <div class="text-4xl sm:text-5xl font-serif font-black text-primary dark:text-gold-accent" id="lote-res-cuota">
+                            $0.00
+                        </div>
+                        <span class="text-xs text-slate-500 dark:text-slate-400 font-light mt-1 block">
+                            Cuota fija mensual (0% interés)
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-6">
+                        <div class="flex justify-between text-xs text-slate-600 dark:text-slate-300 font-bold mb-1.5">
+                            <span>Entrada: <span id="lote-bar-entrada-pct">20%</span></span>
+                            <span>Financiado: <span id="lote-bar-saldo-pct">80%</span></span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex">
+                            <div id="lote-bar-entrada" class="h-full bg-emerald-500 transition-all duration-300" style="width: 20%;"></div>
+                            <div id="lote-bar-saldo" class="h-full bg-primary dark:bg-gold-accent transition-all duration-300" style="width: 80%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Metric list -->
+                    <div class="space-y-2 text-xs mb-6">
+                        <div class="flex justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/60">
+                            <span class="text-slate-500">Monto a Financiar:</span>
+                            <strong class="text-slate-800 dark:text-slate-100 font-mono" id="lote-res-monto">$0.00</strong>
+                        </div>
+                        <div class="flex justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/60">
+                            <span class="text-slate-500">Plazo Elegido:</span>
+                            <strong class="text-slate-800 dark:text-slate-100 font-mono" id="lote-res-plazo">36 meses</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="space-y-3">
+                    <a id="lote-sim-wa-btn" 
+                       href="#" target="_blank" rel="noopener noreferrer"
+                       class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-extrabold text-sm shadow-lg hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-center">
+                        <span class="material-symbols-outlined text-[20px]">chat</span>
+                        <span>Cotizar este Lote por WhatsApp</span>
+                    </a>
+
+                    <button id="lote-toggle-table-btn" type="button"
+                            class="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">table_rows</span>
+                        <span id="lote-toggle-table-text">Ver Tabla de Pagos</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Amortización Expandible -->
+        <div id="lote-table-container" class="hidden mt-10">
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                        <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm uppercase tracking-wider">
-                            <th class="p-4 font-bold border-b border-slate-200 dark:border-slate-700"># Cuota</th>
-                            <th class="p-4 font-bold border-b border-slate-200 dark:border-slate-700">Saldo Inicial</th>
-                            <th class="p-4 font-bold border-b border-slate-200 dark:border-slate-700">Capital</th>
-                            <th class="p-4 font-bold border-b border-slate-200 dark:border-slate-700">Interés</th>
-                            <th class="p-4 font-bold border-b border-slate-200 dark:border-slate-700 text-primary">Cuota Total</th>
-                            <th class="p-4 font-bold border-b border-slate-200 dark:border-slate-700">Saldo Final</th>
+                        <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider font-extrabold border-b border-slate-200 dark:border-slate-700">
+                            <th class="p-3.5 text-center"># Cuota</th>
+                            <th class="p-3.5">Saldo Inicial</th>
+                            <th class="p-3.5 text-emerald-600 dark:text-emerald-400">Abono Capital</th>
+                            <th class="p-3.5">Interés (0%)</th>
+                            <th class="p-3.5 text-primary dark:text-gold-accent font-bold">Cuota Mensual</th>
+                            <th class="p-3.5">Saldo Restante</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-amortizacion" class="text-slate-700 dark:text-slate-300 text-sm">
-                        <!-- Rows will be injected here via JS -->
+                    <tbody id="tabla-amortizacion" class="text-slate-700 dark:text-slate-300 divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                        <!-- Dynamic rows -->
                     </tbody>
                 </table>
             </div>
@@ -183,93 +276,168 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('simulador-form');
-        const resultadosDiv = document.getElementById('simulador-resultados');
-        const tablaBody = document.getElementById('tabla-amortizacion');
+        const precioRaw = document.getElementById('precio-lote').value.replace(/,/g, '.');
+        const precio = parseFloat(precioRaw);
+        
+        const entradaRange = document.getElementById('lote-sim-entrada-range');
+        const entradaInput = document.getElementById('lote-sim-entrada-input');
+        const entradaBadge = document.getElementById('lote-sim-entrada-badge');
+        const plazoBadge = document.getElementById('lote-sim-plazo-badge');
+        const pctBtns = document.querySelectorAll('.lote-pct-btn');
+        const plazoBtns = document.querySelectorAll('.lote-plazo-btn');
+        
+        const resCuota = document.getElementById('lote-res-cuota');
+        const resMonto = document.getElementById('lote-res-monto');
+        const resPlazo = document.getElementById('lote-res-plazo');
+        const barEntrada = document.getElementById('lote-bar-entrada');
+        const barSaldo = document.getElementById('lote-bar-saldo');
+        const barEntradaPct = document.getElementById('lote-bar-entrada-pct');
+        const barSaldoPct = document.getElementById('lote-bar-saldo-pct');
+        const waBtn = document.getElementById('lote-sim-wa-btn');
 
-        // Formateador de moneda
+        const toggleTableBtn = document.getElementById('lote-toggle-table-btn');
+        const toggleTableText = document.getElementById('lote-toggle-table-text');
+        const tableContainer = document.getElementById('lote-table-container');
+        const tableBody = document.getElementById('tabla-amortizacion');
+
+        if (isNaN(precio) || !resCuota) return;
+
+        let currentEntrada = Math.round(precio * 0.20); // default 20%
+        let currentPlazo = 36;
+
         const moneyFormatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         });
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Leer valores (convertir comas a puntos si es necesario, limpiar espacios)
-            const precioRaw = document.getElementById('precio-lote').value.replace(/,/g, '.');
-            const precio = parseFloat(precioRaw);
-            const entrada = parseFloat(document.getElementById('sim-entrada').value);
-            const plazoMeses = parseInt(document.getElementById('sim-plazo').value);
-            const interesAnual = parseFloat(document.getElementById('sim-interes').value);
-
-            if (isNaN(precio) || isNaN(entrada) || isNaN(plazoMeses) || isNaN(interesAnual)) {
-                alert("Por favor, ingrese valores válidos.");
-                return;
-            }
-
-            if (entrada > precio) {
-                alert("La entrada no puede ser mayor al precio del lote.");
-                return;
-            }
-
-            const montoFinanciar = precio - entrada;
-            const tasaMensual = (interesAnual / 100) / 12;
-            let cuotaMensual = 0;
-            let totalInteres = 0;
-
-            if (tasaMensual === 0) {
-                cuotaMensual = montoFinanciar / plazoMeses;
-            } else {
-                cuotaMensual = montoFinanciar * (tasaMensual / (1 - Math.pow(1 + tasaMensual, -plazoMeses)));
-            }
-
-            // Mostrar resultados globales
-            document.getElementById('res-cuota').textContent = moneyFormatter.format(cuotaMensual);
-            document.getElementById('res-monto').textContent = moneyFormatter.format(montoFinanciar);
+        function calculateLote() {
+            currentEntrada = Math.min(precio, Math.max(0, currentEntrada));
             
-            // Generar tabla de amortización
-            tablaBody.innerHTML = '';
-            let saldo = montoFinanciar;
-            let sumInteres = 0;
+            entradaInput.value = Math.round(currentEntrada);
+            entradaRange.value = currentEntrada;
+            
+            const entradaPct = Math.round((currentEntrada / precio) * 100);
+            entradaBadge.textContent = `${moneyFormatter.format(currentEntrada)} (${entradaPct}%)`;
+            plazoBadge.textContent = `${currentPlazo} Meses`;
 
-            for (let i = 1; i <= plazoMeses; i++) {
-                const interes = saldo * tasaMensual;
-                let capital = cuotaMensual - interes;
+            const montoFinanciar = Math.max(0, precio - currentEntrada);
+            const cuotaMensual = currentPlazo > 0 ? (montoFinanciar / currentPlazo) : 0;
 
-                // Ajuste para la última cuota por redondeos
-                if (i === plazoMeses) {
+            resCuota.textContent = moneyFormatter.format(cuotaMensual);
+            resMonto.textContent = moneyFormatter.format(montoFinanciar);
+            resPlazo.textContent = `${currentPlazo} cuotas fijas`;
+
+            const saldoPct = 100 - entradaPct;
+            barEntradaPct.textContent = `${entradaPct}%`;
+            barSaldoPct.textContent = `${saldoPct}%`;
+            barEntrada.style.width = `${entradaPct}%`;
+            barSaldo.style.width = `${saldoPct}%`;
+
+            // Pre-fill WhatsApp message
+            const msg = `Hola Ugsha Inmobiliaria, coticé en la página web el Lote #{{ lote.numero_lote }} (Manzana {{ lote.manzana }}):\n` +
+                        `• Precio Total: ${moneyFormatter.format(precio)}\n` +
+                        `• Entrada: ${moneyFormatter.format(currentEntrada)} (${entradaPct}%)\n` +
+                        `• Saldo Financiado: ${moneyFormatter.format(montoFinanciar)}\n` +
+                        `• Plazo: ${currentPlazo} meses\n` +
+                        `• Cuota Mensual Estimada: ${moneyFormatter.format(cuotaMensual)} (Sin Intereses)\n\n` +
+                        `Deseo confirmar si aún está disponible para reservar.`;
+            
+            waBtn.href = `https://wa.me/593998205377?text=${encodeURIComponent(msg)}`;
+
+            renderLoteTable(montoFinanciar, cuotaMensual, currentPlazo);
+        }
+
+        function renderLoteTable(saldoInicial, cuotaMensual, plazo) {
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+            
+            let saldo = saldoInicial;
+            let cuotaBase = Math.round((saldoInicial / plazo) * 100) / 100;
+
+            for (let i = 1; i <= plazo; i++) {
+                let capital = cuotaBase;
+                if (i === plazo) {
                     capital = saldo;
-                    cuotaMensual = capital + interes;
                 }
+                const saldoFinal = Math.max(0, saldo - capital);
 
-                sumInteres += interes;
-                const saldoFinal = saldo - capital;
-
-                // Crear fila
                 const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors";
+                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors";
                 tr.innerHTML = `
-                    <td class="p-4 font-bold text-slate-500">${i}</td>
-                    <td class="p-4">${moneyFormatter.format(saldo)}</td>
-                    <td class="p-4">${moneyFormatter.format(capital)}</td>
-                    <td class="p-4">${moneyFormatter.format(interes)}</td>
-                    <td class="p-4 font-bold text-primary dark:text-primary-light">${moneyFormatter.format(cuotaMensual)}</td>
-                    <td class="p-4">${moneyFormatter.format(Math.max(0, saldoFinal))}</td>
+                    <td class="p-3 text-center text-slate-500 font-bold">${i}</td>
+                    <td class="p-3">${moneyFormatter.format(saldo)}</td>
+                    <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold">${moneyFormatter.format(capital)}</td>
+                    <td class="p-3 text-slate-400">$0.00</td>
+                    <td class="p-3 font-bold text-primary dark:text-gold-accent">${moneyFormatter.format(capital)}</td>
+                    <td class="p-3">${moneyFormatter.format(saldoFinal)}</td>
                 `;
-                tablaBody.appendChild(tr);
-
+                tableBody.appendChild(tr);
                 saldo = saldoFinal;
             }
+        }
 
-            document.getElementById('res-interes').textContent = moneyFormatter.format(sumInteres);
-            
-            // Mostrar contenedor
-            resultadosDiv.classList.remove('hidden');
-            
-            // Scroll suave hacia los resultados
-            resultadosDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        entradaRange.addEventListener('input', function() {
+            currentEntrada = parseFloat(this.value);
+            calculateLote();
         });
+
+        entradaInput.addEventListener('input', function() {
+            const val = parseFloat(this.value);
+            if (!isNaN(val)) {
+                currentEntrada = val;
+                calculateLote();
+            }
+        });
+
+        pctBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const pct = parseInt(this.getAttribute('data-pct'));
+                currentEntrada = Math.round((precio * pct) / 100);
+                
+                pctBtns.forEach(b => {
+                    b.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm', 'border-emerald-600');
+                    b.classList.add('bg-white', 'dark:bg-slate-900', 'border-slate-200', 'dark:border-slate-700', 'text-slate-600', 'dark:text-slate-300');
+                });
+                this.classList.remove('bg-white', 'dark:bg-slate-900', 'border-slate-200', 'dark:border-slate-700', 'text-slate-600', 'dark:text-slate-300');
+                this.classList.add('bg-emerald-600', 'text-white', 'shadow-sm', 'border-emerald-600');
+
+                calculateLote();
+            });
+        });
+
+        plazoBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentPlazo = parseInt(this.getAttribute('data-meses'));
+                
+                plazoBtns.forEach(b => {
+                    b.classList.remove('border-2', 'border-primary', 'dark:border-gold-accent', 'bg-primary/10', 'dark:bg-gold-accent/20', 'text-primary', 'dark:text-gold-accent', 'shadow-sm');
+                    b.classList.add('border-slate-200', 'dark:border-slate-700', 'bg-white', 'dark:bg-slate-900', 'text-slate-700', 'dark:text-slate-300');
+                });
+                this.classList.remove('border-slate-200', 'dark:border-slate-700', 'bg-white', 'dark:bg-slate-900', 'text-slate-700', 'dark:text-slate-300');
+                this.classList.add('border-2', 'border-primary', 'dark:border-gold-accent', 'bg-primary/10', 'dark:bg-gold-accent/20', 'text-primary', 'dark:text-gold-accent', 'shadow-sm');
+
+                calculateLote();
+            });
+        });
+
+        if (toggleTableBtn && tableContainer) {
+            toggleTableBtn.addEventListener('click', function() {
+                const isHidden = tableContainer.classList.contains('hidden');
+                if (isHidden) {
+                    tableContainer.classList.remove('hidden');
+                    toggleTableText.textContent = "Ocultar Tabla de Pagos";
+                    tableContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    tableContainer.classList.add('hidden');
+                    toggleTableText.textContent = "Ver Tabla de Pagos";
+                }
+            });
+        }
+
+        // Run initially
+        calculateLote();
     });
 </script>
 {% endblock extra_js %}

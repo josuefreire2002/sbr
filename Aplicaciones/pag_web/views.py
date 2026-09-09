@@ -26,6 +26,9 @@ def index_view(request):
     # Lotes disponibles para la sección de propiedades
     context['lotes'] = Lote.objects.filter(estado='DISPONIBLE').order_by('-id')[:6]
     
+    # Todos los lotes disponibles para el simulador interactivo
+    context['lotes_simulador'] = Lote.objects.filter(estado='DISPONIBLE').order_by('manzana', 'numero_lote')
+    
     # Servicios activos
     context['servicios'] = Servicio.objects.filter(activo=True)
     
