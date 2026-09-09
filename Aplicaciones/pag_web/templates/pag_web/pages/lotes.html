@@ -66,15 +66,8 @@
             <!-- Dynamic Real Lot Card -->
             <div class="group relative bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-200/80 dark:border-slate-700/80 hover:border-gold-accent/60 hover:-translate-y-2 flex flex-col h-full">
                 <div class="relative aspect-[4/3] overflow-hidden bg-slate-200 dark:bg-slate-700">
-                    {% if lote.foto_lista %}
                     <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                        src="{{ lote.foto_lista.url }}" alt="Lote {{ lote.numero_lote }}" />
-                    {% else %}
-                    <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 animate-pulse">
-                        <span class="material-symbols-outlined text-6xl group-hover:scale-110 transition-transform text-slate-300">landscape</span>
-                        <span class="text-xs font-semibold mt-2 uppercase tracking-wider text-slate-400">Foto en preparación</span>
-                    </div>
-                    {% endif %}
+                        src="{{ lote.imagen_url }}" alt="Lote {{ lote.numero_lote }}" />
 
                     <!-- Shimmer Availability Badge -->
                     <div class="absolute top-4 left-4 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1.5">

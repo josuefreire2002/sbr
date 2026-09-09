@@ -24,11 +24,11 @@ def index_view(request):
     """
     context = get_context_base()
     
-    # Lotes para el catálogo dinámico con filtros (Disponible, Reservado, Vendido)
-    context['lotes'] = Lote.objects.all().order_by('-id')[:18]
+    # Catálogo exclusivo de lotes en estado DISPONIBLE de sbr_app
+    context['lotes'] = Lote.objects.filter(estado='DISPONIBLE').order_by('manzana', 'numero_lote')
     
     # Todos los lotes disponibles para el simulador interactivo
-    context['lotes_simulador'] = Lote.objects.filter(estado='DISPONIBLE').order_by('manzana', 'numero_lote')
+    context['lotes_simulador'] = context['lotes']
     
     # Servicios activos
     context['servicios'] = Servicio.objects.filter(activo=True)

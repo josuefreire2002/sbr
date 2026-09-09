@@ -35,6 +35,18 @@ class Perfil(models.Model):
         return f"Perfil de {self.user.username}"
 
 
+IMAGENES_AZAR_LOTES = [
+    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1524813686514-a57563d77d66?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1000&q=80",
+]
+
+
 class Lote(models.Model):
     ESTADOS = [
         ('DISPONIBLE', 'Disponible'),
@@ -59,8 +71,6 @@ class Lote(models.Model):
     provincia = models.CharField(max_length=100, blank=True, null=True)
     canton = models.CharField(max_length=100, blank=True, null=True)
     
-
-    
     # Usuario que creó el lote (para control de permisos de edición)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='lotes_creados')
     
@@ -69,6 +79,27 @@ class Lote(models.Model):
         unique_together = [('manzana', 'numero_lote')]
         verbose_name = "Lote"
         verbose_name_plural = "Lotes"
+
+    @property
+    def imagen_url(self):
+        """
+        Retorna la foto de lista si existe, o el plano si existe,
+        o una foto de alta calidad al azar si no tiene ninguna imagen subida.
+        """
+        if self.foto_lista:
+            try:
+                return self.foto_lista.url
+            except Exception:
+                pass
+        if self.plano:
+            try:
+                return self.plano.url
+            except Exception:
+                pass
+        if self.id:
+            return IMAGENES_AZAR_LOTES[self.id % len(IMAGENES_AZAR_LOTES)]
+        import random
+        return random.choice(IMAGENES_AZAR_LOTES)
 
     def __str__(self):
         return f"Mz. {self.manzana} - Lote {self.numero_lote} ({self.estado})"

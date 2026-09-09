@@ -29,14 +29,7 @@
             <!-- G-08 FIX: max-h consistente con lg:h-[520px] para que sticky funcione bien con el content de la derecha -->
             <div class="w-full lg:w-1/2">
                 <div class="sticky top-28 rounded-2xl overflow-hidden shadow-xl border border-slate-100 dark:border-slate-800">
-                    {% if lote.foto_lista %}
-                    <img src="{{ lote.foto_lista.url }}" class="w-full h-auto object-cover max-h-[420px] lg:max-h-[520px]" alt="Lote {{ lote.numero_lote }}">
-                    {% else %}
-                    <div class="w-full h-[320px] lg:h-[520px] bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-700 flex flex-col items-center justify-center gap-3">
-                        <span class="material-symbols-outlined text-8xl text-slate-400 dark:text-slate-500">landscape</span>
-                        <span class="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">Foto en Preparación</span>
-                    </div>
-                    {% endif %}
+                    <img src="{{ lote.imagen_url }}" class="w-full h-auto object-cover max-h-[420px] lg:max-h-[520px]" alt="Lote {{ lote.numero_lote }}">
                 </div>
             </div>
 
