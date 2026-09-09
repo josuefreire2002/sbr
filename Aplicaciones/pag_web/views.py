@@ -66,6 +66,15 @@ def servicios_view(request):
     return render(request, 'pag_web/pages/servicios.html', context)
 
 
+def simulador_view(request):
+    """
+    Página dedicada exclusivamente al simulador interactivo de financiamiento.
+    """
+    context = get_context_base()
+    context['lotes_simulador'] = Lote.objects.filter(estado='DISPONIBLE').order_by('manzana', 'numero_lote')
+    return render(request, 'pag_web/pages/simulador.html', context)
+
+
 def nosotros_view(request):
     """
     Página de información de la empresa.

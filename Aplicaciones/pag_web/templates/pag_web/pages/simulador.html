@@ -1,0 +1,488 @@
+{% extends 'pag_web/base_web.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Simulador de Financiamiento Directo - Ugsha Inmobiliaria{% endblock %}
+
+{% block content %}
+<div class="relative w-full overflow-hidden">
+    <!-- Header Banner -->
+    <section class="relative bg-slate-950 text-white pt-16 pb-12 px-4 md:px-10 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-primary/70 to-slate-950 opacity-95"></div>
+        <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-gold-accent/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative max-w-[1280px] mx-auto z-10 text-center">
+            <!-- Breadcrumbs -->
+            <nav class="flex justify-center text-xs font-semibold text-slate-400 mb-4">
+                <ol class="flex items-center space-x-2 bg-slate-900/80 backdrop-blur-md px-4 py-1.5 rounded-xl border border-slate-800">
+                    <li><a href="{% url 'pag_web:index' %}" class="hover:text-gold-accent transition-colors">Inicio</a></li>
+                    <li><span class="text-slate-600">/</span></li>
+                    <li class="text-white">Simulador de Financiamiento</li>
+                </ol>
+            </nav>
+
+            <div class="inline-flex items-center gap-2 py-1 px-3.5 rounded-full bg-gold-accent/20 text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-3 border border-gold-accent/30 shadow-sm">
+                <span class="material-symbols-outlined text-[16px]">bolt</span>
+                Financiamiento Directo 0% Interés • Sin Bancos
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif font-bold mb-3 tracking-tight">
+                Simulador de Financiamiento
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto font-light leading-relaxed">
+                Ingrese los valores de su lote, abono inicial, plazo y fecha para generar su tabla de amortización personalizada de cuotas fijas.
+            </p>
+        </div>
+    </section>
+
+    <!-- SIMULATOR CORE SECTION (ONLY THE SIMULATOR) -->
+    <section class="py-16 px-4 md:px-10 bg-slate-900 text-white relative min-h-[550px] flex items-center justify-center">
+        <!-- Background glow accents -->
+        <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-gold-accent/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-xl w-full mx-auto relative z-10">
+            <!-- Clean Form Card (Single centered container, direct values only) -->
+            <div class="bg-slate-800/95 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-slate-700/80 shadow-2xl">
+                <div class="space-y-5">
+                    
+                    <!-- 1. Valor del Lote ($) -->
+                    <div>
+                        <label for="sim-precio-input" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-gold-accent text-[18px]">sell</span>
+                            Valor del Lote ($)
+                        </label>
+                        <div class="relative mb-2">
+                            <span class="absolute left-4 top-3 text-gold-accent font-bold text-lg">$</span>
+                            <input type="number" id="sim-precio-input" value="15000" min="1000" step="100"
+                                   class="w-full bg-slate-900 border-2 border-slate-700 focus:border-gold-accent text-white font-mono font-bold text-xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all shadow-inner"
+                                   placeholder="Ej: 15000">
+                        </div>
+                        <!-- Selector opcional de lote -->
+                        <select id="sim-lote-select" class="w-full bg-slate-900/90 border-2 border-slate-700 text-slate-300 text-xs rounded-xl px-3.5 py-2.5 focus:border-gold-accent focus-visible:ring-2 focus-visible:ring-gold-accent/40 outline-none cursor-pointer transition-all">
+                            <option value="custom" data-precio="15000">-- Ingresar monto manual libre</option>
+                            {% for l in lotes_simulador %}
+                            <option value="{{ l.id }}" data-precio="{{ l.precio_contado|stringformat:'f' }}" data-lote="{{ l.numero_lote }}" data-mz="{{ l.manzana }}">
+                                Lote {{ l.numero_lote }} (Mz. {{ l.manzana }}) — ${{ l.precio_contado|intcomma }} ({{ l.dimensiones }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- 2. Abono Inicial ($) -->
+                    <div>
+                        <label for="sim-entrada-input" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-[18px]">payments</span>
+                            Valor para Abono Inicial ($)
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3 text-emerald-400 font-bold text-lg">$</span>
+                            <input type="number" id="sim-entrada-input" value="3000" min="0" step="50"
+                                   class="w-full bg-slate-900 border-2 border-slate-700 focus:border-emerald-400 text-emerald-400 font-mono font-bold text-xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all shadow-inner"
+                                   placeholder="Ej: 3000">
+                        </div>
+                    </div>
+
+                    <!-- 3 y 4 en 2 columnas: Número de Meses y Fecha de Pago -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- 3. Número de Meses a Pagar -->
+                        <div>
+                            <label for="sim-plazo-input" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-blue-400 text-[18px]">calendar_month</span>
+                                Número de Meses a Pagar
+                            </label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3.5 top-3 text-blue-400 text-lg">event_repeat</span>
+                                <input type="number" id="sim-plazo-input" value="36" min="1" max="120" step="1"
+                                       class="w-full bg-slate-900 border-2 border-slate-700 focus:border-blue-400 text-blue-300 font-mono font-bold text-lg rounded-2xl pl-11 pr-4 py-3 outline-none transition-all shadow-inner"
+                                       placeholder="Ej: 36">
+                            </div>
+                        </div>
+
+                        <!-- 4. Fecha de Pago -->
+                        <div>
+                            <label for="sim-fecha-pago" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-amber-400 text-[18px]">today</span>
+                                Fecha de Pago
+                            </label>
+                            <div class="relative">
+                                <input type="date" id="sim-fecha-pago"
+                                       class="w-full min-w-0 bg-slate-900 border-2 border-slate-700 focus:border-amber-400 focus-visible:ring-2 focus-visible:ring-amber-400/40 text-slate-200 font-mono font-bold text-sm rounded-2xl px-4 py-3 outline-none transition-all shadow-inner cursor-pointer appearance-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón Aceptar -->
+                    <div class="pt-3">
+                        <button id="sim-btn-aceptar" type="button"
+                                class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-gold-accent via-amber-500 to-yellow-500 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-base sm:text-lg shadow-2xl flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer border-2 border-amber-300">
+                            <span class="material-symbols-outlined text-2xl font-bold">table_view</span>
+                            <span>Aceptar y Ver Tabla de Amortización</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- MODAL DE TABLA DE AMORTIZACIÓN -->
+<div id="sim-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="sim-modal-title">
+    <!-- Backdrop oscuro con blur -->
+    <div id="sim-modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity cursor-pointer"></div>
+
+    <!-- Modal Dialog -->
+    <div class="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-8 flex items-center justify-center pointer-events-none">
+        <div class="relative w-full max-w-4xl bg-slate-900 border-2 border-gold-accent/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] text-white pointer-events-auto animate-in fade-in zoom-in-95">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-800 bg-slate-950/90 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gold-accent/20 text-gold-accent flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">table_view</span>
+                    </div>
+                    <div>
+                        <h3 id="sim-modal-title" class="text-xl sm:text-2xl font-serif font-bold text-white">
+                            Tabla de Amortización
+                        </h3>
+                        <p class="text-xs text-slate-400">
+                            Financiamiento Directo 0% Interés • Cuotas Mensuales Fijas
+                        </p>
+                    </div>
+                </div>
+                <button id="sim-modal-close-btn" type="button" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer" aria-label="Cerrar modal">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+
+            <!-- Resumen del Plan dentro del Modal -->
+            <div class="bg-slate-950/50 px-6 py-3.5 border-b border-slate-800 grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-center">
+                <div class="p-2 rounded-xl bg-slate-800/60 border border-slate-700/60">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Valor Lote</span>
+                    <span id="sim-modal-res-precio" class="font-mono font-bold text-white text-xs sm:text-sm">$0.00</span>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-800/60 border border-slate-700/60">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Abono Inicial</span>
+                    <span id="sim-modal-res-entrada" class="font-mono font-bold text-emerald-400 text-xs sm:text-sm">$0.00</span>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-800/60 border border-slate-700/60">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Saldo Financiado</span>
+                    <span id="sim-modal-res-saldo" class="font-mono font-bold text-amber-300 text-xs sm:text-sm">$0.00</span>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-800/60 border border-slate-700/60">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Plazo</span>
+                    <span id="sim-modal-res-plazo" class="font-mono font-bold text-blue-300 text-xs sm:text-sm">0 Meses</span>
+                </div>
+                <div class="p-2 rounded-xl bg-gradient-to-r from-gold-accent/20 to-amber-500/20 border border-gold-accent/40 col-span-2 sm:col-span-1">
+                    <span class="text-[10px] text-gold-accent uppercase font-bold block">Cuota Mensual</span>
+                    <span id="sim-modal-res-cuota" class="font-mono font-black text-gold-accent text-sm sm:text-base">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Modal Body (Tabla con scroll) -->
+            <div class="overflow-y-auto p-4 sm:p-6 flex-1">
+                <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-inner">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950 text-slate-300 uppercase tracking-wider font-extrabold border-b border-slate-800 sticky top-0">
+                                <th class="p-3 text-center">N°</th>
+                                <th class="p-3">Fecha de Pago</th>
+                                <th class="p-3 hidden sm:table-cell">Saldo Inicial</th>
+                                <th class="p-3 text-emerald-400">Abono Capital</th>
+                                <th class="p-3 text-slate-400 hidden sm:table-cell">Interés (0%)</th>
+                                <th class="p-3 text-gold-accent font-bold">Cuota Total</th>
+                                <th class="p-3">Saldo Restante</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sim-modal-table-body" class="divide-y divide-slate-800/60 font-mono">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                        <tfoot id="sim-modal-table-foot" class="bg-slate-950 font-mono font-bold text-xs border-t-2 border-slate-700 sticky bottom-0">
+                            <!-- Totals -->
+                        </tfoot>
+                    </table>
+                </div>
+                <p class="text-[11px] text-slate-400 sm:hidden mt-2 text-center flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">swipe</span>
+                    <span>Desliza horizontalmente para ver el desglose completo</span>
+                </p>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-slate-800 bg-slate-950/90 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <button id="sim-modal-print-btn" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">print</span>
+                        <span>Imprimir / PDF</span>
+                    </button>
+                    <button id="sim-modal-cerrar-btn" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all cursor-pointer">
+                        Cerrar
+                    </button>
+                </div>
+                <a id="sim-modal-wa-btn" href="#" target="_blank" rel="noopener noreferrer"
+                   class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-extrabold text-xs shadow-lg hover:shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer">
+                    <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                    </svg>
+                    <span>Solicitar este Plan por WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form Inputs
+        const precioInput = document.getElementById('sim-precio-input');
+        const entradaInput = document.getElementById('sim-entrada-input');
+        const plazoInput = document.getElementById('sim-plazo-input');
+        const fechaPagoInput = document.getElementById('sim-fecha-pago');
+        const loteSelect = document.getElementById('sim-lote-select');
+        const btnAceptar = document.getElementById('sim-btn-aceptar');
+
+        // Modal Elements
+        const modal = document.getElementById('sim-modal');
+        const modalBackdrop = document.getElementById('sim-modal-backdrop');
+        const modalCloseBtn = document.getElementById('sim-modal-close-btn');
+        const modalCerrarBtn = document.getElementById('sim-modal-cerrar-btn');
+        const modalPrintBtn = document.getElementById('sim-modal-print-btn');
+        const modalWaBtn = document.getElementById('sim-modal-wa-btn');
+
+        // Modal Summary
+        const modalResPrecio = document.getElementById('sim-modal-res-precio');
+        const modalResEntrada = document.getElementById('sim-modal-res-entrada');
+        const modalResSaldo = document.getElementById('sim-modal-res-saldo');
+        const modalResPlazo = document.getElementById('sim-modal-res-plazo');
+        const modalResCuota = document.getElementById('sim-modal-res-cuota');
+
+        // Modal Table
+        const modalTableBody = document.getElementById('sim-modal-table-body');
+        const modalTableFoot = document.getElementById('sim-modal-table-foot');
+
+        if (!precioInput || !entradaInput || !plazoInput || !fechaPagoInput || !btnAceptar) return;
+
+        let currentLoteNombre = "Presupuesto Personalizado";
+
+        const moneyFormatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        // Set default payment date to next month's same day (clamped to 28)
+        const hoy = new Date();
+        const nextMonth = new Date(hoy.getFullYear(), hoy.getMonth() + 1, Math.min(hoy.getDate(), 28));
+        const defaultY = nextMonth.getFullYear();
+        const defaultM = String(nextMonth.getMonth() + 1).padStart(2, '0');
+        const defaultD = String(nextMonth.getDate()).padStart(2, '0');
+        fechaPagoInput.value = `${defaultY}-${defaultM}-${defaultD}`;
+
+        function getParsedValues() {
+            let precio = parseFloat(precioInput.value);
+            let entrada = parseFloat(entradaInput.value);
+            let plazo = parseInt(plazoInput.value);
+            let errores = [];
+
+            if (isNaN(precio) || precio <= 0) {
+                errores.push('⚠️ Ingrese un valor válido para el Valor del Lote.');
+                precio = 0;
+            }
+            if (isNaN(entrada) || entrada < 0) {
+                errores.push('⚠️ Ingrese un valor válido para el Abono Inicial (puede ser $0).');
+                entrada = 0;
+            }
+            if (!isNaN(precio) && precio > 0 && entrada >= precio) {
+                errores.push('⚠️ El abono inicial no puede ser igual o mayor al precio del lote.');
+                entrada = Math.round(precio * 0.20);
+                entradaInput.value = entrada;
+            }
+            if (isNaN(plazo) || plazo <= 0) {
+                errores.push('⚠️ Ingrese un número de meses válido (ej: 12, 24, 36).');
+                plazo = 36;
+            }
+            if (plazo > 120) {
+                errores.push('⚠️ El plazo máximo es 120 meses (10 años).');
+                plazo = 120;
+                plazoInput.value = 120;
+            }
+            return { precio, entrada, plazo, errores };
+        }
+
+        function showValidationErrors(errores) {
+            let errDiv = document.getElementById('sim-errors');
+            if (errores.length === 0) {
+                if (errDiv) errDiv.remove();
+                return true;
+            }
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'sim-errors';
+                errDiv.className = 'mb-4 p-3 rounded-xl bg-amber-950/50 border border-amber-500 text-amber-300 text-xs font-semibold space-y-1';
+                btnAceptar.closest('div').parentElement.insertBefore(errDiv, btnAceptar.closest('div'));
+            }
+            errDiv.innerHTML = errores.map(function(e){ return '<p>' + e + '</p>'; }).join('');
+            errDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            return false;
+        }
+
+        function openModal() {
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal() {
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function generateAmortizationModal() {
+            const { precio, entrada, plazo, errores } = getParsedValues();
+            if (!showValidationErrors(errores) || precio <= 0) return;
+
+            const saldoFinanciar = Math.max(0, precio - entrada);
+            const cuotaMensual = plazo > 0 ? (saldoFinanciar / plazo) : 0;
+            const entradaPct = precio > 0 ? Math.round((entrada / precio) * 100) : 0;
+
+            // Update modal summary metrics
+            if (modalResPrecio) modalResPrecio.textContent = moneyFormatter.format(precio);
+            if (modalResEntrada) modalResEntrada.textContent = `${moneyFormatter.format(entrada)} (${entradaPct}%)`;
+            if (modalResSaldo) modalResSaldo.textContent = moneyFormatter.format(saldoFinanciar);
+            if (modalResPlazo) modalResPlazo.textContent = `${plazo} Meses`;
+            if (modalResCuota) modalResCuota.textContent = moneyFormatter.format(cuotaMensual);
+
+            // Parse selected date safely
+            let [baseY, baseM, baseD] = (fechaPagoInput.value || `${defaultY}-${defaultM}-${defaultD}`).split('-').map(Number);
+            baseM = (baseM || 1) - 1; // 0-indexed month
+            baseD = baseD || 1;
+            baseY = baseY || hoy.getFullYear();
+
+            // Populate table rows
+            if (modalTableBody) {
+                modalTableBody.innerHTML = '';
+                let saldo = saldoFinanciar;
+                const cuotaBase = plazo > 0 ? Math.round((saldoFinanciar / plazo) * 100) / 100 : 0;
+                let totalAbonado = 0;
+                let primeraFechaStr = "";
+
+                for (let i = 1; i <= plazo; i++) {
+                    let capital = cuotaBase;
+                    if (i === plazo) {
+                        capital = Math.round(saldo * 100) / 100;
+                    }
+                    const saldoFinal = Math.max(0, Math.round((saldo - capital) * 100) / 100);
+                    totalAbonado += capital;
+
+                    const targetMonth = baseM + (i - 1);
+                    const maxDaysInTarget = new Date(baseY, targetMonth + 1, 0).getDate();
+                    const cuotaDate = new Date(baseY, targetMonth, Math.min(baseD, maxDaysInTarget));
+                    const fechaStr = cuotaDate.toLocaleDateString('es-EC', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+
+                    if (i === 1) primeraFechaStr = fechaStr;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800 transition-colors " + (i % 2 === 0 ? 'bg-slate-950/60' : 'bg-slate-900/40');
+                    tr.innerHTML = `
+                        <td class="p-3 text-center text-slate-400 font-bold font-mono">${i}</td>
+                        <td class="p-3 text-slate-200 font-sans">${fechaStr}</td>
+                        <td class="p-3 text-slate-300 font-mono hidden sm:table-cell">${moneyFormatter.format(saldo)}</td>
+                        <td class="p-3 text-emerald-400 font-bold font-mono">${moneyFormatter.format(capital)}</td>
+                        <td class="p-3 text-slate-400 font-mono hidden sm:table-cell">$0.00</td>
+                        <td class="p-3 text-gold-accent font-bold font-mono">${moneyFormatter.format(capital)}</td>
+                        <td class="p-3 text-slate-300 font-mono">${moneyFormatter.format(saldoFinal)}</td>
+                    `;
+                    modalTableBody.appendChild(tr);
+                    saldo = saldoFinal;
+                }
+
+                // Table footer with totals
+                if (modalTableFoot) {
+                    modalTableFoot.innerHTML = `
+                        <tr class="text-white border-t-2 border-slate-700 bg-slate-950">
+                            <td class="p-3 text-center font-bold font-sans uppercase text-slate-400">Total</td>
+                            <td class="p-3 font-sans text-slate-400">${plazo} pagos mensuales</td>
+                            <td class="p-3 text-slate-300 font-mono hidden sm:table-cell">${moneyFormatter.format(saldoFinanciar)}</td>
+                            <td class="p-3 text-emerald-400 font-bold font-mono">${moneyFormatter.format(totalAbonado)}</td>
+                            <td class="p-3 text-slate-400 font-mono hidden sm:table-cell">$0.00</td>
+                            <td class="p-3 text-gold-accent font-bold font-mono">${moneyFormatter.format(totalAbonado)}</td>
+                            <td class="p-3 text-emerald-400 font-bold font-mono">$0.00</td>
+                        </tr>
+                    `;
+                }
+
+                // WhatsApp message with precise info
+                if (modalWaBtn) {
+                    const msg = `Hola Ugsha Inmobiliaria, coticé en el simulador web para ${currentLoteNombre}:\n` +
+                                `• Valor del Lote: ${moneyFormatter.format(precio)}\n` +
+                                `• Abono Inicial: ${moneyFormatter.format(entrada)} (${entradaPct}%)\n` +
+                                `• Saldo a Financiar: ${moneyFormatter.format(saldoFinanciar)}\n` +
+                                `• Plazo: ${plazo} meses\n` +
+                                `• Cuota Mensual Fija: ${moneyFormatter.format(cuotaMensual)} (0% Interés Directo)\n` +
+                                `• Fecha de 1er Pago: ${primeraFechaStr}\n\n` +
+                                `¿Podrían indicarme los pasos para continuar con la reserva?`;
+                    modalWaBtn.href = `https://wa.me/593998205377?text=${encodeURIComponent(msg)}`;
+                }
+            }
+
+            openModal();
+        }
+
+        // Lote Selector Change
+        if (loteSelect) {
+            loteSelect.addEventListener('change', function() {
+                const opt = this.options[this.selectedIndex];
+                const precioAttr = opt.getAttribute('data-precio');
+                if (opt.value === 'custom') {
+                    currentLoteNombre = "Presupuesto Personalizado";
+                } else {
+                    const num = opt.getAttribute('data-lote');
+                    const mz = opt.getAttribute('data-mz');
+                    currentLoteNombre = 'Lote ' + num + ' (Manzana ' + mz + ')';
+                }
+
+                if (precioAttr) {
+                    const nuevoPrecio = parseFloat(precioAttr);
+                    const nuevaEntrada = Math.round(nuevoPrecio * 0.20);
+                    precioInput.value = Math.round(nuevoPrecio);
+                    entradaInput.value = nuevaEntrada;
+                    [precioInput, entradaInput].forEach(function(el) {
+                        el.style.borderColor = '#c5a059';
+                        setTimeout(function(){ el.style.borderColor = ''; }, 1200);
+                    });
+                }
+            });
+        }
+
+        // Action Button: Open Modal
+        btnAceptar.addEventListener('click', generateAmortizationModal);
+
+        // Close Modal Controls
+        if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
+        if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+        if (modalCerrarBtn) modalCerrarBtn.addEventListener('click', closeModal);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        // Print / PDF Button
+        if (modalPrintBtn) {
+            modalPrintBtn.addEventListener('click', function() {
+                window.print();
+            });
+        }
+    });
+</script>
+{% endblock %}
