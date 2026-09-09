@@ -811,10 +811,10 @@
                     Cotizador Financiero Interactivo
                 </span>
                 <h2 class="text-3xl sm:text-5xl font-serif font-bold text-white tracking-tight leading-tight">
-                    Simulador de Crédito & Amortización
+                    Simulador de Financiamiento Directo
                 </h2>
                 <p class="text-slate-300 mt-3 text-base sm:text-lg font-light leading-relaxed">
-                    Configura el valor de tu lote, abono inicial y plazo deseado. Compara entre cuotas fijas (Francés) o decrecientes (Alemán) y descarga tu tabla en segundos.
+                    Configura el valor de tu lote, tu abono inicial y el plazo deseado. Conoce tu cuota mensual fija con crédito directo a 0% de interés bancario.
                 </p>
                 
                 <!-- Badge de Lote Seleccionado Dinámico -->
@@ -908,37 +908,14 @@
                         <input type="hidden" id="sim-plazo-input" value="36">
                     </div>
 
-                    <!-- 4. Selector de Sistema de Amortización y Tasa -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Sistema Francés vs Alemán -->
-                        <div>
-                            <label class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
-                                4. Sistema de Amortización
-                            </label>
-                            <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                                <button type="button" id="btn-sistema-frances"
-                                        class="py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all bg-[#0A1F44] text-white dark:bg-gold-accent dark:text-slate-950 shadow-sm text-center">
-                                    Francés<br><span class="text-[9px] font-normal opacity-90">(Cuota Fija)</span>
-                                </button>
-                                <button type="button" id="btn-sistema-aleman"
-                                        class="py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all text-slate-600 dark:text-slate-300 hover:text-gold-accent text-center">
-                                    Alemán<br><span class="text-[9px] font-normal opacity-75">(Cuota Decreciente)</span>
-                                </button>
-                            </div>
-                            <input type="hidden" id="sim-sistema-input" value="frances">
+                    <!-- Beneficio de Financiamiento Directo -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-xl bg-gold-accent/20 text-gold-accent flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-2xl">verified_user</span>
                         </div>
-
-                        <!-- Tasa de Interés Referencial -->
                         <div>
-                            <label for="sim-tasa-select" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
-                                5. Tasa de Interés
-                            </label>
-                            <select id="sim-tasa-select"
-                                    class="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-800 dark:text-white outline-none focus:border-gold-accent cursor-pointer">
-                                <option value="0" selected>0% Interés Directo (Plan Especial)</option>
-                                <option value="6">6.0% Anual (Tasa Preferencial)</option>
-                                <option value="9.5">9.5% Anual (Tasa Referencial)</option>
-                            </select>
+                            <h4 class="text-xs font-extrabold uppercase text-[#0A1F44] dark:text-white">Crédito Directo Inmobiliario • 0% Interés</h4>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Sin intermediación bancaria, sin comisiones ocultas y con cuotas fijas garantizadas.</p>
                         </div>
                     </div>
                 </div>
@@ -953,10 +930,10 @@
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-xs font-black uppercase tracking-widest text-gold-accent flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-[16px]">verified</span>
-                                Cuota Mensual Estimada
+                                Cuota Mensual Fija
                             </span>
-                            <span id="sim-badge-sistema" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-gold-accent/20 text-gold-accent border border-gold-accent/30">
-                                Sistema Francés
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                0% Interés Directo
                             </span>
                         </div>
 
@@ -966,7 +943,7 @@
                             </span>
                             <span class="text-sm font-semibold text-slate-300 ml-1">/ mes</span>
                             <p class="text-xs text-slate-300 mt-1" id="sim-cuota-subtexto">
-                                Cuota fija durante los 36 meses sin variaciones.
+                                Cuota fija durante los 36 meses sin recargos.
                             </p>
                         </div>
 
@@ -976,8 +953,8 @@
                                 <strong class="text-base text-gold-accent font-bold" id="sim-saldo-display">$12,000.00</strong>
                             </div>
                             <div>
-                                <span class="text-slate-400 block uppercase font-bold text-[10px]">Total Intereses</span>
-                                <strong class="text-base text-emerald-400 font-bold" id="sim-interes-display">$0.00 (0%)</strong>
+                                <span class="text-slate-400 block uppercase font-bold text-[10px]">Tasa de Interés</span>
+                                <strong class="text-base text-emerald-400 font-bold" id="sim-interes-display">0% Sin Recargo</strong>
                             </div>
                         </div>
                     </div>
@@ -1030,10 +1007,10 @@
                         </div>
                         <div>
                             <h3 class="text-lg sm:text-xl font-serif font-bold text-[#0A1F44] dark:text-white">
-                                Tabla de Amortización Completa
+                                Tabla de Pagos Detallada
                             </h3>
                             <p class="text-xs text-slate-500 dark:text-slate-400">
-                                Desglose mes a mes de cuota, capital, interés y saldo pendiente (<span id="tabla-total-meses-txt">36 cuotas</span>).
+                                Desglose mes a mes de cuota fija, abono a capital y saldo pendiente (<span id="tabla-total-meses-txt">36 cuotas</span>).
                             </p>
                         </div>
                     </div>
@@ -1052,7 +1029,6 @@
                                     <th class="py-3 px-4 font-extrabold uppercase text-[11px] rounded-l-lg">N° Mes</th>
                                     <th class="py-3 px-4 font-extrabold uppercase text-[11px]">Cuota Mensual</th>
                                     <th class="py-3 px-4 font-extrabold uppercase text-[11px]">Abono a Capital</th>
-                                    <th class="py-3 px-4 font-extrabold uppercase text-[11px]">Interés</th>
                                     <th class="py-3 px-4 font-extrabold uppercase text-[11px] rounded-r-lg text-right">Saldo Pendiente</th>
                                 </tr>
                             </thead>
@@ -1064,7 +1040,6 @@
                                     <td class="py-3 px-4 uppercase font-sans text-xs">TOTALES</td>
                                     <td class="py-3 px-4 text-[#0A1F44] dark:text-gold-accent" id="tabla-foot-cuota">$12,000.00</td>
                                     <td class="py-3 px-4 text-emerald-600 dark:text-emerald-400" id="tabla-foot-capital">$12,000.00</td>
-                                    <td class="py-3 px-4 text-amber-600 dark:text-amber-400" id="tabla-foot-interes">$0.00</td>
                                     <td class="py-3 px-4 text-right text-slate-400">$0.00</td>
                                 </tr>
                             </tfoot>
@@ -1343,10 +1318,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const plazoInput = document.getElementById('sim-plazo-input');
     const plazoBtns = document.querySelectorAll('.btn-plazo');
     const plazoAniosLabel = document.getElementById('sim-plano-anios-label');
-    const sistemaInput = document.getElementById('sim-sistema-input');
-    const btnFrances = document.getElementById('btn-sistema-frances');
-    const btnAleman = document.getElementById('btn-sistema-aleman');
-    const tasaSelect = document.getElementById('sim-tasa-select');
 
     // Elementos de Salida
     const cuotaDisplay = document.getElementById('sim-cuota-display');
@@ -1355,7 +1326,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const interesDisplay = document.getElementById('sim-interes-display');
     const resumenEntrada = document.getElementById('sim-resumen-entrada');
     const resumenTotal = document.getElementById('sim-resumen-total');
-    const badgeSistema = document.getElementById('sim-badge-sistema');
     const btnEnviarWa = document.getElementById('btn-sim-enviar-wa');
     const btnImprimir = document.getElementById('btn-sim-imprimir');
 
@@ -1367,7 +1337,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const tablaTbody = document.getElementById('tabla-amortizacion-tbody');
     const tablaFootCuota = document.getElementById('tabla-foot-cuota');
     const tablaFootCapital = document.getElementById('tabla-foot-capital');
-    const tablaFootInteres = document.getElementById('tabla-foot-interes');
     const tablaTotalMesesTxt = document.getElementById('tabla-total-meses-txt');
 
     let loteSeleccionadoActual = 'Lote Residencial Estándar';
@@ -1377,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // Cálculo Central de Simulación
+    // Cálculo Central de Simulación (0% Interés - Cuota Fija Directa)
     function calcularSimulacion() {
         let precio = parseFloat(precioInput.value) || 0;
         if (precio < 0) precio = 0;
@@ -1392,113 +1361,60 @@ document.addEventListener('DOMContentLoaded', function() {
         let meses = parseInt(plazoInput.value) || 36;
         if (meses <= 0) meses = 12;
 
-        const tasaAnual = parseFloat(tasaSelect.value) || 0;
-        const tasaMensual = (tasaAnual / 100) / 12;
-        const sistema = sistemaInput.value; // 'frances' | 'aleman'
-
         let tabla = [];
-        let totalInteres = 0;
         let totalCuotas = 0;
-        let cuotaInicial = 0;
-        let cuotaFinal = 0;
+        const cuotaFija = meses > 0 ? (saldoCapital / meses) : 0;
 
         if (saldoCapital === 0 || meses === 0) {
             cuotaDisplay.textContent = '$0.00';
             saldoDisplay.textContent = '$0.00';
-            interesDisplay.textContent = '$0.00';
+            if (interesDisplay) interesDisplay.textContent = '0% Sin Recargo';
             resumenEntrada.textContent = formatMoney(entrada);
             resumenTotal.textContent = formatMoney(precio);
-            renderTabla([]);
+            renderTabla([], 0, 0);
+            actualizarEnlaceWhatsApp(precio, entrada, 0, meses, 0);
             return;
         }
 
-        if (sistema === 'frances') {
-            // SISTEMA FRANCÉS: Cuota fija mensual
-            let cuotaFija = 0;
-            if (tasaMensual === 0) {
-                cuotaFija = saldoCapital / meses;
+        let saldo = saldoCapital;
+        for (let i = 1; i <= meses; i++) {
+            let cuota = cuotaFija;
+            if (i === meses) {
+                cuota = saldo;
+                saldo = 0;
             } else {
-                cuotaFija = saldoCapital * (tasaMensual * Math.pow(1 + tasaMensual, meses)) / (Math.pow(1 + tasaMensual, meses) - 1);
+                saldo = Math.max(0, saldo - cuota);
             }
+            totalCuotas += cuota;
 
-            cuotaInicial = cuotaFija;
-            cuotaFinal = cuotaFija;
-            let saldo = saldoCapital;
-
-            for (let i = 1; i <= meses; i++) {
-                let interesMes = saldo * tasaMensual;
-                let capitalMes = cuotaFija - interesMes;
-                
-                // Ajuste último mes por redondeo
-                if (i === meses) {
-                    capitalMes = saldo;
-                    cuotaFija = capitalMes + interesMes;
-                    saldo = 0;
-                } else {
-                    saldo = Math.max(0, saldo - capitalMes);
-                }
-
-                totalInteres += interesMes;
-                totalCuotas += cuotaFija;
-
-                tabla.push({
-                    mes: i,
-                    cuota: cuotaFija,
-                    capital: capitalMes,
-                    interes: interesMes,
-                    saldo: saldo
-                });
-            }
-
-            cuotaDisplay.textContent = formatMoney(cuotaInicial);
-            cuotaSubtexto.textContent = `Cuota fija durante los ${meses} meses sin variación.`;
-            badgeSistema.textContent = 'Sistema Francés';
-        } else {
-            // SISTEMA ALEMÁN: Amortización constante de capital, cuotas decrecientes
-            const amortizacionCapital = saldoCapital / meses;
-            let saldo = saldoCapital;
-
-            for (let i = 1; i <= meses; i++) {
-                let interesMes = saldo * tasaMensual;
-                let cuotaMes = amortizacionCapital + interesMes;
-                saldo = Math.max(0, saldo - amortizacionCapital);
-
-                if (i === 1) cuotaInicial = cuotaMes;
-                if (i === meses) cuotaFinal = cuotaMes;
-
-                totalInteres += interesMes;
-                totalCuotas += cuotaMes;
-
-                tabla.push({
-                    mes: i,
-                    cuota: cuotaMes,
-                    capital: amortizacionCapital,
-                    interes: interesMes,
-                    saldo: saldo
-                });
-            }
-
-            cuotaDisplay.textContent = `${formatMoney(cuotaInicial)} → ${formatMoney(cuotaFinal)}`;
-            cuotaSubtexto.textContent = `Cuota decreciente: inicia en ${formatMoney(cuotaInicial)} y disminuye hasta ${formatMoney(cuotaFinal)}.`;
-            badgeSistema.textContent = 'Sistema Alemán';
+            tabla.push({
+                mes: i,
+                cuota: cuota,
+                capital: cuota,
+                saldo: saldo
+            });
         }
+
+        cuotaDisplay.textContent = formatMoney(cuotaFija);
+        cuotaSubtexto.textContent = `Cuota fija durante los ${meses} meses sin recargos ni intereses.`;
 
         // Actualizar Tarjetas de Resumen
         saldoDisplay.textContent = formatMoney(saldoCapital);
-        interesDisplay.textContent = tasaAnual === 0 ? '$0.00 (0% Directo)' : `${formatMoney(totalInteres)} (${tasaAnual}%)`;
+        if (interesDisplay) interesDisplay.textContent = '0% Sin Recargo';
         resumenEntrada.textContent = formatMoney(entrada);
-        resumenTotal.textContent = formatMoney(entrada + totalCuotas);
+        resumenTotal.textContent = formatMoney(precio);
 
         // Actualizar Tabla DOM
-        renderTabla(tabla, totalCuotas, saldoCapital, totalInteres);
+        renderTabla(tabla, totalCuotas, saldoCapital);
 
         // Generar Enlace Dinámico de WhatsApp
-        actualizarEnlaceWhatsApp(precio, entrada, saldoCapital, meses, sistema, cuotaInicial, cuotaFinal, tasaAnual);
+        actualizarEnlaceWhatsApp(precio, entrada, saldoCapital, meses, cuotaFija);
     }
 
-    // Renderizado dinámico de la Tabla de Amortización en el DOM
-    function renderTabla(tabla, totalCuotas, totalCapital, totalInteres) {
-        tablaTotalMesesTxt.textContent = `${tabla.length} cuotas`;
+    // Renderizado dinámico de la Tabla de Pagos en el DOM
+    function renderTabla(tabla, totalCuotas, totalCapital) {
+        if (tablaTotalMesesTxt) tablaTotalMesesTxt.textContent = `${tabla.length} cuotas`;
+        if (!tablaTbody) return;
         tablaTbody.innerHTML = '';
 
         tabla.forEach(item => {
@@ -1508,21 +1424,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td class="py-2.5 px-4 font-semibold text-slate-500 dark:text-slate-400">Mes ${item.mes}</td>
                 <td class="py-2.5 px-4 font-bold text-[#0A1F44] dark:text-gold-accent">${formatMoney(item.cuota)}</td>
                 <td class="py-2.5 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">${formatMoney(item.capital)}</td>
-                <td class="py-2.5 px-4 text-amber-600 dark:text-amber-400 font-semibold">${formatMoney(item.interes)}</td>
                 <td class="py-2.5 px-4 text-right text-slate-600 dark:text-slate-300">${formatMoney(item.saldo)}</td>
             `;
             tablaTbody.appendChild(tr);
         });
 
-        tablaFootCuota.textContent = formatMoney(totalCuotas || 0);
-        tablaFootCapital.textContent = formatMoney(totalCapital || 0);
-        tablaFootInteres.textContent = formatMoney(totalInteres || 0);
+        if (tablaFootCuota) tablaFootCuota.textContent = formatMoney(totalCuotas || 0);
+        if (tablaFootCapital) tablaFootCapital.textContent = formatMoney(totalCapital || 0);
     }
 
     // Generador de Mensaje Preformateado para WhatsApp
-    function actualizarEnlaceWhatsApp(precio, entrada, saldo, meses, sistema, cuotaIni, cuotaFin, tasa) {
-        const sistemaTexto = sistema === 'frances' ? 'Francés (Cuota Fija)' : 'Alemán (Cuotas Decrecientes)';
-        const cuotaTexto = sistema === 'frances' ? formatMoney(cuotaIni) + ' / mes' : `${formatMoney(cuotaIni)} inicial → ${formatMoney(cuotaFin)} final`;
+    function actualizarEnlaceWhatsApp(precio, entrada, saldo, meses, cuotaFija) {
+        if (!btnEnviarWa) return;
         const pctEntrada = precio > 0 ? Math.round((entrada / precio) * 100) : 0;
 
         const mensaje = 
@@ -1532,9 +1445,8 @@ document.addEventListener('DOMContentLoaded', function() {
             `💰 Abono Inicial: ${formatMoney(entrada)} (${pctEntrada}%)\n` +
             `🏦 Monto a Financiar: ${formatMoney(saldo)}\n` +
             `⏳ Plazo de Pago: ${meses} meses (${Math.round(meses/12)} años)\n` +
-            `📊 Sistema: ${sistemaTexto}\n` +
-            `💳 Cuota Estimada: ${cuotaTexto}\n` +
-            `📈 Tasa de Interés: ${tasa}% Directo sin Bancos\n\n` +
+            `💳 Cuota Fija Mensual: ${formatMoney(cuotaFija)} / mes\n` +
+            `✨ Plan: Crédito Directo Inmobiliario • 0% Interés (Sin Bancos)\n\n` +
             `Por favor, deseo que un asesor me ayude a reservar mi lote con estas condiciones.`;
 
         btnEnviarWa.href = `https://wa.me/593998205377?text=${encodeURIComponent(mensaje)}`;
@@ -1592,23 +1504,6 @@ document.addEventListener('DOMContentLoaded', function() {
             calcularSimulacion();
         });
     });
-
-    // Toggle Sistema Francés / Alemán
-    btnFrances.addEventListener('click', function() {
-        sistemaInput.value = 'frances';
-        this.className = 'py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all bg-[#0A1F44] text-white dark:bg-gold-accent dark:text-slate-950 shadow-sm text-center';
-        btnAleman.className = 'py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all text-slate-600 dark:text-slate-300 hover:text-gold-accent text-center';
-        calcularSimulacion();
-    });
-
-    btnAleman.addEventListener('click', function() {
-        sistemaInput.value = 'aleman';
-        this.className = 'py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all bg-[#0A1F44] text-white dark:bg-gold-accent dark:text-slate-950 shadow-sm text-center';
-        btnFrances.className = 'py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all text-slate-600 dark:text-slate-300 hover:text-gold-accent text-center';
-        calcularSimulacion();
-    });
-
-    tasaSelect.addEventListener('change', calcularSimulacion);
 
     // Toggle Acordeón de Tabla
     btnToggleTabla.addEventListener('click', function() {
