@@ -2,341 +2,1842 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Inicio - Ugsha Inmobiliaria | Lotes y Terrenos Exclusivos{% endblock %}
+{% block title %}Urbana Inmobiliaria | Venta de Lotes y Terrenos con Financiamiento Directo{% endblock %}
 
 {% block content %}
-    <div class="relative w-full overflow-hidden">
-        
-        <!-- HERO SECTION -->
-        <div class="relative w-full min-h-[680px] lg:min-h-[720px] flex items-center justify-center bg-slate-950 pb-24 pt-12">
-            <!-- Background Image with Parallax-like feel -->
-            <div class="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-1000 scale-105"
-                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDWkMzJVifH9ntGTV88-PW3KNKLFO-xDjaa3L31s4daKDqrvpGg_MNJnPHjelLYSeWSAVeyBruGkVBihdCkEjhnWpjcOygu3BGvcW-KDf7msYmXCC7ajF_Z4KNvERKRPe4b3oxx89DxAY2WZZKSZ0EpgEjld9n-jlwag0ywO9zErmcKPwm0c42sgRNMU4tdNBdeaxTKm7KKPAXwe4IMmRTYlTRaGzwQJZ1VimoYO_s3Dg9Fj7qSIdNmD1uVLitvBH-svljET7qOiIg');">
-            </div>
-            
-            <!-- Dynamic Dark & Gradient Overlay -->
-            <div class="absolute inset-0 z-1 bg-gradient-to-b from-slate-950/90 via-slate-900/80 to-slate-950/95 backdrop-blur-[2px]"></div>
-            
-            <!-- Hero Content -->
-            <div class="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center">
-                <!-- Live Beacon Badge -->
-                <div class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-slate-800/80 border border-gold-accent/40 shadow-lg backdrop-blur-md mb-6 hover:border-gold-accent hover:scale-105 transition-all duration-300 cursor-default">
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                    </span>
-                    <span class="text-xs font-bold text-amber-300 tracking-wider uppercase">Nuevas Etapas Disponibles • Pujilí 2026</span>
-                </div>
-                
-                <!-- Main Headline -->
-                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-serif font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                    Invierta en su <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-gold-accent to-yellow-400">Legado Familiar</span>
-                </h1>
-                
-                <p class="text-lg sm:text-xl text-slate-200 mb-8 max-w-3xl font-light leading-relaxed drop-shadow">
-                    Terrenos residenciales y comerciales con alta plusvalía en Pujilí. Documentación en regla, entrega inmediata y planes de financiamiento directo sin bancos.
-                </p>
-                
-                <!-- Action Buttons with Hover Effects -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md">
-                    <a href="{% url 'pag_web:lotes' %}"
-                       class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-gold-accent via-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-extrabold text-base transition-all duration-300 shadow-xl hover:shadow-gold-accent/30 hover:-translate-y-1 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 group">
-                        <span class="material-symbols-outlined text-[20px] group-hover:rotate-12 transition-transform">real_estate_agent</span>
-                        Explorar Lotes Disponibles
-                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1.5 transition-transform">arrow_forward</span>
-                    </a>
-                    <a href="{% url 'pag_web:contacto' %}"
-                       class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold text-base border border-white/30 hover:border-white transition-all duration-300 shadow-lg hover:-translate-y-1 hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[20px]">calendar_month</span>
-                        Agendar Visita Guiada
-                    </a>
-                </div>
+<div class="relative w-full overflow-hidden bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
 
-                <!-- Trust Stats Strip -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-6 mt-14 pt-10 border-t border-white/15 w-full max-w-4xl text-white">
-                    <div class="flex flex-col items-center hover:scale-105 transition-transform">
-                        <span class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-gold-accent">15+</span>
-                        <span class="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Años de Trayectoria</span>
-                    </div>
-                    <div class="flex flex-col items-center hover:scale-105 transition-transform">
-                        <span class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-emerald-400">100%</span>
-                        <span class="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Escrituras Inmediatas</span>
-                    </div>
-                    <div class="flex flex-col items-center hover:scale-105 transition-transform">
-                        <span class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-amber-300">0%</span>
-                        <span class="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Interés 1er Año</span>
-                    </div>
-                    <div class="flex flex-col items-center hover:scale-105 transition-transform">
-                        <span class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-sky-400">+500</span>
-                        <span class="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Propietarios Felices</span>
-                    </div>
-                </div>
+    <!-- ================================================================= -->
+    <!-- B. HERO SECTION (PRIMER PANTALLAZO) -->
+    <!-- ================================================================= -->
+    <section class="relative w-full min-h-[640px] lg:min-h-[720px] flex items-center justify-center bg-[#0A1F44] py-20 px-4 overflow-hidden" id="hero">
+        <!-- Fondo Fotográfico Aéreo de Alta Resolución -->
+        <div class="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-1000 scale-105"
+             style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDWkMzJVifH9ntGTV88-PW3KNKLFO-xDjaa3L31s4daKDqrvpGg_MNJnPHjelLYSeWSAVeyBruGkVBihdCkEjhnWpjcOygu3BGvcW-KDf7msYmXCC7ajF_Z4KNvERKRPe4b3oxx89DxAY2WZZKSZ0EpgEjld9n-jlwag0ywO9zErmcKPwm0c42sgRNMU4tdNBdeaxTKm7KKPAXwe4IMmRTYlTRaGzwQJZ1VimoYO_s3Dg9Fj7qSIdNmD1uVLitvBH-svljET7qOiIg');">
+        </div>
+        
+        <!-- Capa Oscura Gradiente para Máxima Legibilidad (#0A1F44) -->
+        <div class="absolute inset-0 z-1 bg-gradient-to-b from-[#0A1F44]/95 via-[#0A1F44]/85 to-[#0A1F44]/95 backdrop-blur-[2px]"></div>
+
+        <!-- Contenido Central del Hero -->
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center">
+            <!-- Badge Destacado -->
+            <div class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/10 border border-gold-accent/40 shadow-lg backdrop-blur-md mb-6 hover:border-gold-accent hover:scale-105 transition-all duration-300">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span class="text-xs font-bold text-amber-300 tracking-wider uppercase">Nuevas Etapas Disponibles • Entrega Inmediata</span>
             </div>
-            
-            <!-- Floating Filter Bar with Glassmorphism & Hover Glow -->
-            <!-- G-01 FIX: relative en mobile sin márgenes negativos desbordantes, absolute en md+ -->
-            <div class="relative w-full mt-6 md:absolute md:mt-0 md:-bottom-14 md:left-0 md:right-0 z-20 px-0 md:px-4">
-                <div class="max-w-[1050px] mx-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl p-5 md:p-6 flex flex-col md:flex-row gap-5 items-center justify-between border border-slate-200/80 dark:border-slate-700/80 hover:border-gold-accent/50 hover:shadow-gold-accent/10 transition-all duration-300">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px] text-primary">location_on</span>
-                                Ubicación
-                            </label>
-                            <select class="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-slate-800 dark:text-white font-medium text-sm focus:border-gold-accent focus:ring-1 focus:ring-gold-accent transition-all cursor-pointer">
-                                <option>Todas las Ubicaciones (Pujilí)</option>
-                                <option>Sector Bellavista</option>
-                                <option>Valle Hermoso</option>
-                                <option>Zona Centro</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px] text-primary">payments</span>
-                                Rango de Precios
-                            </label>
-                            <select class="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-slate-800 dark:text-white font-medium text-sm focus:border-gold-accent focus:ring-1 focus:ring-gold-accent transition-all cursor-pointer">
-                                <option>Cualquier Presupuesto</option>
-                                <option>$5,000 - $15,000</option>
-                                <option>$15,000 - $30,000</option>
-                                <option>$30,000 en adelante</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px] text-primary">square_foot</span>
-                                Dimensión (m²)
-                            </label>
-                            <select class="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-slate-800 dark:text-white font-medium text-sm focus:border-gold-accent focus:ring-1 focus:ring-gold-accent transition-all cursor-pointer">
-                                <option>Cualquier Área</option>
-                                <option>150 - 250 m²</option>
-                                <option>250 - 500 m²</option>
-                                <option>500 m² o más</option>
-                            </select>
-                        </div>
-                    </div>
-                    <a href="{% url 'pag_web:lotes' %}"
-                       class="w-full md:w-auto min-w-[140px] h-12 bg-primary hover:bg-primary-light text-white rounded-xl font-bold shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group">
-                        <span class="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform">search</span>
-                        Buscar Lotes
-                    </a>
+
+            <!-- Título Principal Enfocado en Beneficio -->
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-serif font-black text-white mb-6 leading-tight drop-shadow-2xl">
+                Tu terreno propio con <br class="hidden sm:inline" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-gold-accent to-yellow-400">
+                    financiamiento directo y entrega inmediata
+                </span>
+            </h1>
+
+            <!-- Subtítulo con Datos Clave -->
+            <p class="text-base sm:text-xl text-slate-200 mb-10 max-w-3xl font-light leading-relaxed drop-shadow">
+                Lotes residenciales desde <strong class="text-white font-semibold">200 m²</strong> en ubicación estratégica en Pujilí, Cotopaxi. 
+                Cuotas fijas desde <strong class="text-amber-300 font-semibold">$150/mes</strong>, sin trámites bancarios y con escrituras notariales garantizadas.
+            </p>
+
+            <!-- Doble Botón CTA -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md">
+                <!-- Botón Dorado Principal -->
+                <a href="#lotes-disponibles"
+                   class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-gold-accent via-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-base transition-all duration-300 shadow-xl hover:shadow-gold-accent/40 hover:-translate-y-1 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 group">
+                    <span class="material-symbols-outlined text-[20px] group-hover:rotate-12 transition-transform">domain</span>
+                    <span>Explorar Lotes</span>
+                    <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </a>
+                
+                <!-- Botón Outline Secundario al Simulador -->
+                <a href="#simulador-credito"
+                   class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white hover:text-amber-300 font-bold text-base border border-white/30 hover:border-gold-accent transition-all duration-300 shadow-lg hover:-translate-y-1 hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">calculate</span>
+                    <span>Calcular Cuotas</span>
+                </a>
+            </div>
+
+            <!-- Tira de Confianza y Estadísticas -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 mt-14 pt-8 border-t border-white/15 w-full max-w-4xl text-white">
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl sm:text-4xl font-serif font-black text-gold-accent">15+</span>
+                    <span class="text-[11px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Años de Trayectoria</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl sm:text-4xl font-serif font-black text-emerald-400">100%</span>
+                    <span class="text-[11px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Escrituras Individuales</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl sm:text-4xl font-serif font-black text-amber-300">0%</span>
+                    <span class="text-[11px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Interés Directo</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-2xl sm:text-4xl font-serif font-black text-sky-400">+500</span>
+                    <span class="text-[11px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Propietarios Felices</span>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- FEATURED LOTS SECTION -->
-        <!-- G-01 FIX: pt-8 en mobile (barra ya no es absolute), md:pt-28 para desktop -->
-        <section class="pt-8 md:pt-28 pb-20 px-4 md:px-10 bg-slate-50 dark:bg-slate-900 transition-colors" id="lots">
-            <div class="max-w-[1280px] mx-auto">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
-                    <div>
-                        <div class="inline-flex items-center gap-2 text-gold-accent font-extrabold tracking-widest text-xs uppercase mb-2">
-                            <span class="w-8 h-[2px] bg-gold-accent"></span>
-                            Catálogo Destacado
-                        </div>
-                        <h2 class="text-3xl md:text-5xl font-serif font-bold text-slate-900 dark:text-white leading-tight">
-                            Lotes con Mayor Proyección
-                        </h2>
-                        <p class="text-slate-600 dark:text-slate-400 mt-2 text-base">
-                            Selección de terrenos listos para escrituración con acceso a servicios básicos.
-                        </p>
+
+    <!-- ================================================================= -->
+    <!-- C. BARRA DE GARANTÍA Y CONFIANZA (PROOF OF VALUE) -->
+    <!-- ================================================================= -->
+    <section class="py-16 px-4 md:px-10 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800" id="garantias">
+        <div class="max-w-[1280px] mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-[#0A1F44]/10 dark:bg-white/10 text-[#0A1F44] dark:text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-2">
+                    <span class="material-symbols-outlined text-[16px]">verified</span>
+                    Tranquilidad & Respaldo Legal
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-serif font-bold text-[#0A1F44] dark:text-white">
+                    Garantías que Respaldan tu Inversión
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2">
+                    Cada terreno cuenta con certificación técnica y jurídica completa para que construyas el futuro de tu familia con total seguridad.
+                </p>
+            </div>
+
+            <!-- Fila de 4 Tarjetas Minimalistas de Garantía -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Tarjeta 1: Escrituras -->
+                <div class="bg-[#F8FAFC] dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 custom-card-shadow hover:-translate-y-1 hover:border-gold-accent transition-all duration-300 flex flex-col">
+                    <div class="w-12 h-12 rounded-xl bg-[#0A1F44] text-gold-accent flex items-center justify-center mb-4 shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">description</span>
                     </div>
-                    <a class="group inline-flex items-center gap-2 text-primary dark:text-gold-accent font-extrabold text-sm hover:underline"
-                       href="{% url 'pag_web:lotes' %}">
-                        Ver catálogo completo
-                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-2 transition-transform duration-300">arrow_forward</span>
-                    </a>
+                    <h3 class="text-base font-serif font-bold text-[#0A1F44] dark:text-white mb-2">
+                        Escrituras Individuales
+                    </h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed flex-grow">
+                        Título de propiedad legalmente individualizado, listo para firma notarial e inscripción directa en el Registro de la Propiedad.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700/60 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        <span>100% Libre de Gravámenes</span>
+                    </div>
                 </div>
 
-                <!-- Dynamic Lots Grid with Rich Card Animations -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Tarjeta 2: Servicios Básicos -->
+                <div class="bg-[#F8FAFC] dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 custom-card-shadow hover:-translate-y-1 hover:border-gold-accent transition-all duration-300 flex flex-col">
+                    <div class="w-12 h-12 rounded-xl bg-[#0A1F44] text-emerald-400 flex items-center justify-center mb-4 shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">water_drop</span>
+                    </div>
+                    <h3 class="text-base font-serif font-bold text-[#0A1F44] dark:text-white mb-2">
+                        Servicios Garantizados
+                    </h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed flex-grow">
+                        Acceso a red de agua potable, tendido eléctrico habilitado, alcantarillado y vías afirmadas para tránsito vehicular y peatonal.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700/60 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        <span>Conexión Inmediata</span>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3: Financiamiento Directo -->
+                <div class="bg-[#F8FAFC] dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 custom-card-shadow hover:-translate-y-1 hover:border-gold-accent transition-all duration-300 flex flex-col">
+                    <div class="w-12 h-12 rounded-xl bg-[#0A1F44] text-amber-300 flex items-center justify-center mb-4 shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">handshake</span>
+                    </div>
+                    <h3 class="text-base font-serif font-bold text-[#0A1F44] dark:text-white mb-2">
+                        Financiamiento Directo
+                    </h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed flex-grow">
+                        Aprobación inmediata sin intermediarios bancarios ni revisión en buró de crédito. Crédito propio a tu medida solo con tu cédula.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700/60 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        <span>0% Trámites Burocráticos</span>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 4: Plusvalía Proyectada -->
+                <div class="bg-[#F8FAFC] dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 custom-card-shadow hover:-translate-y-1 hover:border-gold-accent transition-all duration-300 flex flex-col">
+                    <div class="w-12 h-12 rounded-xl bg-[#0A1F44] text-gold-accent flex items-center justify-center mb-4 shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">trending_up</span>
+                    </div>
+                    <h3 class="text-base font-serif font-bold text-[#0A1F44] dark:text-white mb-2">
+                        Plusvalía Proyectada
+                    </h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed flex-grow">
+                        Zona de acelerado crecimiento y consolidación urbana en Pujilí. Tu terreno incrementa su valor comercial año tras año.
+                    </p>
+                    <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700/60 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        <span>Retorno de Inversión Seguro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- D. CATÁLOGO DINÁMICO DE LOTES -->
+    <!-- ================================================================= -->
+    <section class="py-20 px-4 md:px-10 bg-[#F8FAFC] dark:bg-slate-950 transition-colors" id="lotes-disponibles">
+        <div class="max-w-[1280px] mx-auto">
+            
+            <!-- Encabezado de Sección -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-2 text-gold-accent font-black tracking-widest text-xs uppercase mb-2">
+                        <span class="w-8 h-[2px] bg-gold-accent"></span>
+                        Inventario Oficial
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-serif font-bold text-[#0A1F44] dark:text-white leading-tight">
+                        Catálogo Dinámico de Lotes
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400 mt-2 text-sm sm:text-base">
+                        Filtra según tu preferencia y haz clic en <strong class="text-[#0A1F44] dark:text-white">"Simular este Lote"</strong> para cargar automáticamente su valor en la calculadora.
+                    </p>
+                </div>
+
+                <!-- Filtro Rápido por Estado -->
+                <div class="flex flex-wrap gap-2 p-1.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm" id="catalog-filter-tabs">
+                    <button class="catalog-filter-btn px-4 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 bg-[#0A1F44] text-white shadow-sm"
+                            data-filter="todos">
+                        Todos
+                    </button>
+                    <button class="catalog-filter-btn px-4 py-2 rounded-xl text-xs font-extrabold text-slate-600 dark:text-slate-300 hover:text-[#0A1F44] dark:hover:text-gold-accent transition-all duration-200"
+                            data-filter="DISPONIBLE">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span>
+                        Disponibles
+                    </button>
+                    <button class="catalog-filter-btn px-4 py-2 rounded-xl text-xs font-extrabold text-slate-600 dark:text-slate-300 hover:text-[#0A1F44] dark:hover:text-gold-accent transition-all duration-200"
+                            data-filter="RESERVADO">
+                        <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>
+                        En Reserva
+                    </button>
+                    <button class="catalog-filter-btn px-4 py-2 rounded-xl text-xs font-extrabold text-slate-600 dark:text-slate-300 hover:text-[#0A1F44] dark:hover:text-gold-accent transition-all duration-200"
+                            data-filter="VENDIDO">
+                        <span class="inline-block w-2 h-2 rounded-full bg-slate-400 mr-1.5"></span>
+                        Vendidos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grilla Dinámica de Tarjetas de Lotes -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="lotes-grid">
+                {% if lotes %}
                     {% for lote in lotes %}
-                    <div class="group relative bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-200/80 dark:border-slate-700/80 hover:border-gold-accent/60 hover:-translate-y-2 flex flex-col">
-                        <!-- Image Container with Hover Zoom -->
-                        <div class="relative aspect-[4/3] overflow-hidden bg-slate-200 dark:bg-slate-700">
+                    <div class="lote-card group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800 custom-card-shadow hover:border-gold-accent/70 hover:-translate-y-1.5 transition-all duration-300 flex flex-col"
+                         data-estado="{{ lote.estado|default:'DISPONIBLE' }}"
+                         data-precio="{{ lote.precio_contado|default:'12000' }}"
+                         data-lote="{{ lote.numero_lote }}"
+                         data-manzana="{{ lote.manzana|default:'' }}">
+                        
+                        <!-- Contenedor de Imagen con Etiqueta Superior de Estado -->
+                        <div class="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800">
                             {% if lote.foto_lista %}
-                            <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                                src="{{ lote.foto_lista.url }}" alt="Lote {{ lote.numero_lote }}" />
+                            <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                 src="{{ lote.foto_lista.url }}" alt="Lote {{ lote.numero_lote }}" />
                             {% else %}
-                            <div class="w-full h-full flex flex-col items-center justify-center text-slate-400">
-                                <span class="material-symbols-outlined text-6xl group-hover:scale-110 transition-transform">landscape</span>
-                                <span class="text-xs font-semibold mt-2 uppercase tracking-wider">Foto en preparación</span>
+                            <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-gradient-to-tr from-[#0A1F44]/10 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+                                <span class="material-symbols-outlined text-6xl text-[#0A1F44]/30 dark:text-gold-accent/30 group-hover:scale-110 transition-transform">landscape</span>
+                                <span class="text-[11px] font-bold mt-1 uppercase tracking-wider text-slate-500">Plano Arquitectónico #{{ lote.numero_lote }}</span>
                             </div>
                             {% endif %}
 
-                            <!-- Shimmer Gradient Badge -->
-                            <div class="absolute top-4 left-4 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                                {{ lote.estado|default:"Disponible" }}
+                            <!-- Etiqueta de Estado en la Esquina Superior -->
+                            <div class="absolute top-4 left-4 z-10">
+                                {% if lote.estado == 'DISPONIBLE' %}
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-600 text-white shadow-lg">
+                                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                    Disponible
+                                </span>
+                                {% elif lote.estado == 'RESERVADO' %}
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-lg">
+                                    <span class="w-2 h-2 rounded-full bg-slate-950"></span>
+                                    En Reserva
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-slate-600 text-white shadow-lg">
+                                    Vendido
+                                </span>
+                                {% endif %}
                             </div>
 
-                            <!-- Overlay Gradient with Lot Title -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition-opacity"></div>
+                            <!-- Overlay Gradiente con Info Rápida -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#0A1F44]/90 via-transparent to-transparent opacity-90"></div>
                             
-                            <div class="absolute bottom-4 left-4 right-4 text-white">
-                                <span class="text-xs font-bold text-amber-300 uppercase tracking-widest">Terreno Residencial</span>
-                                <p class="text-2xl font-serif font-bold leading-snug">Lote #{{ lote.numero_lote }}</p>
-                                {% if lote.manzana %}
-                                <p class="text-slate-300 text-xs flex items-center gap-1 mt-0.5">
-                                    <span class="material-symbols-outlined text-[15px]">grid_3x3</span>
-                                    Manzana {{ lote.manzana }}
-                                </p>
-                                {% endif %}
+                            <div class="absolute bottom-3.5 left-4 right-4 text-white">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Terreno Residencial</span>
+                                <div class="flex items-baseline justify-between">
+                                    <h3 class="text-2xl font-serif font-black leading-tight">Lote #{{ lote.numero_lote }}</h3>
+                                    {% if lote.manzana %}
+                                    <span class="text-xs bg-white/20 px-2.5 py-0.5 rounded-md font-bold backdrop-blur-sm">
+                                        Mz. {{ lote.manzana }}
+                                    </span>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Card Body -->
+                        <!-- Cuerpo de la Tarjeta con Metraje, Dimensiones y Precios -->
                         <div class="p-6 flex flex-col flex-grow justify-between">
-                            <div class="flex justify-between items-center pb-5 mb-5 border-b border-slate-100 dark:border-slate-700/60">
+                            <!-- Metraje y Dimensiones -->
+                            <div class="grid grid-cols-2 gap-3 pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
                                 <div>
-                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Precio de Contado</span>
-                                    <span class="text-2xl font-serif font-bold text-primary dark:text-gold-accent">
-                                        ${{ lote.precio_contado|intcomma }}
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Dimensiones</span>
+                                    <span class="text-sm font-bold text-[#0A1F44] dark:text-slate-200 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[16px] text-gold-accent">square_foot</span>
+                                        {{ lote.dimensiones|default:"10 x 20 m (200 m²)" }}
                                     </span>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Dimensión</span>
-                                    <span class="text-lg font-serif font-bold text-slate-800 dark:text-slate-100">
-                                        {{ lote.dimensiones }}
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Entrada Sugerida (20%)</span>
+                                    <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                        ${% widthratio lote.precio_contado 5 1 %}
                                     </span>
                                 </div>
                             </div>
 
-                            <!-- Interactive Button -->
-                            <a href="{% url 'pag_web:lote_detalle' lote.id %}"
-                               class="w-full py-3.5 rounded-xl border-2 border-primary/20 hover:border-transparent text-primary hover:text-white bg-slate-50 hover:bg-gradient-to-r hover:from-primary hover:to-primary-light dark:bg-slate-700/40 dark:hover:bg-primary font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm hover:shadow-lg">
-                                <span>Ver Información y Simular Cuota</span>
-                                <span class="material-symbols-outlined text-[18px] group-hover/btn:translate-x-1.5 transition-transform duration-300">calculate</span>
+                            <!-- Precio Total -->
+                            <div class="flex justify-between items-center mb-5">
+                                <div>
+                                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">Precio Total</span>
+                                    <span class="text-2xl font-serif font-black text-[#0A1F44] dark:text-gold-accent">
+                                        ${{ lote.precio_contado|intcomma }}
+                                    </span>
+                                </div>
+                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+                                    Sin Bancos
+                                </span>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {% if lote.estado == 'DISPONIBLE' %}
+                                <button type="button"
+                                        class="btn-cargar-simulador w-full py-3 px-3 rounded-xl bg-gradient-to-r from-gold-accent to-yellow-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-xs uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                                        data-precio="{{ lote.precio_contado }}"
+                                        data-lote="{{ lote.numero_lote }}"
+                                        data-manzana="{{ lote.manzana }}">
+                                    <span class="material-symbols-outlined text-[16px]">calculate</span>
+                                    <span>Simular Cuotas</span>
+                                </button>
+                                {% else %}
+                                <a href="#agendar-visita"
+                                   class="w-full py-3 px-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1">
+                                    <span>Consultar</span>
+                                </a>
+                                {% endif %}
+
+                                <a href="{% url 'pag_web:lote_detalle' lote.id %}"
+                                   class="w-full py-3 px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-[#0A1F44] dark:hover:border-gold-accent text-slate-700 dark:text-slate-200 hover:text-[#0A1F44] dark:hover:text-gold-accent font-bold text-xs uppercase tracking-wider transition-all duration-200 text-center flex items-center justify-center gap-1">
+                                    <span>Detalles</span>
+                                    <span class="material-symbols-outlined text-[15px]">chevron_right</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Fallback Curado si hay menos de 3 lotes en base de datos para asegurar un catálogo completo y visualmente rico -->
+                <div class="lote-card group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800 custom-card-shadow hover:border-gold-accent/70 hover:-translate-y-1.5 transition-all duration-300 flex flex-col"
+                     data-estado="DISPONIBLE" data-precio="12500" data-lote="08" data-manzana="A">
+                    <div class="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                             src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80" alt="Lote 08" />
+                        <div class="absolute top-4 left-4 z-10">
+                            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-600 text-white shadow-lg">
+                                <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                Disponible
+                            </span>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0A1F44]/90 via-transparent to-transparent opacity-90"></div>
+                        <div class="absolute bottom-3.5 left-4 right-4 text-white">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Terreno Residencial</span>
+                            <div class="flex items-baseline justify-between">
+                                <h3 class="text-2xl font-serif font-black leading-tight">Lote #08</h3>
+                                <span class="text-xs bg-white/20 px-2.5 py-0.5 rounded-md font-bold backdrop-blur-sm">Mz. A</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow justify-between">
+                        <div class="grid grid-cols-2 gap-3 pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Dimensiones</span>
+                                <span class="text-sm font-bold text-[#0A1F44] dark:text-slate-200 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[16px] text-gold-accent">square_foot</span>
+                                    10 x 20 m (200 m²)
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Entrada Sugerida</span>
+                                <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">$2,500</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mb-5">
+                            <div>
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">Precio Total</span>
+                                <span class="text-2xl font-serif font-black text-[#0A1F44] dark:text-gold-accent">$12,500</span>
+                            </div>
+                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">Sin Interés</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <button type="button"
+                                    class="btn-cargar-simulador w-full py-3 px-3 rounded-xl bg-gradient-to-r from-gold-accent to-yellow-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-xs uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                                    data-precio="12500" data-lote="08" data-manzana="A">
+                                <span class="material-symbols-outlined text-[16px]">calculate</span>
+                                <span>Simular Cuotas</span>
+                            </button>
+                            <a href="#agendar-visita"
+                               class="w-full py-3 px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-[#0A1F44] dark:hover:border-gold-accent text-slate-700 dark:text-slate-200 font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1">
+                                <span>Agendar</span>
                             </a>
                         </div>
                     </div>
-                    {% empty %}
-                    <div class="col-span-1 md:col-span-3 text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
-                        <span class="material-symbols-outlined text-6xl text-gold-accent mb-4 animate-bounce">domain</span>
-                        <h3 class="text-2xl font-serif font-bold text-slate-800 dark:text-white">Próximamente Nuevos Lotes</h3>
-                        <p class="text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">
-                            Estamos habilitando nuevas manzanas para este proyecto. Contáctenos para estar en lista de espera preferencial.
-                        </p>
-                        <a href="{% url 'pag_web:contacto' %}" class="inline-block mt-6 px-6 py-3 rounded-xl bg-primary hover:bg-primary-light text-white font-bold text-sm shadow-md transition-all">
-                            Consultar Disponibilidad
-                        </a>
+                </div>
+
+                <div class="lote-card group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800 custom-card-shadow hover:border-gold-accent/70 hover:-translate-y-1.5 transition-all duration-300 flex flex-col"
+                     data-estado="RESERVADO" data-precio="15000" data-lote="12" data-manzana="B">
+                    <div class="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                             src="https://images.unsplash.com/photo-1524813686514-a57563d77d66?auto=format&fit=crop&w=800&q=80" alt="Lote 12" />
+                        <div class="absolute top-4 left-4 z-10">
+                            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-lg">
+                                <span class="w-2 h-2 rounded-full bg-slate-950"></span>
+                                En Reserva
+                            </span>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0A1F44]/90 via-transparent to-transparent opacity-90"></div>
+                        <div class="absolute bottom-3.5 left-4 right-4 text-white">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Terreno Esquinero</span>
+                            <div class="flex items-baseline justify-between">
+                                <h3 class="text-2xl font-serif font-black leading-tight">Lote #12</h3>
+                                <span class="text-xs bg-white/20 px-2.5 py-0.5 rounded-md font-bold backdrop-blur-sm">Mz. B</span>
+                            </div>
+                        </div>
                     </div>
-                    {% endfor %}
+                    <div class="p-6 flex flex-col flex-grow justify-between">
+                        <div class="grid grid-cols-2 gap-3 pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Dimensiones</span>
+                                <span class="text-sm font-bold text-[#0A1F44] dark:text-slate-200 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[16px] text-gold-accent">square_foot</span>
+                                    12 x 20 m (240 m²)
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Entrada Sugerida</span>
+                                <span class="text-sm font-bold text-amber-600 dark:text-amber-400">$3,000</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mb-5">
+                            <div>
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">Precio Total</span>
+                                <span class="text-2xl font-serif font-black text-[#0A1F44] dark:text-gold-accent">$15,000</span>
+                            </div>
+                            <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-3 py-1 rounded-full">Proceso</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <button type="button"
+                                    class="btn-cargar-simulador w-full py-3 px-3 rounded-xl bg-gradient-to-r from-gold-accent to-yellow-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-xs uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                                    data-precio="15000" data-lote="12" data-manzana="B">
+                                <span class="material-symbols-outlined text-[16px]">calculate</span>
+                                <span>Simular</span>
+                            </button>
+                            <a href="#agendar-visita"
+                               class="w-full py-3 px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-[#0A1F44] dark:hover:border-gold-accent text-slate-700 dark:text-slate-200 font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1">
+                                <span>Consultar</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mt-14 text-center">
-                    <a href="{% url 'pag_web:lotes' %}"
-                       class="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-primary dark:hover:bg-primary text-white font-bold text-base shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 group">
-                        <span>Explorar Todo el Catálogo</span>
-                        <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1.5 transition-transform">arrow_forward</span>
-                    </a>
-                </div>
-                   <!-- BANNER INVITACIÓN AL SIMULADOR -->
-        <section class="py-20 px-4 md:px-10 bg-slate-900 text-white relative overflow-hidden border-t border-slate-800">
-            <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-gold-accent/10 blur-3xl pointer-events-none"></div>
-            <div class="max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-10 relative z-10">
-                <div class="max-w-2xl text-center lg:text-left">
-                    <span class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-gold-accent/15 text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-3 border border-gold-accent/30">
-                        <span class="material-symbols-outlined text-[16px]">bolt</span>
-                        Financiamiento Directo 0% Interés • Sin Bancos
-                    </span>
-                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-white tracking-tight">
-                        Simulador de Cuotas y Financiamiento
-                    </h2>
-                    <p class="text-slate-300 mt-3 text-base sm:text-lg font-light leading-relaxed">
-                        Calcule su plan de pagos personalizado ingresando el valor del lote, su abono inicial y el número de meses. Genere su tabla de amortización al instante.
-                    </p>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto justify-center">
-                    <a href="{% url 'pag_web:simulador' %}"
-                       class="px-8 py-4 rounded-2xl bg-gradient-to-r from-gold-accent via-amber-500 to-yellow-500 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-base shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer whitespace-nowrap">
-                        <span class="material-symbols-outlined text-2xl">calculate</span>
-                        <span>Abrir Simulador de Financiamiento</span>
-                    </a>
+                <div class="lote-card group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800 custom-card-shadow hover:border-gold-accent/70 hover:-translate-y-1.5 transition-all duration-300 flex flex-col"
+                     data-estado="VENDIDO" data-precio="18000" data-lote="15" data-manzana="A1">
+                    <div class="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        <img class="w-full h-full object-cover grayscale opacity-75"
+                             src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80" alt="Lote 15" />
+                        <div class="absolute top-4 left-4 z-10">
+                            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-slate-600 text-white shadow-lg">
+                                Vendido
+                            </span>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0A1F44]/90 via-transparent to-transparent opacity-90"></div>
+                        <div class="absolute bottom-3.5 left-4 right-4 text-white">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Adjudicado</span>
+                            <div class="flex items-baseline justify-between">
+                                <h3 class="text-2xl font-serif font-black leading-tight">Lote #15</h3>
+                                <span class="text-xs bg-white/20 px-2.5 py-0.5 rounded-md font-bold backdrop-blur-sm">Mz. A1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow justify-between">
+                        <div class="grid grid-cols-2 gap-3 pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Dimensiones</span>
+                                <span class="text-sm font-bold text-slate-500">10 x 25 m (250 m²)</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Estado</span>
+                                <span class="text-sm font-bold text-slate-500">Escriturado</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mb-5">
+                            <div>
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">Valor Referencial</span>
+                                <span class="text-2xl font-serif font-black text-slate-400">$18,000</span>
+                            </div>
+                            <span class="text-[11px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">Agotado</span>
+                        </div>
+                        <div>
+                            <a href="#lotes-disponibles" class="w-full py-3 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs uppercase tracking-wider text-center block">
+                                Ver Lotes Similares
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- BANNER INVITACIÓN A SOBRE NOSOTROS -->
-        <section class="py-20 px-4 md:px-10 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-t border-slate-200 dark:border-slate-800 transition-colors">
-            <div class="max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-10">
-                <div class="max-w-2xl text-center lg:text-left">
-                    <span class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-primary/10 text-primary dark:text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-3">
-                        <span class="material-symbols-outlined text-[16px]">badge</span>
-                        Trayectoria & Seguridad Jurídica
-                    </span>
-                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif font-bold tracking-tight">
-                        Conoce a Ugsha Inmobiliaria
-                    </h2>
-                    <p class="text-slate-600 dark:text-slate-300 mt-3 text-base sm:text-lg font-light leading-relaxed">
-                        Más de 15 años respaldando el patrimonio de las familias ecuatorianas con escrituras notariales garantizadas y los 3 sencillos pasos para obtener su lote en Pujilí.
-                    </p>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto justify-center">
-                    <a href="{% url 'pag_web:nosotros' %}"
-                       class="px-8 py-4 rounded-2xl bg-slate-900 dark:bg-slate-800 hover:bg-primary dark:hover:bg-primary text-white font-bold text-base shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 whitespace-nowrap">
-                        <span>Ver Historia & Proceso en 3 Pasos</span>
-                        <span class="material-symbols-outlined text-xl">arrow_forward</span>
-                    </a>
-                </div>
+            <!-- CTA Ver Más Lotes -->
+            <div class="mt-14 text-center">
+                <a href="{% url 'pag_web:lotes' %}"
+                   class="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-[#0A1F44] hover:bg-[#162E5B] text-white font-bold text-sm shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 group">
+                    <span>Ver Catálogo Completo y Filtros Avanzados</span>
+                    <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1.5 transition-transform">arrow_forward</span>
+                </a>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- CTA CONTACT FORM SECTION -->
-        <section class="bg-slate-950 text-white py-24 px-4 relative overflow-hidden" id="contact">
-            <!-- Background Orbs -->
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[140px] pointer-events-none"></div>
 
-            <div class="container mx-auto max-w-4xl text-center relative z-10">
-                <span class="inline-block py-1.5 px-4 rounded-full bg-gold-accent/20 text-gold-accent font-bold text-xs uppercase tracking-widest mb-4 border border-gold-accent/30">
-                    Asesoría Gratuita
+    <!-- ================================================================= -->
+    <!-- E. PLANO INTERACTIVO O MAPA DE LOTIZACIÓN -->
+    <!-- ================================================================= -->
+    <section class="py-20 px-4 md:px-10 bg-white dark:bg-slate-900 border-t border-b border-slate-200 dark:border-slate-800 transition-colors" id="plano-lotizacion">
+        <div class="max-w-[1280px] mx-auto">
+            
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-gold-accent/15 text-[#0A1F44] dark:text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-3 border border-gold-accent/30">
+                    <span class="material-symbols-outlined text-[16px]">map</span>
+                    Masterplan Georreferenciado
                 </span>
-                <h2 class="text-3xl md:text-5xl font-serif font-bold mt-2 mb-4 leading-tight">
-                    ¿Listo para dar el siguiente paso?
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-[#0A1F44] dark:text-white tracking-tight">
+                    Plano Interactivo de Lotización
                 </h2>
-                <p class="text-slate-300 text-base sm:text-lg mb-10 max-w-2xl mx-auto font-light">
-                    Déjenos sus datos y un asesor se comunicará en menos de 15 minutos para enviarle el catálogo completo y opciones de financiamiento.
+                <p class="text-slate-600 dark:text-slate-300 mt-3 text-sm sm:text-base leading-relaxed">
+                    Pasa el cursor o toca cualquier lote para consultar sus dimensiones, precio y disponibilidad. Haz clic para cotizarlo al instante en el simulador.
                 </p>
 
-                <form class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-8 sm:p-10 rounded-3xl shadow-2xl max-w-2xl mx-auto text-left border border-slate-200/80 dark:border-slate-800"
-                      method="post"
-                      action="{% url 'pag_web:contacto' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="origen" value="index">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Nombre Completo *</label>
-                            <input class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-sm focus:border-gold-accent focus:ring-2 focus:ring-gold-accent/30 transition-all outline-none"
-                                   placeholder="Ej. María López" type="text" name="nombre" required />
+                <!-- Leyenda de Estados del Plano -->
+                <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-6 text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-md bg-emerald-500 border border-emerald-600 inline-block shadow-sm"></span>
+                        <span>Disponible</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-md bg-amber-500 border border-amber-600 inline-block shadow-sm"></span>
+                        <span>En Reserva</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-md bg-slate-400 border border-slate-500 inline-block shadow-sm"></span>
+                        <span>Vendido</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-md bg-[#0A1F44] border border-blue-900 inline-block shadow-sm"></span>
+                        <span>Área Verde & Vías</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor del Masterplan SVG con Tarjeta Flotante de Detalle -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                
+                <!-- Lienzo Vectorial SVG Responsivo -->
+                <div class="lg:col-span-8 bg-[#F8FAFC] dark:bg-slate-950 rounded-3xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-xl overflow-x-auto">
+                    <div class="min-w-[620px] relative">
+                        <svg viewBox="0 0 800 500" class="w-full h-auto select-none" id="masterplan-svg">
+                            <!-- Fondo General de la Urbanización -->
+                            <rect x="0" y="0" width="800" height="500" fill="#F1F5F9" rx="16" class="dark:fill-slate-900" />
+                            
+                            <!-- Área Verde / Parque Central -->
+                            <rect x="330" y="170" width="140" height="160" rx="12" fill="#10B981" fill-opacity="0.25" stroke="#059669" stroke-width="2" stroke-dasharray="4" />
+                            <text x="400" y="245" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="12" font-weight="800" fill="#047857">PARQUE INFANTIL</text>
+                            <text x="400" y="265" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="600" fill="#065F46">Área Verde Comunitaria</text>
+
+                            <!-- Vías y Calles Principales -->
+                            <!-- Vía Horizontal Central -->
+                            <rect x="20" y="235" width="760" height="30" fill="#CBD5E1" class="dark:fill-slate-800" />
+                            <line x1="20" y1="250" x2="780" y2="250" stroke="#FFFFFF" stroke-dasharray="8,6" stroke-width="2" />
+                            <text x="200" y="254" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="800" fill="#475569">AVENIDA PRINCIPAL LOS ANDES</text>
+
+                            <!-- Vía Vertical Izquierda -->
+                            <rect x="300" y="20" width="24" height="460" fill="#CBD5E1" class="dark:fill-slate-800" />
+                            <!-- Vía Vertical Derecha -->
+                            <rect x="476" y="20" width="24" height="460" fill="#CBD5E1" class="dark:fill-slate-800" />
+
+                            <!-- ================= MANZANA A (Superior Izquierda) ================= -->
+                            <g class="manzana-group" data-manzana="A">
+                                <!-- Lote 01 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="40" y="40" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="01" data-manzana="A" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="10000" data-estado="DISPONIBLE" />
+                                <text x="97" y="80" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 01</text>
+                                <text x="97" y="98" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$10,000</text>
+
+                                <!-- Lote 02 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="165" y="40" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="02" data-manzana="A" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="11500" data-estado="DISPONIBLE" />
+                                <text x="222" y="80" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 02</text>
+                                <text x="222" y="98" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$11,500</text>
+
+                                <!-- Lote 03 (En Reserva) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="40" y="135" width="115" height="85" rx="8"
+                                      fill="#F59E0B" stroke="#D97706" stroke-width="2"
+                                      data-lote="03" data-manzana="A" data-area="220 m²" data-dimensiones="11 x 20 m" data-precio="13000" data-estado="RESERVADO" />
+                                <text x="97" y="175" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#0F172A">LOTE 03</text>
+                                <text x="97" y="193" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="800" fill="#78350F">RESERVADO</text>
+
+                                <!-- Lote 04 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="165" y="135" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="04" data-manzana="A" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="12000" data-estado="DISPONIBLE" />
+                                <text x="222" y="175" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 04</text>
+                                <text x="222" y="193" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$12,000</text>
+                            </g>
+
+                            <!-- ================= MANZANA B (Superior Derecha) ================= -->
+                            <g class="manzana-group" data-manzana="B">
+                                <!-- Lote 05 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="520" y="40" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="05" data-manzana="B" data-area="250 m²" data-dimensiones="12.5 x 20 m" data-precio="15000" data-estado="DISPONIBLE" />
+                                <text x="577" y="80" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 05</text>
+                                <text x="577" y="98" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$15,000</text>
+
+                                <!-- Lote 06 (Vendido) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="645" y="40" width="115" height="85" rx="8"
+                                      fill="#94A3B8" stroke="#64748B" stroke-width="2"
+                                      data-lote="06" data-manzana="B" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="12000" data-estado="VENDIDO" />
+                                <text x="702" y="80" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 06</text>
+                                <text x="702" y="98" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="800" fill="#F1F5F9">VENDIDO</text>
+
+                                <!-- Lote 07 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="520" y="135" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="07" data-manzana="B" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="12500" data-estado="DISPONIBLE" />
+                                <text x="577" y="175" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 07</text>
+                                <text x="577" y="193" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$12,500</text>
+
+                                <!-- Lote 08 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="645" y="135" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="08" data-manzana="B" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="12500" data-estado="DISPONIBLE" />
+                                <text x="702" y="175" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 08</text>
+                                <text x="702" y="193" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$12,500</text>
+                            </g>
+
+                            <!-- ================= MANZANA C (Inferior Izquierda) ================= -->
+                            <g class="manzana-group" data-manzana="C">
+                                <!-- Lote 09 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="40" y="280" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="09" data-manzana="C" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="11000" data-estado="DISPONIBLE" />
+                                <text x="97" y="320" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 09</text>
+                                <text x="97" y="338" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$11,000</text>
+
+                                <!-- Lote 10 (Vendido) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="165" y="280" width="115" height="85" rx="8"
+                                      fill="#94A3B8" stroke="#64748B" stroke-width="2"
+                                      data-lote="10" data-manzana="C" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="11000" data-estado="VENDIDO" />
+                                <text x="222" y="320" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 10</text>
+                                <text x="222" y="338" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="800" fill="#F1F5F9">VENDIDO</text>
+
+                                <!-- Lote 11 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="40" y="375" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="11" data-manzana="C" data-area="240 m²" data-dimensiones="12 x 20 m" data-precio="14000" data-estado="DISPONIBLE" />
+                                <text x="97" y="415" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 11</text>
+                                <text x="97" y="433" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$14,000</text>
+
+                                <!-- Lote 12 (En Reserva) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="165" y="375" width="115" height="85" rx="8"
+                                      fill="#F59E0B" stroke="#D97706" stroke-width="2"
+                                      data-lote="12" data-manzana="C" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="12000" data-estado="RESERVADO" />
+                                <text x="222" y="415" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#0F172A">LOTE 12</text>
+                                <text x="222" y="433" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="800" fill="#78350F">RESERVADO</text>
+                            </g>
+
+                            <!-- ================= MANZANA D (Inferior Derecha) ================= -->
+                            <g class="manzana-group" data-manzana="D">
+                                <!-- Lote 13 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="520" y="280" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="13" data-manzana="D" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="13000" data-estado="DISPONIBLE" />
+                                <text x="577" y="320" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 13</text>
+                                <text x="577" y="338" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$13,000</text>
+
+                                <!-- Lote 14 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="645" y="280" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="14" data-manzana="D" data-area="200 m²" data-dimensiones="10 x 20 m" data-precio="13000" data-estado="DISPONIBLE" />
+                                <text x="702" y="320" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 14</text>
+                                <text x="702" y="338" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$13,000</text>
+
+                                <!-- Lote 15 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="520" y="375" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="15" data-manzana="D" data-area="260 m²" data-dimensiones="13 x 20 m" data-precio="16500" data-estado="DISPONIBLE" />
+                                <text x="577" y="415" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 15</text>
+                                <text x="577" y="433" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$16,500</text>
+
+                                <!-- Lote 16 (Disponible) -->
+                                <rect class="svg-lote-item cursor-pointer transition-all hover:opacity-90"
+                                      x="645" y="375" width="115" height="85" rx="8"
+                                      fill="#10B981" stroke="#059669" stroke-width="2"
+                                      data-lote="16" data-manzana="D" data-area="300 m²" data-dimensiones="15 x 20 m" data-precio="19000" data-estado="DISPONIBLE" />
+                                <text x="702" y="415" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">LOTE 16</text>
+                                <text x="702" y="433" text-anchor="middle" font-family="'Manrope', sans-serif" font-size="10" font-weight="700" fill="#D1FAE5">$19,000</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Panel Lateral de Información Interactiva del Lote Seleccionado -->
+                <div class="lg:col-span-4 bg-[#0A1F44] text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/10 flex flex-col justify-between" id="plano-info-panel">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/15">
+                            <span class="text-xs font-black uppercase tracking-widest text-gold-accent">Ficha del Terreno</span>
+                            <span id="panel-lote-estado-badge" class="px-3 py-1 rounded-full text-xs font-black uppercase bg-emerald-500 text-white">
+                                Disponible
+                            </span>
                         </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Teléfono / WhatsApp *</label>
-                            <input class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-sm focus:border-gold-accent focus:ring-2 focus:ring-gold-accent/30 transition-all outline-none"
-                                   placeholder="Ej. 099 820 5377" type="tel" name="telefono" required />
+
+                        <h3 class="text-3xl font-serif font-bold text-white mb-1" id="panel-lote-titulo">
+                            Lote #04
+                        </h3>
+                        <p class="text-xs text-slate-300 mb-6" id="panel-lote-subtitulo">
+                            Manzana A • Vista Panorámica al Valle
+                        </p>
+
+                        <div class="space-y-4 mb-8">
+                            <div class="flex justify-between items-center py-2 border-b border-white/10 text-sm">
+                                <span class="text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px] text-gold-accent">square_foot</span>
+                                    Área Total:
+                                </span>
+                                <strong class="text-white font-bold" id="panel-lote-area">200 m²</strong>
+                            </div>
+
+                            <div class="flex justify-between items-center py-2 border-b border-white/10 text-sm">
+                                <span class="text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px] text-gold-accent">straighten</span>
+                                    Dimensiones:
+                                </span>
+                                <strong class="text-white font-bold" id="panel-lote-dimensiones">10 x 20 m</strong>
+                            </div>
+
+                            <div class="flex justify-between items-center py-2 border-b border-white/10 text-sm">
+                                <span class="text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px] text-gold-accent">payments</span>
+                                    Precio de Contado:
+                                </span>
+                                <strong class="text-2xl font-serif font-black text-amber-300" id="panel-lote-precio">$12,000</strong>
+                            </div>
+
+                            <div class="flex justify-between items-center py-2 text-sm">
+                                <span class="text-slate-300 flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px] text-emerald-400">savings</span>
+                                    Entrada Sugerida (20%):
+                                </span>
+                                <strong class="text-emerald-400 font-bold" id="panel-lote-entrada">$2,400</strong>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex flex-col gap-1.5 mb-5">
-                        <label class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Correo Electrónico (Opcional)</label>
-                        <input class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-sm focus:border-gold-accent focus:ring-2 focus:ring-gold-accent/30 transition-all outline-none"
-                               placeholder="correo@ejemplo.com" type="email" name="email" />
+
+                    <!-- Botones de Acción del Panel -->
+                    <div class="flex flex-col gap-3">
+                        <button type="button"
+                                id="btn-panel-simular"
+                                class="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-gold-accent to-yellow-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-sm uppercase tracking-wider transition-all duration-200 shadow-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 cursor-pointer">
+                            <span class="material-symbols-outlined text-xl">calculate</span>
+                            <span>Simular este Lote en el Cotizador</span>
+                        </button>
+                        <a id="btn-panel-wa"
+                           href="https://wa.me/593998205377?text=Hola,%20me%20interesa%20el%20Lote%2004%20de%20la%20Manzana%20A."
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 border border-white/20">
+                            <span class="material-symbols-outlined text-[18px]">chat</span>
+                            <span>Consultar Disponibilidad por WhatsApp</span>
+                        </a>
                     </div>
-                    <div class="flex flex-col gap-1.5 mb-6">
-                        <label class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Mensaje o Lote de Interés</label>
-                        <textarea class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-sm focus:border-gold-accent focus:ring-2 focus:ring-gold-accent/30 transition-all outline-none"
-                                  placeholder="Hola, me interesa conocer los lotes disponibles y sus planes de financiamiento..." rows="3"
-                                  name="mensaje"></textarea>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- F. SIMULADOR FINANCIERO Y TABLA DE AMORTIZACIÓN (MÓDULO CLAVE) -->
+    <!-- ================================================================= -->
+    <section class="py-24 px-4 md:px-10 bg-[#0A1F44] text-white relative overflow-hidden" id="simulador-credito">
+        <!-- Fondos Ambientales Suaves -->
+        <div class="absolute -right-32 -top-32 w-96 h-96 rounded-full bg-gold-accent/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-32 -bottom-32 w-96 h-96 rounded-full bg-blue-600/10 blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-[1280px] mx-auto relative z-10">
+            
+            <!-- Encabezado del Módulo -->
+            <div class="text-center max-w-3xl mx-auto mb-14">
+                <span class="inline-flex items-center gap-1.5 py-1 px-4 rounded-full bg-gold-accent/20 text-gold-accent font-black text-xs uppercase tracking-widest mb-3 border border-gold-accent/40 shadow-inner">
+                    <span class="material-symbols-outlined text-[16px]">calculate</span>
+                    Cotizador Financiero Interactivo
+                </span>
+                <h2 class="text-3xl sm:text-5xl font-serif font-bold text-white tracking-tight leading-tight">
+                    Simulador de Crédito & Amortización
+                </h2>
+                <p class="text-slate-300 mt-3 text-base sm:text-lg font-light leading-relaxed">
+                    Configura el valor de tu lote, abono inicial y plazo deseado. Compara entre cuotas fijas (Francés) o decrecientes (Alemán) y descarga tu tabla en segundos.
+                </p>
+                
+                <!-- Badge de Lote Seleccionado Dinámico -->
+                <div id="sim-lote-cargado-badge" class="hidden mt-4 inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold animate-bounce">
+                    <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                    <span id="sim-lote-cargado-texto">Lote #04 cargado automáticamente</span>
+                </div>
+            </div>
+
+            <!-- Panel de Dos Columnas: Controles (Izq) vs Salida de Resultados (Der) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+                
+                <!-- COLUMNA IZQUIERDA: CONTROLES INTERACTIVOS (7 Cols) -->
+                <div class="lg:col-span-7 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200/80 dark:border-slate-800">
+                    
+                    <!-- 1. Valor del Terreno -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="sim-precio-input" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px] text-gold-accent">payments</span>
+                                1. Valor del Terreno ($ USD)
+                            </label>
+                            <span class="text-xs font-bold text-slate-400">Personalizable</span>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-xl font-bold text-gold-accent">$</span>
+                            <input type="number" id="sim-precio-input" min="3000" max="200000" step="500" value="15000"
+                                   class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-3 text-2xl font-serif font-bold text-[#0A1F44] dark:text-white outline-none focus:border-gold-accent focus:ring-2 focus:ring-gold-accent/20 transition-all" />
+                        </div>
+                        <!-- Botones Rápidos de Valor -->
+                        <div class="flex flex-wrap gap-2 mt-2.5">
+                            <button type="button" class="btn-preset-precio text-[11px] font-bold py-1 px-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-gold-accent hover:text-slate-950 transition-colors" data-val="8000">$8,000</button>
+                            <button type="button" class="btn-preset-precio text-[11px] font-bold py-1 px-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-gold-accent hover:text-slate-950 transition-colors" data-val="12000">$12,000</button>
+                            <button type="button" class="btn-preset-precio text-[11px] font-bold py-1 px-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-gold-accent hover:text-slate-950 transition-colors" data-val="15000">$15,000</button>
+                            <button type="button" class="btn-preset-precio text-[11px] font-bold py-1 px-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-gold-accent hover:text-slate-950 transition-colors" data-val="20000">$20,000</button>
+                            <button type="button" class="btn-preset-precio text-[11px] font-bold py-1 px-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-gold-accent hover:text-slate-950 transition-colors" data-val="30000">$30,000</button>
+                        </div>
                     </div>
-                    <button class="w-full h-14 bg-gradient-to-r from-gold-accent via-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black rounded-xl text-base transition-all duration-300 shadow-xl hover:shadow-gold-accent/40 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 group cursor-pointer"
-                            type="submit">
-                        <span>Enviar Consulta Directa</span>
-                        <span class="material-symbols-outlined text-xl group-hover:translate-x-1.5 transition-transform duration-300">send</span>
-                    </button>
-                    <p class="text-center text-xs text-slate-400 mt-4 flex items-center justify-center gap-1">
-                        <span class="material-symbols-outlined text-[14px] text-emerald-500">lock</span>
-                        Sus datos están seguros y nunca serán compartidos.
+
+                    <!-- 2. Abono Inicial / Entrada (Slider + Input bidireccional) -->
+                    <div class="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="sim-entrada-input" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px] text-emerald-500">savings</span>
+                                2. Abono Inicial / Entrada
+                            </label>
+                            <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400" id="sim-entrada-pct-badge">20% del valor</span>
+                        </div>
+
+                        <!-- Slider Interactivo Dorado -->
+                        <div class="mb-3">
+                            <input type="range" id="sim-entrada-slider" min="0" max="60" step="5" value="20"
+                                   class="gold-slider w-full cursor-pointer" />
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400 mt-1">
+                                <span>0% ($0)</span>
+                                <span>10%</span>
+                                <span>20% (Recomendado)</span>
+                                <span>30%</span>
+                                <span>50%+</span>
+                            </div>
+                        </div>
+
+                        <!-- Input Numérico de Entrada -->
+                        <div class="relative">
+                            <span class="absolute left-4 top-3 text-lg font-bold text-emerald-600 dark:text-emerald-400">$</span>
+                            <input type="number" id="sim-entrada-input" min="0" step="100" value="3000"
+                                   class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-lg font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-gold-accent transition-all" />
+                        </div>
+
+                        <!-- Botones Rápidos de Porcentaje -->
+                        <div class="flex gap-2 mt-2">
+                            <button type="button" class="btn-preset-pct text-xs font-extrabold py-1.5 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white transition-colors" data-pct="10">10%</button>
+                            <button type="button" class="btn-preset-pct text-xs font-extrabold py-1.5 px-3 rounded-lg bg-emerald-600 text-white transition-colors" data-pct="20">20%</button>
+                            <button type="button" class="btn-preset-pct text-xs font-extrabold py-1.5 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white transition-colors" data-pct="30">30%</button>
+                            <button type="button" class="btn-preset-pct text-xs font-extrabold py-1.5 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white transition-colors" data-pct="40">40%</button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Plazo en Meses / Años -->
+                    <div class="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px] text-gold-accent">calendar_month</span>
+                                3. Plazo de Financiamiento
+                            </label>
+                            <span class="text-xs font-bold text-gold-accent" id="sim-plano-anios-label">3 Años (36 Cuotas)</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="sim-plazo-btn-group">
+                            <button type="button" class="btn-plazo py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-black transition-all text-center" data-meses="12">
+                                12 Meses<br><span class="text-[10px] font-medium text-slate-400">1 Año</span>
+                            </button>
+                            <button type="button" class="btn-plazo py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-black transition-all text-center" data-meses="24">
+                                24 Meses<br><span class="text-[10px] font-medium text-slate-400">2 Años</span>
+                            </button>
+                            <button type="button" class="btn-plazo py-2.5 px-2 rounded-xl border-2 border-[#0A1F44] bg-[#0A1F44] text-white dark:border-gold-accent dark:bg-gold-accent dark:text-slate-950 text-xs font-black transition-all text-center shadow-md" data-meses="36">
+                                36 Meses<br><span class="text-[10px] font-medium opacity-80">3 Años</span>
+                            </button>
+                            <button type="button" class="btn-plazo py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-black transition-all text-center" data-meses="48">
+                                48 Meses<br><span class="text-[10px] font-medium text-slate-400">4 Años</span>
+                            </button>
+                            <button type="button" class="btn-plazo py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-black transition-all text-center" data-meses="60">
+                                60 Meses<br><span class="text-[10px] font-medium text-slate-400">5 Años</span>
+                            </button>
+                        </div>
+                        <input type="hidden" id="sim-plazo-input" value="36">
+                    </div>
+
+                    <!-- 4. Selector de Sistema de Amortización y Tasa -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Sistema Francés vs Alemán -->
+                        <div>
+                            <label class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
+                                4. Sistema de Amortización
+                            </label>
+                            <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <button type="button" id="btn-sistema-frances"
+                                        class="py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all bg-[#0A1F44] text-white dark:bg-gold-accent dark:text-slate-950 shadow-sm text-center">
+                                    Francés<br><span class="text-[9px] font-normal opacity-90">(Cuota Fija)</span>
+                                </button>
+                                <button type="button" id="btn-sistema-aleman"
+                                        class="py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all text-slate-600 dark:text-slate-300 hover:text-gold-accent text-center">
+                                    Alemán<br><span class="text-[9px] font-normal opacity-75">(Cuota Decreciente)</span>
+                                </button>
+                            </div>
+                            <input type="hidden" id="sim-sistema-input" value="frances">
+                        </div>
+
+                        <!-- Tasa de Interés Referencial -->
+                        <div>
+                            <label for="sim-tasa-select" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
+                                5. Tasa de Interés
+                            </label>
+                            <select id="sim-tasa-select"
+                                    class="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-800 dark:text-white outline-none focus:border-gold-accent cursor-pointer">
+                                <option value="0" selected>0% Interés Directo (Plan Especial)</option>
+                                <option value="6">6.0% Anual (Tasa Preferencial)</option>
+                                <option value="9.5">9.5% Anual (Tasa Referencial)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: SALIDA VISUAL DE RESULTADOS (5 Cols) -->
+                <div class="lg:col-span-5 flex flex-col gap-5">
+                    
+                    <!-- Tarjeta Principal de Cuota Mensual Destacada -->
+                    <div class="bg-gradient-to-br from-[#0A1F44] via-[#162E5B] to-[#0A1F44] text-white p-7 rounded-3xl border-2 border-gold-accent/50 shadow-2xl custom-gold-glow relative overflow-hidden">
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-gold-accent/15 blur-xl pointer-events-none"></div>
+                        
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-black uppercase tracking-widest text-gold-accent flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px]">verified</span>
+                                Cuota Mensual Estimada
+                            </span>
+                            <span id="sim-badge-sistema" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-gold-accent/20 text-gold-accent border border-gold-accent/30">
+                                Sistema Francés
+                            </span>
+                        </div>
+
+                        <div class="my-4">
+                            <span class="text-4xl sm:text-5xl font-serif font-black text-white" id="sim-cuota-display">
+                                $333.33
+                            </span>
+                            <span class="text-sm font-semibold text-slate-300 ml-1">/ mes</span>
+                            <p class="text-xs text-slate-300 mt-1" id="sim-cuota-subtexto">
+                                Cuota fija durante los 36 meses sin variaciones.
+                            </p>
+                        </div>
+
+                        <div class="pt-4 border-t border-white/15 grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="text-slate-400 block uppercase font-bold text-[10px]">Monto a Financiar</span>
+                                <strong class="text-base text-gold-accent font-bold" id="sim-saldo-display">$12,000.00</strong>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block uppercase font-bold text-[10px]">Total Intereses</span>
+                                <strong class="text-base text-emerald-400 font-bold" id="sim-interes-display">$0.00 (0%)</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen Métrico Secundario en Tarjetas -->
+                    <div class="grid grid-cols-2 gap-3.5">
+                        <div class="bg-white/10 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl border border-white/15 text-center">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-300 block mb-1">Abono Inicial (Entrada)</span>
+                            <span class="text-xl font-serif font-black text-white" id="sim-resumen-entrada">$3,000.00</span>
+                        </div>
+                        <div class="bg-white/10 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl border border-white/15 text-center">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-300 block mb-1">Costo Total del Lote</span>
+                            <span class="text-xl font-serif font-black text-amber-300" id="sim-resumen-total">$15,000.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Conversión Directos -->
+                    <div class="flex flex-col gap-3">
+                        <!-- Enviar a WhatsApp con Enlace Preformateado -->
+                        <a id="btn-sim-enviar-wa"
+                           href="#"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-emerald-600 via-[#25D366] to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black text-sm uppercase tracking-wider shadow-xl hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2.5">
+                            <span class="material-symbols-outlined text-2xl">chat</span>
+                            <span>Enviar esta Simulación a mi WhatsApp</span>
+                        </a>
+
+                        <!-- Botón Imprimir / PDF -->
+                        <button type="button"
+                                id="btn-sim-imprimir"
+                                class="w-full py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider border border-white/20 hover:border-gold-accent transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-lg">print</span>
+                            <span>Descargar en PDF / Imprimir Cotización</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACORDEÓN / TABLA DE AMORTIZACIÓN COMPLETA -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-white/15 shadow-2xl overflow-hidden text-slate-900 dark:text-white" id="tabla-amortizacion-wrapper">
+                
+                <!-- Encabezado del Acordeón -->
+                <button type="button"
+                        id="btn-toggle-tabla"
+                        class="w-full p-6 sm:p-8 flex items-center justify-between text-left bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-[#0A1F44] text-gold-accent flex items-center justify-center">
+                            <span class="material-symbols-outlined text-xl">table_chart</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-serif font-bold text-[#0A1F44] dark:text-white">
+                                Tabla de Amortización Completa
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                Desglose mes a mes de cuota, capital, interés y saldo pendiente (<span id="tabla-total-meses-txt">36 cuotas</span>).
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-gold-accent hidden sm:inline" id="tabla-toggle-indicador">Mostrar Detalles</span>
+                        <span class="material-symbols-outlined text-2xl text-gold-accent transition-transform duration-300" id="tabla-chevron-icon">expand_more</span>
+                    </div>
+                </button>
+
+                <!-- Contenido Desplegable de la Tabla -->
+                <div id="tabla-amortizacion-contenido" class="hidden p-4 sm:p-8 border-t border-slate-200 dark:border-slate-800">
+                    <div class="overflow-x-auto max-h-[480px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead class="sticky top-0 bg-[#0A1F44] text-white z-10">
+                                <tr>
+                                    <th class="py-3 px-4 font-extrabold uppercase text-[11px] rounded-l-lg">N° Mes</th>
+                                    <th class="py-3 px-4 font-extrabold uppercase text-[11px]">Cuota Mensual</th>
+                                    <th class="py-3 px-4 font-extrabold uppercase text-[11px]">Abono a Capital</th>
+                                    <th class="py-3 px-4 font-extrabold uppercase text-[11px]">Interés</th>
+                                    <th class="py-3 px-4 font-extrabold uppercase text-[11px] rounded-r-lg text-right">Saldo Pendiente</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-amortizacion-tbody" class="divide-y divide-slate-200 dark:divide-slate-800 font-mono">
+                                <!-- Filas generadas dinámicamente por JavaScript -->
+                            </tbody>
+                            <tfoot class="bg-slate-100 dark:bg-slate-800 font-bold border-t-2 border-[#0A1F44] dark:border-gold-accent">
+                                <tr>
+                                    <td class="py-3 px-4 uppercase font-sans text-xs">TOTALES</td>
+                                    <td class="py-3 px-4 text-[#0A1F44] dark:text-gold-accent" id="tabla-foot-cuota">$12,000.00</td>
+                                    <td class="py-3 px-4 text-emerald-600 dark:text-emerald-400" id="tabla-foot-capital">$12,000.00</td>
+                                    <td class="py-3 px-4 text-amber-600 dark:text-amber-400" id="tabla-foot-interes">$0.00</td>
+                                    <td class="py-3 px-4 text-right text-slate-400">$0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- G. UBICACIÓN Y ENTORNO -->
+    <!-- ================================================================= -->
+    <section class="py-20 px-4 md:px-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors" id="ubicacion">
+        <div class="max-w-[1280px] mx-auto">
+            
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-[#0A1F44]/10 dark:bg-white/10 text-[#0A1F44] dark:text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-2">
+                    <span class="material-symbols-outlined text-[16px]">pin_drop</span>
+                    Ubicación Estratégica & Plusvalía
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-serif font-bold text-[#0A1F44] dark:text-white">
+                    Ubicación Privilegiada en Pujilí, Cotopaxi
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2">
+                    Conectividad total con la ciudad, vías rápidas interprovinciales y cercanía a todos los servicios esenciales.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                
+                <!-- Mapa Embebido Interactivo Google Maps (7 Cols) -->
+                <div class="lg:col-span-7 h-[420px] rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 relative group">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15975.18!2d-78.6978!3d-0.9576!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d4b6c0b91f3d75%3A0xe7e68fe0f7c0b4f5!2sPujil%C3%AD%2C%20Cotopaxi%2C%20Ecuador!5e0!3m2!1ses!2sec!4v1699999999999!5m2!1ses!2sec"
+                        width="100%" height="100%" style="border:0;" allowfullscreen=""
+                        loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                        title="Ubicación Urbana Inmobiliaria Pujilí"
+                        class="w-full h-full"></iframe>
+                    
+                    <!-- Overlay Flotante Indicador de Coordenadas -->
+                    <div class="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold text-[#0A1F44] dark:text-white shadow-md border border-slate-200 dark:border-slate-700 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span>Pujilí Centro • A 10 min de Latacunga</span>
+                    </div>
+                </div>
+
+                <!-- Indicadores de Distancia y Tiempo a Puntos Clave (5 Cols) -->
+                <div class="lg:col-span-5 flex flex-col gap-4">
+                    
+                    <div class="p-5 rounded-2xl bg-[#F8FAFC] dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 custom-card-shadow flex items-start gap-4 hover:border-gold-accent transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-[#0A1F44] text-amber-400 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-2xl">account_balance</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-gold-accent uppercase">3 Minutos</span>
+                            </div>
+                            <h3 class="text-base font-serif font-bold text-[#0A1F44] dark:text-white mt-0.5">Centro Urbano de Pujilí</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Municipio, entidades bancarias, notarías públicas, mercado central y comercios.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-[#F8FAFC] dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 custom-card-shadow flex items-start gap-4 hover:border-gold-accent transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-[#0A1F44] text-emerald-400 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-2xl">school</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase">5 Minutos</span>
+                            </div>
+                            <h3 class="text-base font-serif font-bold text-[#0A1F44] dark:text-white mt-0.5">Zona Educativa & Colegios</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Unidades educativas del milenio, colegios tradicionales, escuelas y centros de cuidado infantil.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-[#F8FAFC] dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 custom-card-shadow flex items-start gap-4 hover:border-gold-accent transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-[#0A1F44] text-red-400 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-2xl">local_hospital</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-red-500 uppercase">6 Minutos</span>
+                            </div>
+                            <h3 class="text-base font-serif font-bold text-[#0A1F44] dark:text-white mt-0.5">Hospital & Centros de Salud</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Hospital Básico de Pujilí, centros de atención médica y farmacias con servicio 24 horas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-[#F8FAFC] dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 custom-card-shadow flex items-start gap-4 hover:border-gold-accent transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-[#0A1F44] text-sky-400 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-2xl">directions_car</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-sky-500 uppercase">2 Minutos</span>
+                            </div>
+                            <h3 class="text-base font-serif font-bold text-[#0A1F44] dark:text-white mt-0.5">Vías Rápidas & Transporte</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Salida inmediata a la Autopista E30 Pujilí - Latacunga con transporte público permanente.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- H. AGENDAMIENTO DE VISITA GUIADA (SUSTITUTO DE FORMULARIO) -->
+    <!-- ================================================================= -->
+    <section class="py-24 px-4 md:px-10 bg-[#0A1F44] text-white relative overflow-hidden" id="agendar-visita">
+        <div class="max-w-[1080px] mx-auto relative z-10">
+            
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="inline-flex items-center gap-1.5 py-1 px-4 rounded-full bg-gold-accent/20 text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-3 border border-gold-accent/40">
+                    <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+                    Experiencia Presencial Exclusiva
+                </span>
+                <h2 class="text-3xl sm:text-5xl font-serif font-bold tracking-tight">
+                    Agenda tu Visita Guiada al Terreno
+                </h2>
+                <p class="text-slate-300 mt-3 text-base sm:text-lg font-light leading-relaxed">
+                    Ven a recorrer el proyecto en persona con uno de nuestros asesores especializados. Transporte de cortesía disponible desde la oficina central.
+                </p>
+            </div>
+
+            <!-- Módulo Interactivo de Agendamiento -->
+            <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-3xl p-6 sm:p-10 shadow-2xl border border-white/20">
+                <form id="form-agendar-visita" class="space-y-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 1. Fecha de Visita -->
+                        <div>
+                            <label for="visita-fecha" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
+                                1. Selecciona la Fecha Preferida *
+                            </label>
+                            <input type="date" id="visita-fecha" required
+                                   class="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-gold-accent focus:ring-1 focus:ring-gold-accent transition-all cursor-pointer" />
+                        </div>
+
+                        <!-- 2. Franja Horaria -->
+                        <div>
+                            <label for="visita-horario" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
+                                2. Turno u Horario *
+                            </label>
+                            <select id="visita-horario" required
+                                    class="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-gold-accent cursor-pointer">
+                                <option value="Mañana (09:00 - 11:30)">Mañana (09:00 - 11:30 AM)</option>
+                                <option value="Mediodía (12:00 - 14:00)">Mediodía (12:00 - 02:00 PM)</option>
+                                <option value="Tarde (15:00 - 17:30)" selected>Tarde (03:00 - 05:30 PM)</option>
+                                <option value="Fin de Semana (Sábado)">Fin de Semana (Sábado Especial)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 3. Modalidad de Visita -->
+                    <div>
+                        <label class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
+                            3. Modalidad de Encuentro
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="visita-modalidad-group">
+                            <label class="flex items-center gap-3 p-3.5 rounded-xl border-2 border-gold-accent bg-gold-accent/10 cursor-pointer">
+                                <input type="radio" name="visita_tipo" value="Presencial en Terreno" checked class="accent-gold-accent" />
+                                <div>
+                                    <span class="text-xs font-extrabold text-[#0A1F44] dark:text-white block">Recorrido Presencial en Terreno</span>
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400">Punto de encuentro en oficina o directamente en el lote</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-gold-accent cursor-pointer">
+                                <input type="radio" name="visita_tipo" value="Asesoría Virtual (Meet/Zoom)" class="accent-gold-accent" />
+                                <div>
+                                    <span class="text-xs font-extrabold text-[#0A1F44] dark:text-white block">Videollamada / Asesoría Virtual</span>
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400">Reunión remota con presentación de planos en pantalla</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 4. Datos del Visitante -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label for="visita-nombre" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
+                                4. Tu Nombre Completo *
+                            </label>
+                            <input type="text" id="visita-nombre" required placeholder="Ej. Carlos Mendoza"
+                                   class="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 text-sm font-medium text-slate-800 dark:text-white outline-none focus:border-gold-accent transition-all" />
+                        </div>
+                        <div>
+                            <label for="visita-telefono" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 block mb-2">
+                                5. Teléfono / WhatsApp de Confirmación *
+                            </label>
+                            <input type="tel" id="visita-telefono" required placeholder="Ej. 099 820 5377"
+                                   class="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 text-sm font-medium text-slate-800 dark:text-white outline-none focus:border-gold-accent transition-all" />
+                        </div>
+                    </div>
+
+                    <!-- Botón Principal Dorado de Confirmación -->
+                    <div class="pt-4 flex flex-col sm:flex-row gap-4">
+                        <button type="submit"
+                                class="w-full sm:flex-1 h-14 rounded-2xl bg-gradient-to-r from-gold-accent via-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-base uppercase tracking-wider shadow-xl hover:shadow-gold-accent/40 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-2xl">calendar_month</span>
+                            <span>Confirmar y Agendar Visita Guiada</span>
+                        </button>
+                        
+                        <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20coordinar%20una%20visita%20guiada%20rápida%20a%20los%20lotes%20en%20Pujilí."
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="w-full sm:w-auto h-14 px-6 rounded-2xl bg-[#25D366] hover:bg-emerald-600 text-white font-bold text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all">
+                            <span class="material-symbols-outlined text-xl">chat</span>
+                            <span>Coordinar Rápido por WhatsApp</span>
+                        </a>
+                    </div>
+                    
+                    <p class="text-center text-xs text-slate-400 mt-2 flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px] text-emerald-500">lock</span>
+                        Te confirmaremos la reserva de inmediato sin costo ni compromiso alguno.
                     </p>
                 </form>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // =================================================================
+    // 1. FILTRADO DINÁMICO DEL CATÁLOGO DE LOTES
+    // =================================================================
+    const filterTabs = document.querySelectorAll('.catalog-filter-btn');
+    const loteCards = document.querySelectorAll('.lote-card');
+
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+            
+            // Actualizar clases activas de pestañas
+            filterTabs.forEach(t => {
+                t.classList.remove('bg-[#0A1F44]', 'text-white', 'shadow-sm');
+                t.classList.add('text-slate-600', 'dark:text-slate-300');
+            });
+            this.classList.add('bg-[#0A1F44]', 'text-white', 'shadow-sm');
+            this.classList.remove('text-slate-600', 'dark:text-slate-300');
+
+            // Filtrar tarjetas
+            loteCards.forEach(card => {
+                const cardEstado = card.getAttribute('data-estado');
+                if (filter === 'todos' || cardEstado === filter) {
+                    card.style.display = 'flex';
+                    card.classList.add('animate-in', 'fade-in', 'zoom-in-95');
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // =================================================================
+    // 2. LÓGICA DEL SIMULADOR FINANCIERO (FRANCÉS Y ALEMÁN)
+    // =================================================================
+    const precioInput = document.getElementById('sim-precio-input');
+    const entradaInput = document.getElementById('sim-entrada-input');
+    const entradaSlider = document.getElementById('sim-entrada-slider');
+    const entradaPctBadge = document.getElementById('sim-entrada-pct-badge');
+    const plazoInput = document.getElementById('sim-plazo-input');
+    const plazoBtns = document.querySelectorAll('.btn-plazo');
+    const plazoAniosLabel = document.getElementById('sim-plano-anios-label');
+    const sistemaInput = document.getElementById('sim-sistema-input');
+    const btnFrances = document.getElementById('btn-sistema-frances');
+    const btnAleman = document.getElementById('btn-sistema-aleman');
+    const tasaSelect = document.getElementById('sim-tasa-select');
+
+    // Elementos de Salida
+    const cuotaDisplay = document.getElementById('sim-cuota-display');
+    const cuotaSubtexto = document.getElementById('sim-cuota-subtexto');
+    const saldoDisplay = document.getElementById('sim-saldo-display');
+    const interesDisplay = document.getElementById('sim-interes-display');
+    const resumenEntrada = document.getElementById('sim-resumen-entrada');
+    const resumenTotal = document.getElementById('sim-resumen-total');
+    const badgeSistema = document.getElementById('sim-badge-sistema');
+    const btnEnviarWa = document.getElementById('btn-sim-enviar-wa');
+    const btnImprimir = document.getElementById('btn-sim-imprimir');
+
+    // Tabla de Amortización DOM
+    const btnToggleTabla = document.getElementById('btn-toggle-tabla');
+    const tablaContenido = document.getElementById('tabla-amortizacion-contenido');
+    const tablaChevron = document.getElementById('tabla-chevron-icon');
+    const tablaIndicador = document.getElementById('tabla-toggle-indicador');
+    const tablaTbody = document.getElementById('tabla-amortizacion-tbody');
+    const tablaFootCuota = document.getElementById('tabla-foot-cuota');
+    const tablaFootCapital = document.getElementById('tabla-foot-capital');
+    const tablaFootInteres = document.getElementById('tabla-foot-interes');
+    const tablaTotalMesesTxt = document.getElementById('tabla-total-meses-txt');
+
+    let loteSeleccionadoActual = 'Lote Residencial Estándar';
+
+    // Función Formateadora de Moneda
+    function formatMoney(amount) {
+        return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Cálculo Central de Simulación
+    function calcularSimulacion() {
+        let precio = parseFloat(precioInput.value) || 0;
+        if (precio < 0) precio = 0;
+
+        let entrada = parseFloat(entradaInput.value) || 0;
+        if (entrada > precio) {
+            entrada = precio;
+            entradaInput.value = entrada;
+        }
+
+        const saldoCapital = Math.max(0, precio - entrada);
+        let meses = parseInt(plazoInput.value) || 36;
+        if (meses <= 0) meses = 12;
+
+        const tasaAnual = parseFloat(tasaSelect.value) || 0;
+        const tasaMensual = (tasaAnual / 100) / 12;
+        const sistema = sistemaInput.value; // 'frances' | 'aleman'
+
+        let tabla = [];
+        let totalInteres = 0;
+        let totalCuotas = 0;
+        let cuotaInicial = 0;
+        let cuotaFinal = 0;
+
+        if (saldoCapital === 0 || meses === 0) {
+            cuotaDisplay.textContent = '$0.00';
+            saldoDisplay.textContent = '$0.00';
+            interesDisplay.textContent = '$0.00';
+            resumenEntrada.textContent = formatMoney(entrada);
+            resumenTotal.textContent = formatMoney(precio);
+            renderTabla([]);
+            return;
+        }
+
+        if (sistema === 'frances') {
+            // SISTEMA FRANCÉS: Cuota fija mensual
+            let cuotaFija = 0;
+            if (tasaMensual === 0) {
+                cuotaFija = saldoCapital / meses;
+            } else {
+                cuotaFija = saldoCapital * (tasaMensual * Math.pow(1 + tasaMensual, meses)) / (Math.pow(1 + tasaMensual, meses) - 1);
+            }
+
+            cuotaInicial = cuotaFija;
+            cuotaFinal = cuotaFija;
+            let saldo = saldoCapital;
+
+            for (let i = 1; i <= meses; i++) {
+                let interesMes = saldo * tasaMensual;
+                let capitalMes = cuotaFija - interesMes;
+                
+                // Ajuste último mes por redondeo
+                if (i === meses) {
+                    capitalMes = saldo;
+                    cuotaFija = capitalMes + interesMes;
+                    saldo = 0;
+                } else {
+                    saldo = Math.max(0, saldo - capitalMes);
+                }
+
+                totalInteres += interesMes;
+                totalCuotas += cuotaFija;
+
+                tabla.push({
+                    mes: i,
+                    cuota: cuotaFija,
+                    capital: capitalMes,
+                    interes: interesMes,
+                    saldo: saldo
+                });
+            }
+
+            cuotaDisplay.textContent = formatMoney(cuotaInicial);
+            cuotaSubtexto.textContent = `Cuota fija durante los ${meses} meses sin variación.`;
+            badgeSistema.textContent = 'Sistema Francés';
+        } else {
+            // SISTEMA ALEMÁN: Amortización constante de capital, cuotas decrecientes
+            const amortizacionCapital = saldoCapital / meses;
+            let saldo = saldoCapital;
+
+            for (let i = 1; i <= meses; i++) {
+                let interesMes = saldo * tasaMensual;
+                let cuotaMes = amortizacionCapital + interesMes;
+                saldo = Math.max(0, saldo - amortizacionCapital);
+
+                if (i === 1) cuotaInicial = cuotaMes;
+                if (i === meses) cuotaFinal = cuotaMes;
+
+                totalInteres += interesMes;
+                totalCuotas += cuotaMes;
+
+                tabla.push({
+                    mes: i,
+                    cuota: cuotaMes,
+                    capital: amortizacionCapital,
+                    interes: interesMes,
+                    saldo: saldo
+                });
+            }
+
+            cuotaDisplay.textContent = `${formatMoney(cuotaInicial)} → ${formatMoney(cuotaFinal)}`;
+            cuotaSubtexto.textContent = `Cuota decreciente: inicia en ${formatMoney(cuotaInicial)} y disminuye hasta ${formatMoney(cuotaFinal)}.`;
+            badgeSistema.textContent = 'Sistema Alemán';
+        }
+
+        // Actualizar Tarjetas de Resumen
+        saldoDisplay.textContent = formatMoney(saldoCapital);
+        interesDisplay.textContent = tasaAnual === 0 ? '$0.00 (0% Directo)' : `${formatMoney(totalInteres)} (${tasaAnual}%)`;
+        resumenEntrada.textContent = formatMoney(entrada);
+        resumenTotal.textContent = formatMoney(entrada + totalCuotas);
+
+        // Actualizar Tabla DOM
+        renderTabla(tabla, totalCuotas, saldoCapital, totalInteres);
+
+        // Generar Enlace Dinámico de WhatsApp
+        actualizarEnlaceWhatsApp(precio, entrada, saldoCapital, meses, sistema, cuotaInicial, cuotaFinal, tasaAnual);
+    }
+
+    // Renderizado dinámico de la Tabla de Amortización en el DOM
+    function renderTabla(tabla, totalCuotas, totalCapital, totalInteres) {
+        tablaTotalMesesTxt.textContent = `${tabla.length} cuotas`;
+        tablaTbody.innerHTML = '';
+
+        tabla.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors';
+            tr.innerHTML = `
+                <td class="py-2.5 px-4 font-semibold text-slate-500 dark:text-slate-400">Mes ${item.mes}</td>
+                <td class="py-2.5 px-4 font-bold text-[#0A1F44] dark:text-gold-accent">${formatMoney(item.cuota)}</td>
+                <td class="py-2.5 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">${formatMoney(item.capital)}</td>
+                <td class="py-2.5 px-4 text-amber-600 dark:text-amber-400 font-semibold">${formatMoney(item.interes)}</td>
+                <td class="py-2.5 px-4 text-right text-slate-600 dark:text-slate-300">${formatMoney(item.saldo)}</td>
+            `;
+            tablaTbody.appendChild(tr);
+        });
+
+        tablaFootCuota.textContent = formatMoney(totalCuotas || 0);
+        tablaFootCapital.textContent = formatMoney(totalCapital || 0);
+        tablaFootInteres.textContent = formatMoney(totalInteres || 0);
+    }
+
+    // Generador de Mensaje Preformateado para WhatsApp
+    function actualizarEnlaceWhatsApp(precio, entrada, saldo, meses, sistema, cuotaIni, cuotaFin, tasa) {
+        const sistemaTexto = sistema === 'frances' ? 'Francés (Cuota Fija)' : 'Alemán (Cuotas Decrecientes)';
+        const cuotaTexto = sistema === 'frances' ? formatMoney(cuotaIni) + ' / mes' : `${formatMoney(cuotaIni)} inicial → ${formatMoney(cuotaFin)} final`;
+        const pctEntrada = precio > 0 ? Math.round((entrada / precio) * 100) : 0;
+
+        const mensaje = 
+            `¡Hola Urbana Inmobiliaria! He generado una cotización en su simulador web:\n\n` +
+            `📍 Terreno de Interés: ${loteSeleccionadoActual}\n` +
+            `💵 Valor del Terreno: ${formatMoney(precio)}\n` +
+            `💰 Abono Inicial: ${formatMoney(entrada)} (${pctEntrada}%)\n` +
+            `🏦 Monto a Financiar: ${formatMoney(saldo)}\n` +
+            `⏳ Plazo de Pago: ${meses} meses (${Math.round(meses/12)} años)\n` +
+            `📊 Sistema: ${sistemaTexto}\n` +
+            `💳 Cuota Estimada: ${cuotaTexto}\n` +
+            `📈 Tasa de Interés: ${tasa}% Directo sin Bancos\n\n` +
+            `Por favor, deseo que un asesor me ayude a reservar mi lote con estas condiciones.`;
+
+        btnEnviarWa.href = `https://wa.me/593998205377?text=${encodeURIComponent(mensaje)}`;
+    }
+
+    // Sincronización Slider y Entrada
+    entradaSlider.addEventListener('input', function() {
+        const pct = parseInt(this.value);
+        const precio = parseFloat(precioInput.value) || 0;
+        const entradaCalculada = Math.round(precio * (pct / 100));
+        entradaInput.value = entradaCalculada;
+        entradaPctBadge.textContent = `${pct}% del valor`;
+        calcularSimulacion();
+    });
+
+    entradaInput.addEventListener('input', function() {
+        const entrada = parseFloat(this.value) || 0;
+        const precio = parseFloat(precioInput.value) || 1;
+        const pct = Math.min(100, Math.round((entrada / precio) * 100));
+        entradaSlider.value = pct;
+        entradaPctBadge.textContent = `${pct}% del valor`;
+        calcularSimulacion();
+    });
+
+    precioInput.addEventListener('input', function() {
+        const precio = parseFloat(this.value) || 0;
+        const pct = parseInt(entradaSlider.value) || 20;
+        entradaInput.value = Math.round(precio * (pct / 100));
+        calcularSimulacion();
+    });
+
+    // Presets de Precio
+    document.querySelectorAll('.btn-preset-precio').forEach(btn => {
+        btn.addEventListener('click', function() {
+            precioInput.value = this.getAttribute('data-val');
+            const pct = parseInt(entradaSlider.value) || 20;
+            entradaInput.value = Math.round(parseFloat(this.getAttribute('data-val')) * (pct / 100));
+            calcularSimulacion();
+        });
+    });
+
+    // Presets de Porcentaje
+    document.querySelectorAll('.btn-preset-pct').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const pct = parseInt(this.getAttribute('data-pct'));
+            entradaSlider.value = pct;
+            const precio = parseFloat(precioInput.value) || 0;
+            entradaInput.value = Math.round(precio * (pct / 100));
+            entradaPctBadge.textContent = `${pct}% del valor`;
+            
+            document.querySelectorAll('.btn-preset-pct').forEach(b => {
+                b.classList.remove('bg-emerald-600', 'text-white');
+                b.classList.add('bg-slate-100', 'dark:bg-slate-800');
+            });
+            this.classList.add('bg-emerald-600', 'text-white');
+            this.classList.remove('bg-slate-100', 'dark:bg-slate-800');
+
+            calcularSimulacion();
+        });
+    });
+
+    // Selector de Plazos
+    plazoBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            plazoBtns.forEach(b => {
+                b.className = 'btn-plazo py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-black transition-all text-center';
+            });
+            this.className = 'btn-plazo py-2.5 px-2 rounded-xl border-2 border-[#0A1F44] bg-[#0A1F44] text-white dark:border-gold-accent dark:bg-gold-accent dark:text-slate-950 text-xs font-black transition-all text-center shadow-md';
+            
+            const meses = parseInt(this.getAttribute('data-meses'));
+            plazoInput.value = meses;
+            plazoAniosLabel.textContent = `${meses/12} Años (${meses} Cuotas)`;
+            calcularSimulacion();
+        });
+    });
+
+    // Toggle Sistema Francés / Alemán
+    btnFrances.addEventListener('click', function() {
+        sistemaInput.value = 'frances';
+        this.className = 'py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all bg-[#0A1F44] text-white dark:bg-gold-accent dark:text-slate-950 shadow-sm text-center';
+        btnAleman.className = 'py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all text-slate-600 dark:text-slate-300 hover:text-gold-accent text-center';
+        calcularSimulacion();
+    });
+
+    btnAleman.addEventListener('click', function() {
+        sistemaInput.value = 'aleman';
+        this.className = 'py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all bg-[#0A1F44] text-white dark:bg-gold-accent dark:text-slate-950 shadow-sm text-center';
+        btnFrances.className = 'py-2.5 px-2 rounded-lg text-xs font-extrabold transition-all text-slate-600 dark:text-slate-300 hover:text-gold-accent text-center';
+        calcularSimulacion();
+    });
+
+    tasaSelect.addEventListener('change', calcularSimulacion);
+
+    // Toggle Acordeón de Tabla
+    btnToggleTabla.addEventListener('click', function() {
+        const isHidden = tablaContenido.classList.contains('hidden');
+        if (isHidden) {
+            tablaContenido.classList.remove('hidden');
+            tablaChevron.style.transform = 'rotate(180deg)';
+            tablaIndicador.textContent = 'Ocultar Detalles';
+        } else {
+            tablaContenido.classList.add('hidden');
+            tablaChevron.style.transform = 'rotate(0deg)';
+            tablaIndicador.textContent = 'Mostrar Detalles';
+        }
+    });
+
+    // Botón Imprimir / PDF
+    btnImprimir.addEventListener('click', function() {
+        // Asegurar que la tabla esté visible para el print
+        tablaContenido.classList.remove('hidden');
+        window.print();
+    });
+
+    // =================================================================
+    // 3. CONEXIÓN ENTRE CATÁLOGO / PLANO Y EL SIMULADOR
+    // =================================================================
+    function cargarLoteEnSimulador(precio, loteNum, manzana) {
+        precioInput.value = precio;
+        
+        // Calcular 20% de entrada sugerida
+        const entradaSugerida = Math.round(precio * 0.20);
+        entradaInput.value = entradaSugerida;
+        entradaSlider.value = 20;
+        entradaPctBadge.textContent = '20% del valor';
+
+        loteSeleccionadoActual = `Lote #${loteNum} ${manzana ? '(Mz. ' + manzana + ')' : ''}`;
+
+        // Mostrar Badge de lote cargado
+        const badgeLote = document.getElementById('sim-lote-cargado-badge');
+        const badgeTexto = document.getElementById('sim-lote-cargado-texto');
+        if (badgeLote && badgeTexto) {
+            badgeTexto.textContent = `Lote #${loteNum} ${manzana ? '- Mz. ' + manzana : ''} cargado ($${parseFloat(precio).toLocaleString()} USD)`;
+            badgeLote.classList.remove('hidden');
+        }
+
+        calcularSimulacion();
+
+        // Smooth Scroll al Simulador con Resalte Visual
+        const simSection = document.getElementById('simulador-credito');
+        if (simSection) {
+            simSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            simSection.classList.add('ring-4', 'ring-gold-accent/50');
+            setTimeout(() => {
+                simSection.classList.remove('ring-4', 'ring-gold-accent/50');
+            }, 1800);
+        }
+    }
+
+    // Botones "Simular este Lote" en el Catálogo
+    document.querySelectorAll('.btn-cargar-simulador').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const precio = parseFloat(this.getAttribute('data-precio')) || 15000;
+            const lote = this.getAttribute('data-lote') || '01';
+            const manzana = this.getAttribute('data-manzana') || '';
+            cargarLoteEnSimulador(precio, lote, manzana);
+        });
+    });
+
+    // =================================================================
+    // 4. PLANO SVG INTERACTIVO
+    // =================================================================
+    const svgLotes = document.querySelectorAll('.svg-lote-item');
+    const panelTitulo = document.getElementById('panel-lote-titulo');
+    const panelSubtitulo = document.getElementById('panel-lote-subtitulo');
+    const panelEstadoBadge = document.getElementById('panel-lote-estado-badge');
+    const panelArea = document.getElementById('panel-lote-area');
+    const panelDimensiones = document.getElementById('panel-lote-dimensiones');
+    const panelPrecio = document.getElementById('panel-lote-precio');
+    const panelEntrada = document.getElementById('panel-lote-entrada');
+    const btnPanelSimular = document.getElementById('btn-panel-simular');
+    const btnPanelWa = document.getElementById('btn-panel-wa');
+
+    let loteSeleccionadoPlano = {
+        precio: 12000,
+        lote: '04',
+        manzana: 'A',
+        area: '200 m²',
+        dimensiones: '10 x 20 m',
+        estado: 'DISPONIBLE'
+    };
+
+    function actualizarPanelPlano(loteData) {
+        loteSeleccionadoPlano = loteData;
+        panelTitulo.textContent = `Lote #${loteData.lote}`;
+        panelSubtitulo.textContent = `Manzana ${loteData.manzana} • Ubicación Privilegiada`;
+        panelArea.textContent = loteData.area;
+        panelDimensiones.textContent = loteData.dimensiones;
+        panelPrecio.textContent = formatMoney(parseFloat(loteData.precio));
+        panelEntrada.textContent = formatMoney(Math.round(parseFloat(loteData.precio) * 0.20));
+
+        if (loteData.estado === 'DISPONIBLE') {
+            panelEstadoBadge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase bg-emerald-500 text-white';
+            panelEstadoBadge.textContent = 'Disponible';
+            btnPanelSimular.disabled = false;
+            btnPanelSimular.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else if (loteData.estado === 'RESERVADO') {
+            panelEstadoBadge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-500 text-slate-950';
+            panelEstadoBadge.textContent = 'En Reserva';
+        } else {
+            panelEstadoBadge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase bg-slate-500 text-white';
+            panelEstadoBadge.textContent = 'Vendido';
+            btnPanelSimular.disabled = true;
+            btnPanelSimular.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        btnPanelWa.href = `https://wa.me/593998205377?text=${encodeURIComponent('Hola, deseo consultar por el Lote #' + loteData.lote + ' Manzana ' + loteData.manzana + ' visto en el plano interactivo.')}`;
+    }
+
+    svgLotes.forEach(svgLote => {
+        svgLote.addEventListener('click', function() {
+            // Remover stroke especial de otros
+            svgLotes.forEach(s => s.setAttribute('stroke-width', '2'));
+            this.setAttribute('stroke-width', '4');
+            this.setAttribute('stroke', '#C5A059');
+
+            const loteData = {
+                lote: this.getAttribute('data-lote'),
+                manzana: this.getAttribute('data-manzana'),
+                area: this.getAttribute('data-area'),
+                dimensiones: this.getAttribute('data-dimensiones'),
+                precio: this.getAttribute('data-precio'),
+                estado: this.getAttribute('data-estado')
+            };
+
+            actualizarPanelPlano(loteData);
+        });
+
+        svgLote.addEventListener('mouseenter', function() {
+            this.style.filter = 'drop-shadow(0 4px 10px rgba(197, 160, 89, 0.5))';
+        });
+        svgLote.addEventListener('mouseleave', function() {
+            this.style.filter = '';
+        });
+    });
+
+    btnPanelSimular.addEventListener('click', function() {
+        cargarLoteEnSimulador(loteSeleccionadoPlano.precio, loteSeleccionadoPlano.lote, loteSeleccionadoPlano.manzana);
+    });
+
+    // =================================================================
+    // 5. AGENDAMIENTO DE VISITA GUIADA (PROCESAMIENTO)
+    // =================================================================
+    const formVisita = document.getElementById('form-agendar-visita');
+    const inputFecha = document.getElementById('visita-fecha');
+
+    // Configurar fecha mínima de visita (a partir de hoy)
+    if (inputFecha) {
+        const hoy = new Date().toISOString().split('T')[0];
+        inputFecha.min = hoy;
+        // Preseleccionar mañana
+        const manana = new Date();
+        manana.setDate(manana.getDate() + 1);
+        inputFecha.value = manana.toISOString().split('T')[0];
+    }
+
+    if (formVisita) {
+        formVisita.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fecha = inputFecha.value;
+            const horario = document.getElementById('visita-horario').value;
+            const nombre = document.getElementById('visita-nombre').value.trim();
+            const telefono = document.getElementById('visita-telefono').value.trim();
+            const modalidad = document.querySelector('input[name="visita_tipo"]:checked')?.value || 'Presencial en Terreno';
+
+            if (!fecha || !nombre || !telefono) {
+                alert('Por favor complete todos los campos requeridos para confirmar su visita.');
+                return;
+            }
+
+            const mensajeCita = 
+                `¡Hola Urbana Inmobiliaria! Quisiera confirmar una visita guiada:\n\n` +
+                `👤 Nombre: ${nombre}\n` +
+                `📱 Teléfono / WhatsApp: ${telefono}\n` +
+                `📅 Fecha Solicitada: ${fecha}\n` +
+                `⏰ Turno / Horario: ${horario}\n` +
+                `📍 Modalidad: ${modalidad}\n` +
+                `Terreno de Interés: ${loteSeleccionadoActual}\n\n` +
+                `Agradezco me confirmen los detalles y la ubicación de encuentro.`;
+
+            const urlWa = `https://wa.me/593998205377?text=${encodeURIComponent(mensajeCita)}`;
+            window.open(urlWa, '_blank');
+        });
+    }
+
+    // Inicializar simulación con los valores por defecto
+    calcularSimulacion();
+});
+</script>
 {% endblock %}

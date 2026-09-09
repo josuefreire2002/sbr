@@ -17,17 +17,18 @@
     
     <!-- Local Tailwind CSS Engine (no depende de conexión a cdn.tailwindcss.com) -->
     <script src="{% static 'js/tailwindcss.js' %}"></script>
-    
-    <!-- Theme Configuration -->
+        <!-- Theme Configuration -->
     <style type="text/tailwindcss">
         @theme {
-            --color-primary: #1e3a8a;
-            --color-primary-light: #3b82f6;
-            --color-accent: #2563eb;
-            --color-background-light: #f8fafc;
-            --color-background-dark: #0f172a;
-            --color-earth-dark: #1e293b;
-            --color-gold-accent: #c5a059;
+            --color-primary: #0A1F44;
+            --color-primary-light: #162E5B;
+            --color-accent: #C5A059;
+            --color-background-light: #F8FAFC;
+            --color-background-dark: #0A1F44;
+            --color-earth-dark: #0F172A;
+            --color-gold-accent: #C5A059;
+            --color-gold-hover: #B38E46;
+            --color-whatsapp: #25D366;
             --font-display: "Manrope", sans-serif;
             --font-serif: "Playfair Display", serif;
         }
@@ -39,52 +40,77 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#1e3a8a",
-                        "primary-light": "#3b82f6",
-                        "accent": "#2563eb",
-                        "background-light": "#f8fafc",
-                        "background-dark": "#0f172a",
-                        "earth-dark": "#1e293b",
-                        "gold-accent": "#c5a059",
+                        "primary": "#0A1F44",
+                        "primary-light": "#162E5B",
+                        "accent": "#C5A059",
+                        "gold-accent": "#C5A059",
+                        "gold-hover": "#B38E46",
+                        "background-light": "#F8FAFC",
+                        "background-dark": "#0A1F44",
+                        "earth-dark": "#0F172A",
+                        "whatsapp": "#25D366",
                     },
                     fontFamily: {
                         "display": ["Manrope", "sans-serif"],
-                        "serif": ["Playfair Display", "serif"],
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
+                        "serif": ["Playfair Display", "serif"]
+                    }
+                }
+            }
         };
     </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        .custom-card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
         }
-        .text-shadow {
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        .custom-gold-glow {
+            box-shadow: 0 12px 30px -8px rgba(197, 160, 89, 0.35);
         }
-        img.site-logo {
-            max-height: 48px !important;
-            width: auto !important;
-            object-fit: contain;
-            display: inline-block;
+        /* Custom range slider styling */
+        input[type=range].gold-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #E2E8F0;
+            border-radius: 9999px;
+            height: 8px;
+            outline: none;
         }
-        /* Subtle architectural pattern to eliminate stark plain white voids */
-        .bg-grid-subtle {
-            background-image: radial-gradient(rgba(30, 58, 138, 0.06) 1px, transparent 1px);
-            background-size: 24px 24px;
+        input[type=range].gold-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #C5A059;
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.15s ease;
         }
-        .dark .bg-grid-subtle {
-            background-image: radial-gradient(rgba(197, 160, 89, 0.07) 1px, transparent 1px);
-            background-size: 24px 24px;
+        input[type=range].gold-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #D4AF37;
+        }
+        input[type=range].gold-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #C5A059;
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
         }
     </style>
     <style>
-        /* Impresión limpia: ocultar UI excepto el modal activo */
+        /* Impresión limpia: formateo para cotización PDF */
         @media print {
             #wa-widget-container, header, footer, .sticky,
-            nav, #mobile-drawer, [aria-label="Abrir Menú"] { display: none !important; }
-            body { background: white !important; color: black !important; font-size: 12px; }
+            nav, #mobile-drawer, [aria-label="Abrir Menú"],
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; font-size: 11px; }
+            #simulador-credito { display: block !important; }
+            #tabla-amortizacion-wrapper { display: block !important; max-height: none !important; overflow: visible !important; }
+            table { border-collapse: collapse !important; width: 100% !important; }
+            th, td { border: 1px solid #ddd !important; padding: 6px !important; }
         }
         /* G-12: Respetar preferencia de movimiento reducido */
         @media (prefers-reduced-motion: reduce) {
@@ -93,43 +119,38 @@
             }
             * { transition-duration: 0.01ms !important; }
         }
-        /* Scroll progress bar (UI Polish) */
+        /* Scroll progress bar */
         #scroll-progress-bar {
             position: fixed;
             top: 0;
             left: 0;
             height: 3px;
             width: 0%;
-            background: linear-gradient(to right, #c5a059, #3b82f6, #c5a059);
+            background: linear-gradient(to right, #C5A059, #0A1F44, #C5A059);
             z-index: 9999;
             transition: width 0.1s linear;
             pointer-events: none;
         }
-        /* Fade-in on scroll (UI Polish) */
         .reveal-on-scroll {
             opacity: 0;
-            transform: translateY(22px);
-            transition: opacity 0.55s ease, transform 0.55s ease;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
         .reveal-on-scroll.is-visible {
             opacity: 1;
             transform: translateY(0);
         }
-        @media (prefers-reduced-motion: reduce) {
-            .reveal-on-scroll { opacity: 1; transform: none; }
-        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 
-<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-x-hidden antialiased flex flex-col min-h-screen">
+<body class="bg-[#F8FAFC] dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 overflow-x-hidden antialiased flex flex-col min-h-screen">
     
     <!-- TOP UTILITY ANNOUNCEMENT BAR -->
-    <!-- G-03 FIX: overflow-x-hidden + flex-wrap para evitar scroll horizontal en mobile -->
-    <div class="bg-slate-950 text-slate-300 text-xs py-2 px-4 border-b border-slate-800/80 z-50 overflow-x-hidden">
+    <div class="bg-[#0A1F44] text-slate-300 text-xs py-2.5 px-4 border-b border-white/10 z-50 overflow-x-hidden">
         <div class="max-w-[1440px] mx-auto flex flex-wrap justify-between items-center gap-x-4 gap-y-1">
             <!-- Left: Contact Details -->
-            <div class="flex items-center gap-3 md:gap-5 text-slate-300 flex-wrap">
+            <div class="flex items-center gap-3 md:gap-6 text-slate-300 flex-wrap">
                 <span class="flex items-center gap-1.5 hover:text-white transition-colors">
                     <span class="material-symbols-outlined text-[14px] text-gold-accent">location_on</span>
                     <span>Pujilí, Cotopaxi - Ecuador</span>
@@ -140,7 +161,7 @@
                 </a>
                 <span class="hidden lg:flex items-center gap-1.5 text-slate-400">
                     <span class="material-symbols-outlined text-[14px] text-amber-400">schedule</span>
-                    <span>Lun - Sáb: 08:00 - 18:00</span>
+                    <span>Lun - Sáb: 08:30 - 18:00</span>
                 </span>
             </div>
             
@@ -148,7 +169,7 @@
             <div class="flex items-center gap-4">
                 <span class="inline-flex items-center gap-1.5 py-0.5 px-2.5 rounded-full bg-gold-accent/15 border border-gold-accent/30 text-amber-300 text-[11px] font-bold">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    Financiamiento Directo 0% Interés
+                    Financiamiento Directo 0% Interés • Sin Bancos
                 </span>
                 <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20asesoría%20sobre%20los%20lotes%20disponibles."
                    target="_blank"
@@ -161,60 +182,66 @@
         </div>
     </div>
 
-    <!-- MAIN PRESTIGIOUS HEADER -->
-    <header class="sticky top-0 z-40 w-full bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 shadow-sm transition-all duration-300">
+    <!-- MAIN NAVBAR STICKY / FLOTANTE -->
+    <header class="sticky top-0 z-40 w-full bg-white/95 dark:bg-[#0A1F44]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 shadow-sm transition-all duration-300">
         <div class="px-4 md:px-10 max-w-[1440px] mx-auto h-20 flex items-center justify-between gap-6">
             
-            <!-- Brand Logo & Identity -->
+            <!-- Logotipo a la izquierda -->
             <a href="{% url 'pag_web:index' %}" class="flex items-center gap-3.5 group flex-shrink-0">
-                <div class="relative p-1 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 shadow-sm group-hover:border-gold-accent/50 group-hover:scale-105 transition-all duration-300">
-                    <img src="{% static 'img/logo_ugsha.png' %}" alt="Logo Ugsha" class="site-logo h-11 w-auto object-contain" style="max-height: 44px; width: auto;">
+                <div class="relative p-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 shadow-sm group-hover:border-gold-accent/60 group-hover:scale-105 transition-all duration-300">
+                    <img src="{% static 'img/logo_ugsha.png' %}" alt="Logo Urbana Inmobiliaria" class="site-logo h-11 w-auto object-contain" style="max-height: 44px; width: auto;">
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xl font-serif font-black leading-tight tracking-tight text-slate-900 dark:text-white group-hover:text-primary dark:group-hover:text-gold-accent transition-colors">
-                        UGSHA <span class="text-gold-accent font-light">INMOBILIARIA</span>
+                    <span class="text-xl font-serif font-black leading-tight tracking-tight text-[#0A1F44] dark:text-white group-hover:text-gold-accent transition-colors">
+                        URBANA <span class="text-gold-accent font-light">INMOBILIARIA</span>
                     </span>
-                    <span class="text-[10px] uppercase font-bold tracking-widest text-slate-600 dark:text-slate-300">
-                        Bienes Raíces & Inversiones
+                    <span class="text-[9px] uppercase font-extrabold tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                        Lotes & Terrenos Exclusivos
                     </span>
                 </div>
             </a>
             
-            <!-- Desktop Nav Menu with Enhanced Active / Hover states -->
+            <!-- Enlaces de navegación con scroll suave -->
             <nav class="hidden lg:flex items-center gap-1 xl:gap-2">
-                <a href="{% url 'pag_web:index' %}"
-                   class="px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-primary dark:hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
-                    <span class="material-symbols-outlined text-[18px] text-slate-600 dark:text-slate-300 group-hover:text-primary dark:group-hover:text-gold-accent transition-colors">home</span>
-                    <span>Inicio</span>
-                </a>
-                
-                <a href="{% url 'pag_web:lotes' %}"
-                   class="px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-primary dark:hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
-                    <span class="material-symbols-outlined text-[18px] text-slate-600 dark:text-slate-300 group-hover:text-primary dark:group-hover:text-gold-accent transition-colors">domain</span>
-                    <span>Lotes en Venta</span>
-                    <span class="py-0.5 px-2 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider ml-1">
-                        Disponibles
-                    </span>
+                <a href="{% url 'pag_web:index' %}#lotes-disponibles"
+                   class="px-3 xl:px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
+                    <span class="material-symbols-outlined text-[18px] text-slate-500 group-hover:text-gold-accent transition-colors">domain</span>
+                    <span>Lotes Disponibles</span>
                 </a>
 
-                <a href="{% url 'pag_web:simulador' %}"
-                   class="px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-primary dark:hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
-                    <span class="material-symbols-outlined text-[18px] text-slate-600 dark:text-slate-300 group-hover:text-primary dark:group-hover:text-gold-accent transition-colors">calculate</span>
-                    <span>Simulador</span>
+                <a href="{% url 'pag_web:index' %}#simulador-credito"
+                   class="px-3 xl:px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
+                    <span class="material-symbols-outlined text-[18px] text-slate-500 group-hover:text-gold-accent transition-colors">calculate</span>
+                    <span>Simulador de Crédito</span>
                 </a>
                 
-                <a href="{% url 'pag_web:nosotros' %}"
-                   class="px-3 xl:px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-primary dark:hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
-                    <span class="material-symbols-outlined text-[18px] text-slate-600 dark:text-slate-300 group-hover:text-primary dark:group-hover:text-gold-accent transition-colors">badge</span>
-                    <span>Sobre Nosotros</span>
+                <a href="{% url 'pag_web:index' %}#plano-lotizacion"
+                   class="px-3 xl:px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
+                    <span class="material-symbols-outlined text-[18px] text-slate-500 group-hover:text-gold-accent transition-colors">map</span>
+                    <span>Plano</span>
                 </a>
 
-                <a href="{% url 'pag_web:contacto' %}"
-                   class="px-3 xl:px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-primary dark:hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
-                    <span class="material-symbols-outlined text-[18px] text-slate-600 dark:text-slate-300 group-hover:text-primary dark:group-hover:text-gold-accent transition-colors">mail</span>
-                    <span>Contacto</span>
+                <a href="{% url 'pag_web:index' %}#garantias"
+                   class="px-3 xl:px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
+                    <span class="material-symbols-outlined text-[18px] text-slate-500 group-hover:text-gold-accent transition-colors">verified_user</span>
+                    <span>Garantías</span>
+                </a>
+
+                <a href="{% url 'pag_web:index' %}#ubicacion"
+                   class="px-3 xl:px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
+                    <span class="material-symbols-outlined text-[18px] text-slate-500 group-hover:text-gold-accent transition-colors">pin_drop</span>
+                    <span>Ubicación</span>
                 </a>
             </nav>
+
+            <!-- Botón CTA destacado a la derecha: Agendar Visita -->
+            <div class="hidden sm:flex items-center gap-3">
+                <a href="{% url 'pag_web:index' %}#agendar-visita"
+                   class="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-r from-gold-accent to-yellow-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-xs uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                    <span>Agendar Visita</span>
+                </a>
+            </div>
 
             <!-- Mobile Hamburger Button -->
             <button id="mobile-menu-toggle"
@@ -225,38 +252,40 @@
         </div>
 
         <!-- Mobile Drawer / Dropdown Menu -->
-        <div id="mobile-drawer" class="hidden lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-6 shadow-2xl transition-all">
-            <nav class="flex flex-col gap-3">
-                <a href="{% url 'pag_web:index' %}"
+        <div id="mobile-drawer" class="hidden lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0A1F44] px-6 py-6 shadow-2xl transition-all">
+            <nav class="flex flex-col gap-2.5">
+                <a href="{% url 'pag_web:index' %}#lotes-disponibles"
                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                    <span class="material-symbols-outlined text-primary dark:text-gold-accent">home</span>
-                    <span>Inicio</span>
+                    <span class="material-symbols-outlined text-gold-accent">domain</span>
+                    <span>Lotes Disponibles</span>
                 </a>
-                <a href="{% url 'pag_web:lotes' %}"
-                   class="flex items-center justify-between p-3 rounded-xl font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-primary dark:text-gold-accent">domain</span>
-                        <span>Lotes en Venta</span>
-                    </div>
-                    <span class="py-0.5 px-2.5 rounded-full bg-emerald-500/15 text-emerald-600 text-xs font-extrabold">
-                        Disponibles
-                    </span>
-                </a>
-                <a href="{% url 'pag_web:simulador' %}"
+                <a href="{% url 'pag_web:index' %}#simulador-credito"
                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                    <span class="material-symbols-outlined text-primary dark:text-gold-accent">calculate</span>
-                    <span>Simulador de Cuotas</span>
+                    <span class="material-symbols-outlined text-gold-accent">calculate</span>
+                    <span>Simulador de Crédito</span>
                 </a>
-                <a href="{% url 'pag_web:nosotros' %}"
+                <a href="{% url 'pag_web:index' %}#plano-lotizacion"
                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                    <span class="material-symbols-outlined text-primary dark:text-gold-accent">badge</span>
-                    <span>Sobre Nosotros</span>
+                    <span class="material-symbols-outlined text-gold-accent">map</span>
+                    <span>Plano de Lotización</span>
                 </a>
-                <a href="{% url 'pag_web:contacto' %}"
+                <a href="{% url 'pag_web:index' %}#garantias"
                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                    <span class="material-symbols-outlined text-primary dark:text-gold-accent">mail</span>
-                    <span>Contacto y Visitas</span>
+                    <span class="material-symbols-outlined text-gold-accent">verified_user</span>
+                    <span>Garantías de Compra</span>
                 </a>
+                <a href="{% url 'pag_web:index' %}#ubicacion"
+                   class="flex items-center gap-3 p-3 rounded-xl font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+                    <span class="material-symbols-outlined text-gold-accent">pin_drop</span>
+                    <span>Ubicación Estratégica</span>
+                </a>
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <a href="{% url 'pag_web:index' %}#agendar-visita"
+                       class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-gold-accent to-yellow-600 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-black text-sm text-center shadow-md flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                        <span>Agendar Visita Guiada</span>
+                    </a>
+                </div>
             </nav>
         </div>
     </header>
@@ -283,65 +312,85 @@
         {% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 pt-16 pb-8">
+    <!-- Footer Institucional -->
+    <footer class="bg-[#0A1F44] text-white border-t border-white/10 pt-16 pb-12">
         <div class="max-w-[1440px] mx-auto px-4 md:px-10">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                 <div class="col-span-1 md:col-span-1">
-                    <div class="flex items-center gap-2 text-slate-900 dark:text-white mb-6">
-                        <img src="{% static 'img/logo_ugsha.png' %}" alt="Logo" class="site-logo h-12 w-auto object-contain" style="max-height: 48px; width: auto;">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-1.5 rounded-xl bg-white/10 border border-white/20">
+                            <img src="{% static 'img/logo_ugsha.png' %}" alt="Logo Urbana Inmobiliaria" class="site-logo h-10 w-auto object-contain" style="max-height: 40px; width: auto;">
+                        </div>
+                        <div>
+                            <span class="text-lg font-serif font-bold text-white block leading-tight">URBANA INMOBILIARIA</span>
+                            <span class="text-[10px] text-gold-accent uppercase tracking-widest font-extrabold">Patrimonio Seguro</span>
+                        </div>
                     </div>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
-                        Líderes en Bienes Raíces. Ofrecemos los mejores lotes y terrenos con procesos transparentes y seguros.
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                        Plataforma líder en comercialización de lotes y terrenos residenciales en Cotopaxi. Garantizamos financiamiento directo sin bancos y escrituración inmediata.
                     </p>
-                    <div class="flex gap-4">
-                        <a class="text-slate-400 hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">language</span></a>
-                        <a class="text-slate-400 hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">mail</span></a>
-                        <a class="text-slate-400 hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">call</span></a>
+                    <div class="flex gap-3">
+                        <a class="w-9 h-9 rounded-xl bg-white/10 hover:bg-gold-accent hover:text-slate-950 flex items-center justify-center text-slate-300 transition-all" href="#" aria-label="Facebook"><span class="material-symbols-outlined text-[18px]">public</span></a>
+                        <a class="w-9 h-9 rounded-xl bg-white/10 hover:bg-gold-accent hover:text-slate-950 flex items-center justify-center text-slate-300 transition-all" href="mailto:info@ugshainmobiliarios.com" aria-label="Correo"><span class="material-symbols-outlined text-[18px]">mail</span></a>
+                        <a class="w-9 h-9 rounded-xl bg-white/10 hover:bg-emerald-500 hover:text-white flex items-center justify-center text-slate-300 transition-all" href="https://wa.me/593998205377" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><span class="material-symbols-outlined text-[18px]">chat</span></a>
                     </div>
                 </div>
                 <div>
-                    <h3 class="text-slate-900 dark:text-white font-bold mb-6">Enlaces Rápidos</h3>
-                    <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:index' %}">Inicio</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:lotes' %}">Lotes Disponibles</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:simulador' %}">Simulador de Cuotas</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:nosotros' %}">Sobre Nosotros</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:contacto' %}">Contacto</a></li>
+                    <h3 class="text-white font-serif font-bold text-base mb-6 flex items-center gap-2">
+                        <span class="w-3 h-0.5 bg-gold-accent inline-block"></span>
+                        Navegación Rápida
+                    </h3>
+                    <ul class="space-y-3 text-sm text-slate-300">
+                        <li><a class="hover:text-gold-accent transition-colors flex items-center gap-1.5" href="{% url 'pag_web:index' %}#lotes-disponibles"><span class="material-symbols-outlined text-[14px]">chevron_right</span> Lotes Disponibles</a></li>
+                        <li><a class="hover:text-gold-accent transition-colors flex items-center gap-1.5" href="{% url 'pag_web:index' %}#simulador-credito"><span class="material-symbols-outlined text-[14px]">chevron_right</span> Simulador de Crédito</a></li>
+                        <li><a class="hover:text-gold-accent transition-colors flex items-center gap-1.5" href="{% url 'pag_web:index' %}#plano-lotizacion"><span class="material-symbols-outlined text-[14px]">chevron_right</span> Plano de Lotización</a></li>
+                        <li><a class="hover:text-gold-accent transition-colors flex items-center gap-1.5" href="{% url 'pag_web:index' %}#garantias"><span class="material-symbols-outlined text-[14px]">chevron_right</span> Garantías de Compra</a></li>
+                        <li><a class="hover:text-gold-accent transition-colors flex items-center gap-1.5" href="{% url 'pag_web:index' %}#ubicacion"><span class="material-symbols-outlined text-[14px]">chevron_right</span> Ubicación y Entorno</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-slate-900 dark:text-white font-bold mb-6">Contacto</h3>
-                    <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                        <li class="flex items-start gap-2">
-                            <span class="material-symbols-outlined text-primary text-lg mt-0.5">location_on</span>
-                            <span>Pujilí, Cotopaxi - Ecuador</span>
+                    <h3 class="text-white font-serif font-bold text-base mb-6 flex items-center gap-2">
+                        <span class="w-3 h-0.5 bg-gold-accent inline-block"></span>
+                        Atención & Oficinas
+                    </h3>
+                    <ul class="space-y-3 text-sm text-slate-300">
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-gold-accent text-lg mt-0.5">location_on</span>
+                            <span>Sector Centro, Pujilí, Cotopaxi - Ecuador</span>
                         </li>
-                        <li class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary text-lg">call</span>
-                            <span>099 820 5377</span>
+                        <li class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-lg">call</span>
+                            <span>+593 99 820 5377 / (03) 272-3000</span>
                         </li>
-                        <li class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary text-lg">mail</span>
-                            <span>info@ugshainmobiliarios.com</span>
+                        <li class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-amber-400 text-lg">schedule</span>
+                            <span>Lunes a Sábado: 08:30 - 18:00</span>
+                        </li>
+                        <li class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-gold-accent text-lg">mail</span>
+                            <span>ventas@urbanainmobiliaria.ec</span>
                         </li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-slate-900 dark:text-white font-bold mb-6">Nuestra Tecnología</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">
-                        Respaldamos cada transacción con un gestor interno avanzado que garantiza la seguridad de su inversión.
+                    <h3 class="text-white font-serif font-bold text-base mb-6 flex items-center gap-2">
+                        <span class="w-3 h-0.5 bg-gold-accent inline-block"></span>
+                        Seguridad & Respaldo
+                    </h3>
+                    <p class="text-slate-300 text-sm mb-4 leading-relaxed">
+                        Cada lote cuenta con levantamiento planimétrico aprobado, coordenadas georreferenciadas y carpeta legal lista para firma notarial inmediata.
                     </p>
-                    <a href="{% url 'pag_web:nosotros' %}" class="inline-flex items-center gap-2 text-sm font-bold text-gold-accent hover:text-yellow-600 transition-colors">
-                        Conocer más <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    <a href="{% url 'pag_web:index' %}#agendar-visita" class="inline-flex items-center gap-2 text-sm font-bold text-gold-accent hover:text-yellow-400 transition-colors">
+                        Agendar recorrido presencial <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                     </a>
                 </div>
             </div>
-            <div class="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-slate-600 dark:text-slate-400 text-xs">&copy; {% now "Y" %} Ugsha Inmobiliaria. Todos los derechos reservados.</p>
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+                <p>&copy; {% now "Y" %} Urbana Inmobiliaria. Todos los derechos reservados.</p>
                 <div class="flex gap-6">
-                    <a class="text-slate-400 hover:text-primary text-xs transition-colors" href="#">Política de Privacidad</a>
-                    <a class="text-slate-400 hover:text-primary text-xs transition-colors" href="#">Términos de Servicio</a>
+                    <a class="hover:text-gold-accent transition-colors" href="#">Política de Privacidad</a>
+                    <a class="hover:text-gold-accent transition-colors" href="#">Términos de Servicio</a>
+                    <a class="hover:text-gold-accent transition-colors" href="#">Aviso Legal</a>
                 </div>
             </div>
         </div>
