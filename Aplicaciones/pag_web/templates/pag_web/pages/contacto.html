@@ -1,5 +1,6 @@
 {% extends 'pag_web/base_web.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Contacto - Ugsha Inmobiliaria{% endblock %}
 
@@ -140,46 +141,83 @@
                 </div>
             </div>
         </section>
-        <!-- Curated Lots (Masonry) -->
+        <!-- Lotes Disponibles desde la BD -->
         <section class="py-20 lg:py-28 px-6 lg:px-16 max-w-[1440px] mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                 <div>
-                    <h2 class="text-3xl lg:text-4xl font-light text-slate-900 dark:text-white mb-3">Lotes Seleccionados
-                    </h2>
-                    <p class="text-slate-500 dark:text-slate-400 max-w-lg">Propiedades elegidas a mano que ofrecen el
-                        equilibrio perfecto entre privacidad y accesibilidad.</p>
+                    <h2 class="text-3xl lg:text-4xl font-light text-slate-900 dark:text-white mb-3">Lotes Disponibles</h2>
+                    <p class="text-slate-500 dark:text-slate-400 max-w-lg">Terrenos con escrituras garantizadas y financiamiento directo sin bancos.</p>
                 </div>
-                <a class="flex items-center gap-1 text-primary font-bold hover:underline"
-                    href="{% url 'pag_web:lotes' %}">
+                <a class="flex items-center gap-1 text-primary font-bold hover:underline" href="{% url 'pag_web:lotes' %}">
                     Ver todos los lotes <span class="material-symbols-outlined text-sm">arrow_outward</span>
                 </a>
             </div>
-            <!-- Masonry Grid -->
-            <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-                <!-- Card 1 (Large) -->
-                <div class="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer shadow-lg">
-                    <div class="aspect-[3/4] w-full bg-slate-200 relative">
-                        <img alt="Dense forest lot with sunbeams penetrating the canopy"
-                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            data-alt="Dense forest lot with sunbeams"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0Ot3D6nUTuKkLbLZwfwxMXFGWz4d5egsPtgW9-LRobWXjfjJ6BFmIOkzvVw9uM7Mrso_icJfjLr-TvhktzCxGjZegc9E77gHfCHtDX0AXadVEn8zHGWwb1CQ6k1Ll53fHR0twaMbG2DFxfFJNXLD-mes4BO6QOYXvrE-x90tWI-EICoiIZom-okthWsE4z_UkDOuN9TRJy89zGa6b7yL4gjpWf_j0_8nsOFOkmnYSWt5hjL_2Ts0PLbLo5dPCFU5u6EiJ7VfzTt4" />
+            {% if lotes %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for lote in lotes %}
+                <a href="{% url 'pag_web:lote_detalle' lote.id %}"
+                   class="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-slate-200 dark:border-slate-700 hover:border-gold-accent/60 hover:-translate-y-1 flex flex-col bg-white dark:bg-slate-800">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-700">
+                        {% if lote.foto_lista %}
+                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                             src="{{ lote.foto_lista.url }}" alt="Lote {{ lote.numero_lote }}" />
+                        {% else %}
+                        <div class="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                            <span class="material-symbols-outlined text-6xl">landscape</span>
+                            <span class="text-xs mt-1 uppercase tracking-wide font-semibold">Foto en preparación</span>
+                        </div>
+                        {% endif %}
+                        <div class="absolute top-3 left-3 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                            <span class="w-2 h-2 rounded-full bg-white animate-pulse inline-block mr-1"></span>Disponible
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-3 left-4 right-4 text-white">
+                            <span class="text-[10px] font-extrabold text-amber-300 uppercase tracking-widest">Terreno Urbanizado</span>
+                            <p class="text-xl font-serif font-bold leading-tight">Lote #{{ lote.numero_lote }}</p>
+                            {% if lote.manzana %}<p class="text-slate-300 text-xs flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">grid_3x3</span> Manzana {{ lote.manzana }}</p>{% endif %}
+                        </div>
                     </div>
-                    <div
-                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90">
+                    <div class="p-5 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block">Precio Contado</span>
+                            <span class="text-xl font-serif font-bold text-primary dark:text-gold-accent">${{ lote.precio_contado|intcomma }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block">Dimensión</span>
+                            <span class="text-base font-serif font-bold text-slate-800 dark:text-slate-100">{{ lote.dimensiones }}</span>
+                        </div>
                     </div>
-                    <div
-                        class="absolute bottom-0 left-0 p-6 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                        <div class="flex justify-between items-end">
-                            <div>
-                                <h3 class="text-xl font-bold text-white mb-1">Forest Edge</h3>
-                                <p class="text-slate-300 text-sm flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">location_on</span>
-                                    Highlands, Sector B
-                                </p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-white font-bold text-lg">$60k</p>
-                                <p class="text-slate-300 text-xs">800m²</p>
+                </a>
+                {% endfor %}
+                <!-- CTA card -->
+                <div class="relative group rounded-2xl overflow-hidden shadow-md bg-primary p-8 flex flex-col justify-between min-h-[200px]">
+                    <div class="relative z-10">
+                        <span class="material-symbols-outlined text-white/50 text-5xl mb-4">maps_home_work</span>
+                        <h3 class="text-xl font-bold text-white mb-2">¿No encuentra lo que busca?</h3>
+                        <p class="text-white/80 text-sm">Disponemos de lotes exclusivos. Consúltenos directamente.</p>
+                    </div>
+                    <div class="relative z-10 mt-4">
+                        <a href="https://wa.me/593998205377?text=Hola,%20no%20encontr%C3%A9%20el%20lote%20que%20busco.%20%C2%BFTienen%20m%C3%A1s%20opciones?"
+                           target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center gap-2 bg-white text-primary px-4 py-2 rounded-xl font-bold text-sm hover:bg-amber-50 transition-colors shadow">
+                            <span class="material-symbols-outlined text-[16px]">chat</span>
+                            Consultar por WhatsApp
+                        </a>
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-16 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <span class="material-symbols-outlined text-6xl text-gold-accent mb-4">domain</span>
+                <h3 class="text-2xl font-serif font-bold text-slate-800 dark:text-white">Próximamente Nuevos Lotes</h3>
+                <p class="text-slate-500 mt-2">Contáctenos para lista de espera preferencial.</p>
+                <a href="https://wa.me/593998205377" target="_blank"
+                   class="inline-block mt-6 px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-md">
+                    Consultar Disponibilidad</a>
+            </div>
+            {% endif %}
+        </section>
                             </div>
                         </div>
                     </div>
@@ -310,36 +348,22 @@
                 </div>
             </div>
         </section>
-        <!-- Map Section -->
-        <section class="relative h-[500px] w-full bg-slate-200 dark:bg-slate-800 overflow-hidden group">
-            <!-- Background Map Image placeholder -->
-            <div class="absolute inset-0 w-full h-full bg-cover bg-center grayscale opacity-80 group-hover:grayscale-0 transition-all duration-700"
-                data-location="Map of the valley area"
-                style="background-image: url('https://placeholder.pics/svg/300');">
-            </div>
-            <div class="absolute inset-0 bg-primary/10 pointer-events-none"></div>
-            <!-- Pins -->
-            <div
-                class="absolute top-1/2 left-1/3 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group/pin cursor-pointer">
-                <div
-                    class="bg-white px-3 py-1 rounded shadow-lg mb-2 opacity-0 group-hover/pin:opacity-100 transition-opacity whitespace-nowrap text-sm font-bold text-slate-800">
-                    Sunset Ridge</div>
-                <span class="material-symbols-outlined text-primary text-4xl drop-shadow-md">location_on</span>
-            </div>
-            <div
-                class="absolute top-1/3 left-2/3 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group/pin cursor-pointer">
-                <div
-                    class="bg-white px-3 py-1 rounded shadow-lg mb-2 opacity-0 group-hover/pin:opacity-100 transition-opacity whitespace-nowrap text-sm font-bold text-slate-800">
-                    Lakeside Reserve</div>
-                <span class="material-symbols-outlined text-primary text-4xl drop-shadow-md">location_on</span>
-            </div>
-            <!-- Floating CTA -->
-            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-                <button
-                    class="bg-white dark:bg-slate-800 text-primary dark:text-white font-bold py-3 px-8 rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-2 border border-slate-100 dark:border-slate-700">
+        <!-- Mapa de Ubicación — Pujilí, Cotopaxi, Ecuador -->
+        <section class="relative h-[480px] w-full overflow-hidden">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15975.18!2d-78.6978!3d-0.9576!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d4b6c0b91f3d75%3A0xe7e68fe0f7c0b4f5!2sPujil%C3%AD%2C%20Cotopaxi%2C%20Ecuador!5e0!3m2!1ses!2sec!4v1699999999999!5m2!1ses!2sec"
+                width="100%" height="100%" style="border:0; filter: grayscale(20%);" allowfullscreen=""
+                loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                title="Mapa Pujilí, Cotopaxi, Ecuador - Ugsha Inmobiliaria"
+                class="w-full h-full"></iframe>
+            <!-- Overlay CTA flotante -->
+            <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+                <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20agendar%20una%20visita%20guiada%20a%20los%20lotes%20en%20Pujil%C3%AD."
+                   target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2 bg-white dark:bg-slate-800 text-primary dark:text-white font-bold py-3 px-8 rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all border border-slate-100 dark:border-slate-700">
                     <span class="material-symbols-outlined">calendar_month</span>
-                    Agendar una Visita
-                </button>
+                    Agendar una Visita Guiada
+                </a>
             </div>
         </section>
     </div>

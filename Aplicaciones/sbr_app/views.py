@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from .services import actualizar_moras_contrato 
 import base64
 import os
+import csv
 from django.contrib.staticfiles import finders
 # Importamos Modelos
 from .models import Cliente, Lote, Contrato, Pago, Cuota, ConfiguracionSistema, DetallePago, MovimientoCaja
@@ -199,6 +200,67 @@ def lista_clientes_view(request):
     actualizar_moras_masivo(contratos_activos)
     
     return render(request, 'ventas/lista_clientes.html', {'clientes': clientes, 'contratos': contratos})
+
+@login_required
+def descargar_listado_clientes_view(request):
+    import openpyxl
+    from openpyxl.styles import Font, Border, Side, Alignment
+    
+    if request.user.is_superuser:
+        contratos = Contrato.objects.select_related('cliente').order_by('fecha_contrato', 'id')
+    else:
+        contratos = Contrato.objects.filter(cliente__vendedor=request.user).select_related('cliente').order_by('fecha_contrato', 'id')
+
+    # Crear el libro de Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Listado de Clientes"
+
+    # Definir estilos: Borde delgado en todos los lados
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), 
+                         top=Side(style='thin'), bottom=Side(style='thin'))
+    header_font = Font(bold=True)
+    center_aligned = Alignment(horizontal="center", vertical="center")
+
+    # Cabeceras
+    headers = ['Nombres y Apellidos', 'Cédula', 'Celular', 'Firma']
+    ws.append(headers)
+
+    # Estilos para cabecera
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.border = thin_border
+        cell.alignment = center_aligned
+
+    # Agregar datos
+    for row_num, contrato in enumerate(contratos, start=2):
+        cliente = contrato.cliente
+        nombre_completo = f"{cliente.nombres} {cliente.apellidos}"
+        
+        ws.cell(row=row_num, column=1, value=nombre_completo)
+        
+        # Aseguramos que la cédula se guarde estrictamente como texto (para conservar el 0 inicial)
+        cel_ced = ws.cell(row=row_num, column=2, value=str(cliente.cedula))
+        cel_ced.number_format = '@' 
+        
+        ws.cell(row=row_num, column=3, value=str(cliente.celular))
+        ws.cell(row=row_num, column=4, value='') # Columna firma vacía
+        
+        # Aplicar bordes a la fila
+        for col_num in range(1, 5):
+            ws.cell(row=row_num, column=col_num).border = thin_border
+
+    # Ajustar el ancho de las columnas para que se vea bien al imprimir
+    ws.column_dimensions['A'].width = 45
+    ws.column_dimensions['B'].width = 15
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 30
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="Listado_Clientes_{date.today()}.xlsx"'
+    
+    wb.save(response)
+    return response
 
 # ==========================================
 # 4. DETALLE CONTRATO (Panel Cliente)

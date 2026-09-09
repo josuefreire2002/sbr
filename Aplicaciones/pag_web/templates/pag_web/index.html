@@ -676,17 +676,50 @@
 
         function getParsedValues() {
             let precio = parseFloat(precioInput.value);
-            if (isNaN(precio) || precio <= 0) precio = 15000;
-
             let entrada = parseFloat(entradaInput.value);
-            if (isNaN(entrada) || entrada < 0) entrada = 0;
-            if (entrada > precio) entrada = precio;
-
             let plazo = parseInt(plazoInput.value);
-            if (isNaN(plazo) || plazo <= 0) plazo = 36;
-            if (plazo > 120) plazo = 120;
+            let errores = [];
 
-            return { precio, entrada, plazo };
+            if (isNaN(precio) || precio <= 0) {
+                errores.push('⚠️ Ingrese un valor válido para el Valor del Lote.');
+                precio = 0;
+            }
+            if (isNaN(entrada) || entrada < 0) {
+                errores.push('⚠️ Ingrese un valor válido para el Abono Inicial (puede ser $0).');
+                entrada = 0;
+            }
+            if (!isNaN(precio) && precio > 0 && entrada >= precio) {
+                errores.push('⚠️ El abono inicial no puede ser igual o mayor al precio del lote.');
+                entrada = Math.round(precio * 0.20);
+                entradaInput.value = entrada;
+            }
+            if (isNaN(plazo) || plazo <= 0) {
+                errores.push('⚠️ Ingrese un número de meses válido (ej: 12, 24, 36).');
+                plazo = 36;
+            }
+            if (plazo > 120) {
+                errores.push('⚠️ El plazo máximo es 120 meses (10 años).');
+                plazo = 120;
+                plazoInput.value = 120;
+            }
+            return { precio, entrada, plazo, errores };
+        }
+
+        function showValidationErrors(errores) {
+            let errDiv = document.getElementById('sim-errors');
+            if (errores.length === 0) {
+                if (errDiv) errDiv.remove();
+                return true;
+            }
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'sim-errors';
+                errDiv.className = 'mb-4 p-3 rounded-xl bg-amber-950/50 border border-amber-500 text-amber-300 text-xs font-semibold space-y-1';
+                btnAceptar.closest('div').parentElement.insertBefore(errDiv, btnAceptar.closest('div'));
+            }
+            errDiv.innerHTML = errores.map(function(e){ return '<p>' + e + '</p>'; }).join('');
+            errDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            return false;
         }
 
         function openModal() {
@@ -704,7 +737,9 @@
         }
 
         function generateAmortizationModal() {
-            const { precio, entrada, plazo } = getParsedValues();
+            const { precio, entrada, plazo, errores } = getParsedValues();
+            if (!showValidationErrors(errores) || precio <= 0) return;
+
             const saldoFinanciar = Math.max(0, precio - entrada);
             const cuotaMensual = plazo > 0 ? (saldoFinanciar / plazo) : 0;
             const entradaPct = precio > 0 ? Math.round((entrada / precio) * 100) : 0;
@@ -797,7 +832,7 @@
             openModal();
         }
 
-        // Lote Selector Change
+        // Lote Selector Change (BUG-004: notify user when price is auto-filled)
         if (loteSelect) {
             loteSelect.addEventListener('change', function() {
                 const opt = this.options[this.selectedIndex];
@@ -807,13 +842,19 @@
                 } else {
                     const num = opt.getAttribute('data-lote');
                     const mz = opt.getAttribute('data-mz');
-                    currentLoteNombre = `Lote ${num} (Manzana ${mz})`;
+                    currentLoteNombre = 'Lote ' + num + ' (Manzana ' + mz + ')';
                 }
 
                 if (precioAttr) {
                     const nuevoPrecio = parseFloat(precioAttr);
+                    const nuevaEntrada = Math.round(nuevoPrecio * 0.20);
                     precioInput.value = Math.round(nuevoPrecio);
-                    entradaInput.value = Math.round(nuevoPrecio * 0.20);
+                    entradaInput.value = nuevaEntrada;
+                    // Feedback visual: resaltar campo actualizado brevemente
+                    [precioInput, entradaInput].forEach(function(el) {
+                        el.style.borderColor = '#c5a059';
+                        setTimeout(function(){ el.style.borderColor = ''; }, 1200);
+                    });
                 }
             });
         }

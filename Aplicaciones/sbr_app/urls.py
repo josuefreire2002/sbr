@@ -15,6 +15,7 @@ urlpatterns = [
     
     # Listado de mis clientes (Vendedor ve los suyos, Admin ve todos)
     path('clientes/', views.lista_clientes_view, name='lista_clientes'),
+    path('clientes/descargar/', views.descargar_listado_clientes_view, name='descargar_listado_clientes'),
     
     # Detalle profundo: Tabla de amortización, estado de cuenta
     path('contrato/<int:pk>/detalle/', views.detalle_contrato_view, name='detalle_contrato'),

@@ -150,9 +150,11 @@
                     <div class="relative">
                         <span class="absolute left-4 top-3 text-emerald-600 dark:text-emerald-400 font-bold text-lg">$</span>
                         <input type="number" id="lote-sim-entrada-input" min="0" step="50"
+                               value="{% widthratio lote.precio_contado 5 1 %}"
                                class="w-full bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 focus:border-emerald-500 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all shadow-inner"
                                placeholder="Ej: 3000">
                     </div>
+                    <p class="text-[11px] text-slate-400 mt-1">↪ Sugerido: 20% del precio. Puede modificarlo libremente.</p>
                 </div>
 
                 <!-- 3 y 4 en 2 columnas: Número de Meses y Fecha de Pago -->
@@ -215,7 +217,7 @@
                                     Tabla de Amortización — Lote {{ lote.numero_lote }}
                                 </h3>
                                 <p class="text-xs text-slate-400">
-                                    Manzana {{ lote.manzana }} • 0% Interés Directo • Cuotas Mensuales Fijas
+                                    {% if lote.manzana %}Manzana {{ lote.manzana }} • {% endif %}0% Interés Directo • Cuotas Mensuales Fijas
                                 </p>
                             </div>
                         </div>
@@ -299,6 +301,27 @@
 </section>
 {% endblock %}
 
+{% block extra_head %}
+<style>
+@media print {
+    /* Ocultar todo menos el contenido del modal */
+    body > *:not(#lote-print-area) { display: none !important; }
+    #lote-print-area { display: block !important; }
+    /* Si el modal está abierto, imprimir solo su contenido interno */
+    #lote-sim-modal .fixed:not(#lote-sim-modal-backdrop) > div { position: static !important; max-height: none !important; overflow: visible !important; }
+    #lote-sim-modal-backdrop { display: none !important; }
+    #lote-modal-print-btn, #lote-modal-cerrar-btn, #lote-modal-wa-btn { display: none !important; }
+    header, footer, #wa-widget-container, nav, .sticky { display: none !important; }
+    body { background: white !important; color: black !important; }
+    #lote-sim-modal { position: static !important; background: white !important; }
+    #lote-sim-modal .bg-slate-900, #lote-sim-modal .bg-slate-950 { background: white !important; color: black !important; }
+    #lote-sim-modal table { border-collapse: collapse; width: 100%; }
+    #lote-sim-modal th, #lote-sim-modal td { border: 1px solid #ccc; padding: 6px 10px; color: black !important; }
+    #lote-sim-modal .text-emerald-400, #lote-sim-modal .text-gold-accent { color: black !important; }
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -350,17 +373,51 @@
 
         function getParsedValues() {
             let precio = parseFloat(precioInput.value);
-            if (isNaN(precio) || precio <= 0) precio = 15000;
-
             let entrada = parseFloat(entradaInput.value);
-            if (isNaN(entrada) || entrada < 0) entrada = 0;
-            if (entrada > precio) entrada = precio;
-
             let plazo = parseInt(plazoInput.value);
-            if (isNaN(plazo) || plazo <= 0) plazo = 36;
-            if (plazo > 120) plazo = 120;
+            let errores = [];
 
-            return { precio, entrada, plazo };
+            if (isNaN(precio) || precio <= 0) {
+                errores.push('\u26a0\ufe0f Ingrese un valor v\u00e1lido para el Valor del Lote.');
+                precio = 0;
+            }
+            if (isNaN(entrada) || entrada < 0) {
+                errores.push('\u26a0\ufe0f Ingrese un valor v\u00e1lido para el Abono Inicial (puede ser $0).');
+                entrada = 0;
+            }
+            if (!isNaN(precio) && precio > 0 && entrada >= precio) {
+                errores.push('\u26a0\ufe0f El abono inicial no puede ser igual o mayor al precio del lote.');
+                entrada = Math.round(precio * 0.20);
+                entradaInput.value = entrada;
+            }
+            if (isNaN(plazo) || plazo <= 0) {
+                errores.push('\u26a0\ufe0f Ingrese un n\u00famero de meses v\u00e1lido (ej: 12, 24, 36).');
+                plazo = 36;
+            }
+            if (plazo > 120) {
+                errores.push('\u26a0\ufe0f El plazo m\u00e1ximo es 120 meses (10 a\u00f1os).');
+                plazo = 120;
+                plazoInput.value = 120;
+            }
+
+            return { precio, entrada, plazo, errores };
+        }
+
+        function showValidationErrors(errores) {
+            let errDiv = document.getElementById('lote-sim-errors');
+            if (errores.length === 0) {
+                if (errDiv) errDiv.remove();
+                return true;
+            }
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'lote-sim-errors';
+                errDiv.className = 'mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-400 text-amber-800 dark:text-amber-300 text-xs font-semibold space-y-1';
+                btnAceptar.closest('div').parentElement.insertBefore(errDiv, btnAceptar.closest('div'));
+            }
+            errDiv.innerHTML = errores.map(function(e){ return '<p>' + e + '</p>'; }).join('');
+            errDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            return false;
         }
 
         function openModal() {
@@ -378,7 +435,9 @@
         }
 
         function generateAmortizationModal() {
-            const { precio, entrada, plazo } = getParsedValues();
+            const { precio, entrada, plazo, errores } = getParsedValues();
+            if (!showValidationErrors(errores) || precio <= 0) return;
+
             const saldoFinanciar = Math.max(0, precio - entrada);
             const cuotaMensual = plazo > 0 ? (saldoFinanciar / plazo) : 0;
             const entradaPct = precio > 0 ? Math.round((entrada / precio) * 100) : 0;

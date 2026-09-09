@@ -79,6 +79,14 @@
             background-size: 24px 24px;
         }
     </style>
+    <style>
+        /* Impresión limpia: ocultar UI excepto el modal activo */
+        @media print {
+            #wa-widget-container, header, footer, .sticky,
+            nav, #mobile-drawer, [aria-label="Abrir Menú"] { display: none !important; }
+            body { background: white !important; color: black !important; font-size: 12px; }
+        }
+    </style>
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -317,7 +325,7 @@
                 </div>
             </div>
             <div class="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-slate-400 text-xs">© {{ request.current_year|default:"2026" }} Ugsha Inmobiliaria. Todos los derechos reservados.</p>
+                <p class="text-slate-400 text-xs">&copy; {% now "Y" %} Ugsha Inmobiliaria. Todos los derechos reservados.</p>
                 <div class="flex gap-6">
                     <a class="text-slate-400 hover:text-primary text-xs transition-colors" href="#">Política de Privacidad</a>
                     <a class="text-slate-400 hover:text-primary text-xs transition-colors" href="#">Términos de Servicio</a>
