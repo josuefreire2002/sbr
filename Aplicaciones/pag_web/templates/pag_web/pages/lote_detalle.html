@@ -258,11 +258,11 @@
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
                                     <tr class="bg-slate-950 text-slate-300 uppercase tracking-wider font-extrabold border-b border-slate-800 sticky top-0">
-                                        <th class="p-3 text-center">N° Cuota</th>
+                                        <th class="p-3 text-center">N°</th>
                                         <th class="p-3">Fecha de Pago</th>
-                                        <th class="p-3">Saldo Inicial</th>
+                                        <th class="p-3 hidden sm:table-cell">Saldo Inicial</th>
                                         <th class="p-3 text-emerald-400">Abono Capital</th>
-                                        <th class="p-3 text-slate-400">Interés (0%)</th>
+                                        <th class="p-3 text-slate-400 hidden sm:table-cell">Interés (0%)</th>
                                         <th class="p-3 text-gold-accent font-bold">Cuota Total</th>
                                         <th class="p-3">Saldo Restante</th>
                                     </tr>
@@ -275,6 +275,10 @@
                                 </tfoot>
                             </table>
                         </div>
+                        <p class="text-[11px] text-slate-400 sm:hidden mt-2 text-center flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">swipe</span>
+                            <span>Desliza horizontalmente para ver el desglose completo</span>
+                        </p>
                     </div>
 
                     <!-- Modal Footer -->
@@ -487,9 +491,9 @@
                     tr.innerHTML = `
                         <td class="p-3 text-center text-slate-400 font-bold font-mono">${i}</td>
                         <td class="p-3 text-slate-200 font-sans">${fechaStr}</td>
-                        <td class="p-3 text-slate-300 font-mono">${moneyFormatter.format(saldo)}</td>
+                        <td class="p-3 text-slate-300 font-mono hidden sm:table-cell">${moneyFormatter.format(saldo)}</td>
                         <td class="p-3 text-emerald-400 font-bold font-mono">${moneyFormatter.format(capital)}</td>
-                        <td class="p-3 text-slate-400 font-mono">$0.00</td>
+                        <td class="p-3 text-slate-400 font-mono hidden sm:table-cell">$0.00</td>
                         <td class="p-3 text-gold-accent font-bold font-mono">${moneyFormatter.format(capital)}</td>
                         <td class="p-3 text-slate-300 font-mono">${moneyFormatter.format(saldoFinal)}</td>
                     `;
@@ -502,9 +506,9 @@
                         <tr class="text-white border-t-2 border-slate-700 bg-slate-950">
                             <td class="p-3 text-center font-bold font-sans uppercase text-slate-400">Total</td>
                             <td class="p-3 font-sans text-slate-400">${plazo} pagos mensuales</td>
-                            <td class="p-3 text-slate-300 font-mono">${moneyFormatter.format(saldoFinanciar)}</td>
+                            <td class="p-3 text-slate-300 font-mono hidden sm:table-cell">${moneyFormatter.format(saldoFinanciar)}</td>
                             <td class="p-3 text-emerald-400 font-bold font-mono">${moneyFormatter.format(totalAbonado)}</td>
-                            <td class="p-3 text-slate-400 font-mono">$0.00</td>
+                            <td class="p-3 text-slate-400 font-mono hidden sm:table-cell">$0.00</td>
                             <td class="p-3 text-gold-accent font-bold font-mono">${moneyFormatter.format(totalAbonado)}</td>
                             <td class="p-3 text-emerald-400 font-bold font-mono">$0.00</td>
                         </tr>

@@ -39,24 +39,24 @@
 <section class="py-16 px-4 md:px-10 bg-slate-50 dark:bg-slate-950 transition-colors bg-grid-subtle">
     <div class="max-w-[1280px] mx-auto">
         
-        <!-- Filter & Inventory Control Bar -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mr-2">Filtros Activos:</span>
-                <span class="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-md cursor-pointer hover:bg-primary-light transition-all flex items-center gap-1.5">
+        <!-- Filter & Inventory Control Bar (Deslizable táctil en mobile) -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-slate-800">
+            <div class="w-full sm:w-auto flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap mr-1">Filtros:</span>
+                <span class="px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-bold shadow-sm whitespace-nowrap flex items-center gap-1.5 cursor-pointer">
                     <span class="material-symbols-outlined text-[14px]">check_circle</span>
                     Todos los Terrenos
                 </span>
-                <span class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 hover:border-gold-accent/50 hover:text-gold-accent shadow-sm cursor-pointer transition-all">
+                <span class="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 whitespace-nowrap shadow-sm cursor-pointer hover:text-gold-accent hover:border-gold-accent/50 transition-all">
                     Crédito Directo 0%
                 </span>
-                <span class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 hover:border-gold-accent/50 hover:text-gold-accent shadow-sm cursor-pointer transition-all">
+                <span class="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 whitespace-nowrap shadow-sm cursor-pointer hover:text-gold-accent hover:border-gold-accent/50 transition-all">
                     Escrituración Inmediata
                 </span>
             </div>
-            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-semibold bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-semibold bg-white dark:bg-slate-800 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm whitespace-nowrap">
                 <span class="material-symbols-outlined text-[16px] text-emerald-500">verified</span>
-                <span>Inventario verificado: <strong class="text-slate-900 dark:text-white">{{ lotes|length }} lote(s) en línea</strong></span>
+                <span>Inventario: <strong class="text-slate-900 dark:text-white">{{ lotes|length }} lote(s) en línea</strong></span>
             </div>
         </div>
 
@@ -64,13 +64,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for lote in lotes %}
             <!-- Dynamic Real Lot Card -->
-            <div class="group relative bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-200/80 dark:border-slate-700/80 hover:border-gold-accent/60 hover:-translate-y-2 flex flex-col">
+            <div class="group relative bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-200/80 dark:border-slate-700/80 hover:border-gold-accent/60 hover:-translate-y-2 flex flex-col h-full">
                 <div class="relative aspect-[4/3] overflow-hidden bg-slate-200 dark:bg-slate-700">
                     {% if lote.foto_lista %}
                     <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                         src="{{ lote.foto_lista.url }}" alt="Lote {{ lote.numero_lote }}" />
                     {% else %}
-                    <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-100 dark:bg-slate-800">
+                    <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 animate-pulse">
                         <span class="material-symbols-outlined text-6xl group-hover:scale-110 transition-transform text-slate-300">landscape</span>
                         <span class="text-xs font-semibold mt-2 uppercase tracking-wider text-slate-400">Foto en preparación</span>
                     </div>
@@ -113,7 +113,7 @@
                     </div>
 
                     <a href="{% url 'pag_web:lote_detalle' lote.id %}"
-                       class="w-full py-3.5 rounded-2xl border-2 border-primary/20 hover:border-transparent text-primary hover:text-white bg-slate-50 hover:bg-gradient-to-r hover:from-primary hover:to-primary-light dark:bg-slate-700/40 dark:hover:bg-primary font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm hover:shadow-lg">
+                       class="w-full mt-auto py-3.5 rounded-2xl border-2 border-primary/20 hover:border-transparent text-primary hover:text-white bg-slate-50 hover:bg-gradient-to-r hover:from-primary hover:to-primary-light dark:bg-slate-700/40 dark:hover:bg-primary font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm hover:shadow-lg active:scale-95">
                         <span>Ver Ficha & Simular Cuotas</span>
                         <span class="material-symbols-outlined text-[18px] group-hover/btn:translate-x-1.5 transition-transform duration-300">arrow_forward</span>
                     </a>

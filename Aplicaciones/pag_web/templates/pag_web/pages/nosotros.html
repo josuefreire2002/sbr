@@ -1,386 +1,207 @@
-<!DOCTYPE html>
+{% extends 'pag_web/base_web.html' %}
+{% load static %}
+{% load humanize %}
 
-<html class="light" lang="es">
+{% block title %}Nosotros - Ugsha Inmobiliaria{% endblock %}
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Nosotros - Inmobiliarias Ugsha</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link rel="icon" type="image/png" href="{% static 'img/logo_ugsha.png' %}">
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#1173d4",
-                        "primary-dark": "#0e5ea8",
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#101922",
-                        "surface-light": "#ffffff",
-                        "surface-dark": "#152028",
-                        "text-main": "#0d141b",
-                        "text-muted": "#4b5563",
-                    },
-                    fontFamily: {
-                        "display": ["Manrope", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
-    <style>
-        body {
-            font-family: "Manrope", sans-serif;
-        }
+{% block content %}
+<div class="relative w-full overflow-hidden">
+    <!-- Header Banner with Breadcrumbs -->
+    <section class="relative bg-slate-950 text-white pt-20 pb-16 px-4 md:px-10 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-primary/70 to-slate-950 opacity-95"></div>
+        <div class="absolute inset-0 bg-grid-subtle opacity-30"></div>
+        <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-gold-accent/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        /* Subtle texture using primary blue */
-        .bg-texture {
-            background-color: #f6f7f8;
-            background-image: radial-gradient(#1173d4 0.5px, transparent 0.5px), radial-gradient(#1173d4 0.5px, #f6f7f8 0.5px);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
-            opacity: 1;
-        }
-
-        .bg-gradient-premium {
-            background: linear-gradient(135deg, rgba(246, 247, 248, 1) 0%, rgba(221, 235, 247, 0.5) 100%);
-        }
-    </style>
-</head>
-
-<body
-    class="bg-background-light dark:bg-background-dark text-text-main dark:text-white antialiased selection:bg-primary selection:text-white">
-    <div class="flex min-h-screen w-full flex-col overflow-x-hidden">
-        <!-- Navigation -->
-        <header
-            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7f4eb] dark:border-b-surface-dark px-10 py-4 bg-surface-light dark:bg-background-dark sticky top-0 z-50">
-            <div class="flex items-center gap-4 text-[#0d1c12] dark:text-white">
-                <div class="size-8 text-primary">
-                    <span class="material-symbols-outlined text-3xl">landscape</span>
-                </div>
-                <h2 class="text-[#0d1c12] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">
-                    Inmobiliarias Ugsha</h2>
+        <div class="relative max-w-[1280px] mx-auto z-10 text-center md:text-left">
+            <div class="inline-flex items-center gap-2 py-1 px-3.5 rounded-full bg-gold-accent/20 text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-4 border border-gold-accent/30 shadow-sm">
+                <span class="material-symbols-outlined text-[15px]">verified</span>
+                Trayectoria Inmobiliaria en Pujilí
             </div>
-            <div class="flex flex-1 justify-end gap-8 hidden md:flex">
-                <div class="flex items-center gap-9">
-                    <a class="text-[#0d1c12] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
-                        href="#">Inicio</a>
-                    <a class="text-[#0d1c12] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
-                        href="#">Catálogo</a>
-                    <a class="text-primary text-sm font-bold leading-normal" href="#">Nosotros</a>
-                    <a class="text-[#0d1c12] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
-                        href="#">Contacto</a>
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif font-bold mb-4 leading-tight">
+                Nuestra <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-gold-accent to-yellow-400">Historia & Misión</span>
+            </h1>
+            <p class="text-slate-300 text-base sm:text-lg max-w-2xl font-light leading-relaxed">
+                Más de 15 años brindando seguridad jurídica, escrituración inmediata y financiamiento directo sin bancos para que cada familia construya su patrimonio.
+            </p>
+
+            <!-- Breadcrumbs -->
+            <nav class="flex justify-center md:justify-start text-xs font-semibold text-slate-400 mt-6">
+                <ol class="flex items-center space-x-2 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-800">
+                    <li><a href="{% url 'pag_web:index' %}" class="hover:text-gold-accent transition-colors">Inicio</a></li>
+                    <li><span class="text-slate-600">/</span></li>
+                    <li class="text-white">Sobre Nosotros</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Founder & Story Section -->
+    <section class="py-20 px-4 md:px-10 bg-white dark:bg-slate-950 transition-colors">
+        <div class="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <!-- Image Container -->
+            <div class="relative group max-w-md mx-auto lg:mx-0 w-full">
+                <div class="absolute -inset-4 rounded-3xl bg-gold-accent/20 opacity-50 blur-xl transition-all group-hover:opacity-75 duration-500"></div>
+                <div class="relative aspect-[3/4] w-full overflow-hidden rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-slate-200">
+                    <img alt="Guillermo Ugsha, Fundador de Ugsha Inmobiliaria"
+                         class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuAo2JsjleWqZLMRbsm1xobTL-u7ZQO7e0MDZAbDpVwPSGYTZOVNNpBL8MY05ptwDiDTHWyjvs6xUF_eQ8LA3XnrAaZxYws2eK4F_hAmqa4hktLxnmJImNkOAtYqwRHAZyzx2MU2ZfGxYIrdjWgl0fYc-cGk3w1U8o3PR5NtAwYKVLMLxYO5bSwu1KqBqifCJX5Hmd7xjxN-D6g9ZZ2Id3ZJGhJV6egmWBgsgI0X8L2ZV9oj5dL24RNlgIoAHk3-G_CZ0Frk7Uw2q6Y" />
                 </div>
-                <button
-                    class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-6 bg-primary hover:bg-primary-dark transition-colors text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                    <span class="truncate">Ver Lotes</span>
-                </button>
-            </div>
-            <div class="md:hidden text-text-main dark:text-white">
-                <span class="material-symbols-outlined">menu</span>
-            </div>
-        </header>
-        <!-- Hero Section: Owner & Bio -->
-        <section
-            class="relative w-full py-16 md:py-24 px-6 md:px-20 lg:px-40 bg-gradient-premium dark:bg-none dark:bg-background-dark">
-            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <!-- Image Container -->
-                <div class="relative group">
-                    <div
-                        class="absolute -inset-4 rounded-xl bg-primary/20 opacity-50 blur-lg transition-all group-hover:opacity-75 duration-500">
-                    </div>
-                    <div
-                        class="relative aspect-[3/4] w-full max-w-md mx-auto lg:mx-0 overflow-hidden rounded-xl shadow-2xl">
-                        <img alt="Portrait of the company owner, a professional man in a suit standing confidently"
-                            class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            data-alt="Professional portrait of a business owner in a suit"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAo2JsjleWqZLMRbsm1xobTL-u7ZQO7e0MDZAbDpVwPSGYTZOVNNpBL8MY05ptwDiDTHWyjvs6xUF_eQ8LA3XnrAaZxYws2eK4F_hAmqa4hktLxnmJImNkOAtYqwRHAZyzx2MU2ZfGxYIrdjWgl0fYc-cGk3w1U8o3PR5NtAwYKVLMLxYO5bSwu1KqBqifCJX5Hmd7xjxN-D6g9ZZ2Id3ZJGhJV6egmWBgsgI0X8L2ZV9oj5dL24RNlgIoAHk3-G_CZ0Frk7Uw2q6Y" />
-                    </div>
-                    <!-- Name Tag Float -->
-                    <div
-                        class="absolute bottom-8 -right-4 lg:-right-8 bg-white dark:bg-surface-dark p-4 rounded-lg shadow-xl border-l-4 border-primary max-w-[200px]">
-                        <p class="text-xs text-text-muted dark:text-gray-400 font-medium uppercase tracking-wider">
-                            Fundador</p>
-                        <p class="text-lg font-bold text-text-main dark:text-white">Guillermo Ugsha</p>
-                    </div>
+                <!-- Name Tag Float -->
+                <div class="absolute bottom-6 right-2 sm:-right-4 bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 border-l-4 border-l-gold-accent max-w-[220px]">
+                    <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Fundador</p>
+                    <p class="text-base sm:text-lg font-serif font-bold text-slate-900 dark:text-white">Guillermo Ugsha</p>
+                    <span class="text-[11px] text-gold-accent font-semibold flex items-center gap-1 mt-0.5">
+                        <span class="material-symbols-outlined text-[13px]">verified</span>
+                        15+ Años de Experiencia
+                    </span>
                 </div>
-                <!-- Content Container -->
-                <div class="flex flex-col gap-8">
-                    <div class="space-y-4">
-                        <span
-                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-bold uppercase tracking-wider w-fit">
-                            <span class="material-symbols-outlined text-base">verified</span>
-                            Sobre Nosotros
-                        </span>
-                        <h1
-                            class="text-4xl md:text-5xl lg:text-6xl font-black text-text-main dark:text-white leading-[1.1] tracking-tight">
-                            Conoce a la persona detrás de tu <span class="text-primary relative inline-block">futuro
-                                hogar
-                                <svg class="absolute w-full h-3 -bottom-1 left-0 text-primary/20"
-                                    preserveaspectratio="none" viewbox="0 0 100 10">
-                                    <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" stroke-width="8">
-                                    </path>
-                                </svg>
-                            </span>
-                        </h1>
-                    </div>
-                    <div class="relative pl-6 border-l-2 border-primary/30">
-                        <p
-                            class="text-xl md:text-2xl text-text-muted dark:text-gray-300 font-light italic leading-relaxed">
-                            "No solo vendemos terrenos; vendemos la base para tu legado, con la confianza y experiencia
-                            local que mereces."
+            </div>
+
+            <!-- Content Container -->
+            <div class="flex flex-col gap-6">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-primary/10 text-primary dark:text-gold-accent text-xs font-bold uppercase tracking-wider mb-3">
+                        <span class="material-symbols-outlined text-sm">handshake</span>
+                        Compromiso Familiar
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-slate-900 dark:text-white leading-tight">
+                        La confianza detrás de su <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-gold-accent to-yellow-500">futuro patrimonio</span>
+                    </h2>
+                </div>
+
+                <div class="relative pl-6 border-l-2 border-gold-accent">
+                    <p class="text-lg sm:text-xl text-slate-700 dark:text-slate-300 font-light italic leading-relaxed">
+                        "No solo comercializamos terrenos; entregamos la base legal y física donde las familias ecuatorianas edifican el legado para sus hijos."
+                    </p>
+                </div>
+
+                <div class="space-y-4 text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+                    <p>
+                        Hola, soy Guillermo Ugsha. Fundé esta empresa con un propósito claro: hacer que la compra de un terreno sea un proceso justo, transparente y accesible para cualquier persona trabajadora, sin trámites bancarios engorrosos ni sorpresas ocultas.
+                    </p>
+                    <p>
+                        Nacido y crecido en Cotopaxi, conozco cada rincón de Pujilí y su potencial de crecimiento. Hemos acompañado a más de 450 familias a convertir su sueño de casa propia en una realidad legalmente garantizada con escrituras individuales registradas.
+                    </p>
+                </div>
+
+                <!-- Signature & Direct WA button -->
+                <div class="pt-4 flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 dark:border-slate-800">
+                    <img alt="Firma Guillermo Ugsha" class="h-10 opacity-70 dark:invert"
+                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAHRcCVcNFR-tFO4EXi7k7wNNwwuKKxnIrhqNfV8AgLo_IVdEVMMbXBKvXf5buFb_FMVgUPXqLbmWn4YZ5_nUdTj77Y5HkNB44Gynub0jHC9f4PDGoozVnUUHYX4JU9hQ0lWwsuSBU5dhsWYHIwERRmz8dPJx-UvD4hDvdPWInpMfEtL5zFjCiNOpfQjlr_IGHUf0oBDOvDduhJENZSbW71OzgXpOKBKd_8FWsnTpGiH2h9UNRGMwNrf1D-raSTtE_tKydueJRcUY" />
+                    <a href="https://wa.me/593998205377?text=Hola%20don%20Guillermo,%20quisiera%20asesoría%20personalizada%20sobre%20un%20lote."
+                       target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-[16px]">chat</span>
+                        <span>Conversar con Don Guillermo</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Strip Section -->
+    <section class="bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 py-12 px-4 md:px-10">
+        <div class="max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-gold-accent/15 text-gold-accent flex items-center justify-center">
+                    <span class="material-symbols-outlined text-3xl">calendar_month</span>
+                </div>
+                <div class="text-left">
+                    <p class="text-3xl lg:text-4xl font-serif font-black text-slate-900 dark:text-white">15+</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Años de Trayectoria</p>
+                </div>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-3xl">real_estate_agent</span>
+                </div>
+                <div class="text-left">
+                    <p class="text-3xl lg:text-4xl font-serif font-black text-slate-900 dark:text-white">500+</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Lotes Entregados</p>
+                </div>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-3xl">family_restroom</span>
+                </div>
+                <div class="text-left">
+                    <p class="text-3xl lg:text-4xl font-serif font-black text-slate-900 dark:text-white">450+</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Familias Beneficiadas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Vision Section -->
+    <section class="py-20 px-4 md:px-10 bg-white dark:bg-slate-950 transition-colors">
+        <div class="max-w-[1280px] mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-gold-accent">Nuestros Pilares</span>
+                <h2 class="text-3xl sm:text-4xl font-serif font-bold text-slate-900 dark:text-white mt-1">
+                    Filosofía & Valores que nos Guían
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 mt-3 text-sm sm:text-base font-light">
+                    En Ugsha Inmobiliaria, la palabra y el compromiso notarial son el fundamento de cada apretón de manos.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+                <!-- Mission Card -->
+                <div class="group p-8 sm:p-10 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-gold-accent/60 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-primary/10 dark:bg-slate-800 text-primary dark:text-gold-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-3xl">handshake</span>
+                        </div>
+                        <h3 class="text-2xl font-serif font-bold text-slate-900 dark:text-white mb-3">Nuestra Misión</h3>
+                        <div class="h-1 w-12 bg-gold-accent rounded-full mb-4"></div>
+                        <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+                            Brindar oportunidades de propiedad accesibles y legalmente blindadas para cada familia en Pujilí y sus alrededores. Simplificamos el acceso a la tierra con financiamiento directo, sin bancos y con total transparencia jurídica.
                         </p>
                     </div>
-                    <div class="prose prose-lg text-text-muted dark:text-gray-400 leading-relaxed">
-                        <p>
-                            Hola, soy Guillermo. Fundé Inmobiliarias Ugsha con una creencia simple: cada familia merece
-                            un
-                            pedazo de tierra al que llamar suyo, sin complicaciones legales ni sorpresas ocultas.
-                        </p>
-                        <p class="mt-4">
-                            Nacido y criado en esta región, he visto cómo nuestra comunidad ha crecido. Con más de 15
-                            años de experiencia en el sector inmobiliario, mi compromiso es guiarte con transparencia y
-                            honestidad en una de las inversiones más importantes de tu vida.
-                        </p>
-                    </div>
-                    <div class="pt-4">
-                        <img alt="Signature of the owner" class="h-12 opacity-60 dark:invert"
-                            data-alt="Handwritten signature scan"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAHRcCVcNFR-tFO4EXi7k7wNNwwuKKxnIrhqNfV8AgLo_IVdEVMMbXBKvXf5buFb_FMVgUPXqLbmWn4YZ5_nUdTj77Y5HkNB44Gynub0jHC9f4PDGoozVnUUHYX4JU9hQ0lWwsuSBU5dhsWYHIwERRmz8dPJx-UvD4hDvdPWInpMfEtL5zFjCiNOpfQjlr_IGHUf0oBDOvDduhJENZSbW71OzgXpOKBKd_8FWsnTpGiH2h9UNRGMwNrf1D-raSTtE_tKydueJRcUY" />
-                    </div>
                 </div>
-            </div>
-        </section>
-        <!-- Stats Section -->
-        <div class="w-full bg-surface-light dark:bg-surface-dark border-y border-[#e7f4eb] dark:border-gray-800">
-            <div class="max-w-7xl mx-auto px-6 py-12">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div
-                        class="flex items-center justify-center md:justify-start gap-4 p-4 rounded-lg hover:bg-background-light dark:hover:bg-background-dark transition-colors group">
-                        <div
-                            class="p-3 bg-primary/10 rounded-full text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                            <span class="material-symbols-outlined text-3xl">calendar_month</span>
+
+                <!-- Vision Card -->
+                <div class="group p-8 sm:p-10 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-gold-accent/60 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-primary/10 dark:bg-slate-800 text-primary dark:text-gold-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-3xl">visibility</span>
                         </div>
-                        <div>
-                            <p class="text-3xl font-bold text-text-main dark:text-white">15+</p>
-                            <p class="text-sm text-text-muted dark:text-gray-400 font-medium">Años de Experiencia</p>
-                        </div>
-                    </div>
-                    <div
-                        class="flex items-center justify-center md:justify-start gap-4 p-4 rounded-lg hover:bg-background-light dark:hover:bg-background-dark transition-colors group">
-                        <div
-                            class="p-3 bg-primary/10 rounded-full text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                            <span class="material-symbols-outlined text-3xl">real_estate_agent</span>
-                        </div>
-                        <div>
-                            <p class="text-3xl font-bold text-text-main dark:text-white">500+</p>
-                            <p class="text-sm text-text-muted dark:text-gray-400 font-medium">Lotes Vendidos</p>
-                        </div>
-                    </div>
-                    <div
-                        class="flex items-center justify-center md:justify-start gap-4 p-4 rounded-lg hover:bg-background-light dark:hover:bg-background-dark transition-colors group">
-                        <div
-                            class="p-3 bg-primary/10 rounded-full text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                            <span class="material-symbols-outlined text-3xl">sentiment_satisfied</span>
-                        </div>
-                        <div>
-                            <p class="text-3xl font-bold text-text-main dark:text-white">450+</p>
-                            <p class="text-sm text-text-muted dark:text-gray-400 font-medium">Familias Felices</p>
-                        </div>
+                        <h3 class="text-2xl font-serif font-bold text-slate-900 dark:text-white mb-3">Nuestra Visión</h3>
+                        <div class="h-1 w-12 bg-gold-accent rounded-full mb-4"></div>
+                        <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+                            Ser la empresa inmobiliaria de referencia en el centro del país, reconocida no solo por la plusvalía de nuestros desarrollos, sino por nuestra cercanía humana y la solidez de nuestras comunidades urbanizadas.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Mission & Vision Section -->
-        <section class="py-20 px-6 md:px-20 lg:px-40 bg-white dark:bg-background-dark relative overflow-hidden">
-            <!-- Decorative Background Pattern -->
-            <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
-                style="background-image: radial-gradient(#1173d4 1px, transparent 1px); background-size: 32px 32px;">
-            </div>
-            <div class="max-w-7xl mx-auto flex flex-col gap-16 relative z-10">
-                <div class="text-center max-w-3xl mx-auto">
-                    <h2 class="text-3xl md:text-4xl font-black text-text-main dark:text-white mb-6">Nuestra Filosofía
-                    </h2>
-                    <p class="text-lg text-text-muted dark:text-gray-400">
-                        En Inmobiliarias Ugsha, creemos que la tierra es más que una propiedad; es el escenario donde
-                        suceden los mejores momentos de la vida.
-                    </p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-                    <!-- Mission Card -->
-                    <div
-                        class="group flex flex-col gap-6 p-8 md:p-10 rounded-2xl bg-[#f8fcf9] dark:bg-surface-dark border border-[#e7f4eb] dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="size-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                            <span class="material-symbols-outlined text-4xl">handshake</span>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-text-main dark:text-white mb-3">Nuestra Misión</h3>
-                            <div class="h-1 w-12 bg-primary rounded-full mb-4"></div>
-                            <p class="text-text-muted dark:text-gray-300 leading-relaxed">
-                                Brindar oportunidades de propiedad de tierra accesibles y legalmente seguras para cada
-                                familia en nuestra región. Nos esforzamos por simplificar el proceso de compra,
-                                eliminando barreras y construyendo relaciones duraderas basadas en la integridad.
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Vision Card -->
-                    <div
-                        class="group flex flex-col gap-6 p-8 md:p-10 rounded-2xl bg-[#f8fcf9] dark:bg-surface-dark border border-[#e7f4eb] dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="size-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                            <span class="material-symbols-outlined text-4xl">visibility</span>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-text-main dark:text-white mb-3">Nuestra Visión</h3>
-                            <div class="h-1 w-12 bg-primary rounded-full mb-4"></div>
-                            <p class="text-text-muted dark:text-gray-300 leading-relaxed">
-                                Ser el socio más confiable en el desarrollo inmobiliario de la zona, reconocidos no solo
-                                por la calidad de nuestros lotes, sino por nuestra capacidad de transformar sueños
-                                abstractos en realidades tangibles y comunidades prósperas.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Image Break / Gallery Strip -->
-        <section class="w-full h-64 md:h-80 grid grid-cols-2 md:grid-cols-4 gap-1 p-1 bg-white dark:bg-background-dark">
-            <div class="relative overflow-hidden group">
-                <img alt="Green open field landscape"
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    data-alt="Expansive green field under blue sky"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtWj6DckNSNLV-OdldVQYiGh4DxEZaGkDyZ_4-dpjhFSdA8aLCMuor9HL9DHhRU9U0QFFNyK23Fc3fqgawQOj71tHgQX1azQyTRycByZwKZUwzdSbgwRRIYoYgjgj5XEuL3K6eygTInrHN550AUoUdc9_CNs5GzsUvXhg1Sctkn17Js7gJjrAXr9ZrYVcXBOhSi3bKmsFR2-XBOLHV3mEZrh77ekXxn-SVIvDwpDY0Rzs18KFl6q_aeQwtPKo_8olETBK7BUZSy68" />
-            </div>
-            <div class="relative overflow-hidden group">
-                <img alt="Surveying equipment on land"
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    data-alt="Land surveying tripod on a plot"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0BfiBcH2JjaJKMUgK2Ld70ygo4C-xHO4jcaDw5af0qKoVqddhL513mYNGHQBz_y5oK3hG-i9n12DUXOzCeKQ0ya7NBy_nx_6CbrRP_pNk7eP_Pu5sH7zpy7eatzxCDBhU9WKYgXrK2sgUHUm7BYGHFa0FRV9-pRK7AB_TSY3-TEzoJh3iI5_G8kbyqrzo3a3zNcqArGsUjsTZZTtkZbDAhmHzFDjGFgbnL6em6C7ADiP9YQmXfuiOxi6kMdZ9j5xjCeUmBluI2x8" />
-            </div>
-            <div class="relative overflow-hidden group">
-                <img alt="Aerial view of land plots"
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    data-alt="Drone view of divided land lots"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBCYThMCj2MGvfC1yHVLbp406eKT7nl3CBBWE2OSBjYgOXeWSjuIPA09KRLgYkhP5WlB-zP9qkddUbu4beRgWXchnpOjCTaRM_PHOL8PhPpD6PyOebzGnFjjTBbfWLmlyWGn_FKHzSIBqZCi5c_Czpo1hSMjZVI3Or1dne8EwrFtgx-F2otGp9vqJ8jCQkaOCK4WocTeLeAIciaOIao2ykNaNO4ghTHiK-Ek_wPf6MhjuvBJUtg2Ox4yFY1EZ50q-39mOBSB_Sfco" />
-            </div>
-            <div class="relative overflow-hidden group">
-                <img alt="Forest and nature landscape"
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    data-alt="Dense green forest landscape"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC11-_Nx125cciMX8jnXQ-rVSWd72AmtYF1atcz3SiMmk5z7cduWpmPh_V7mK1-pM53Ak7QRI-6gVIhQN5uxVSHAX2FISu6-sqvc-QzeoIfmMVULBue4cdzffwYbR1QAu8wl-JG2Hdzb3rPr7mm8JTMaqGCLyC7qUFPeAOwMRmrudF7Ft4wdEOkh9iRjwdSOM8uXpJH_r1jh6VbQ6c54U72QVBK6Zxg0xohcIVMT4YLtQBgBE72E8Jn-2ySULuWFadaZJIoNbIaWEw" />
-            </div>
-        </section>
-        <!-- CTA Section -->
-        <section class="py-20 px-6 bg-[#101922] relative overflow-hidden">
-            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
-            </div>
-            <!-- Green glow effect -->
-            <div
-                class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none">
-            </div>
-            <div class="max-w-4xl mx-auto text-center relative z-10">
-                <h2 class="text-3xl md:text-5xl font-black text-white mb-6 tracking-tight">
-                    ¿Listo para encontrar tu terreno ideal?
-                </h2>
-                <p class="text-lg md:text-xl text-gray-300 mb-10 font-light max-w-2xl mx-auto">
-                    Explora nuestro catálogo exclusivo de lotes y da el primer paso hacia la construcción de tu futuro.
-                    Asesoría gratuita garantizada.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button
-                        class="flex min-w-[200px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-primary hover:bg-white hover:text-primary transition-all duration-300 text-white text-base font-bold shadow-lg shadow-primary/30">
-                        Ver Catálogo de Lotes
-                    </button>
-                    <button
-                        class="flex min-w-[200px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-transparent border-2 border-white/20 hover:border-primary hover:text-primary hover:bg-white/5 transition-all duration-300 text-white text-base font-bold">
-                        Contáctanos
-                    </button>
-                </div>
-            </div>
-        </section>
-        <!-- Footer -->
-        <footer
-            class="bg-surface-light dark:bg-background-dark border-t border-[#e7f4eb] dark:border-gray-800 pt-16 pb-8 px-10">
-            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <div class="col-span-1 md:col-span-1 flex flex-col gap-4">
-                    <div class="flex items-center gap-2 text-[#0d1c12] dark:text-white">
-                        <div class="size-6 text-primary">
-                            <span class="material-symbols-outlined text-2xl">landscape</span>
-                        </div>
-                        <h2 class="text-lg font-bold">Inmobiliarias Ugsha</h2>
-                    </div>
-                    <p class="text-text-muted dark:text-gray-400 text-sm leading-relaxed">
-                        Construyendo confianza y futuro en cada metro cuadrado. Tu aliado local en bienes raíces.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-text-main dark:text-white font-bold mb-4">Empresa</h3>
-                    <ul class="flex flex-col gap-3 text-sm text-text-muted dark:text-gray-400">
-                        <li><a class="hover:text-primary transition-colors" href="#">Nosotros</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Nuestro Equipo</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Carreras</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Prensa</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-text-main dark:text-white font-bold mb-4">Lotes</h3>
-                    <ul class="flex flex-col gap-3 text-sm text-text-muted dark:text-gray-400">
-                        <li><a class="hover:text-primary transition-colors" href="#">Residenciales</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Comerciales</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Industriales</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Ofertas Especiales</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-text-main dark:text-white font-bold mb-4">Contacto</h3>
-                    <ul class="flex flex-col gap-3 text-sm text-text-muted dark:text-gray-400">
-                        <li class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary text-lg">location_on</span>
-                            Pujilí, Cotopaxi - Ecuador
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary text-lg">phone</span>
-                            <a href="tel:+593998205377" class="hover:text-primary transition-colors">0998205377</a>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary text-lg">mail</span>
-                            info@ugshainmobiliarios.com
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div
-                class="border-t border-[#e7f4eb] dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-sm text-text-muted dark:text-gray-500">
-                    © 2023 Inmobiliarias Ugsha. Todos los derechos reservados.
-                </p>
-                <div class="flex gap-6 text-text-muted dark:text-gray-500">
-                    <a class="hover:text-primary transition-colors" href="#"><span
-                            class="material-symbols-outlined">public</span></a> <!-- Generic social icon placeholder -->
-                    <a class="hover:text-primary transition-colors" href="#"><span
-                            class="material-symbols-outlined">thumb_up</span></a>
-                    <a class="hover:text-primary transition-colors" href="#"><span
-                            class="material-symbols-outlined">photo_camera</span></a>
-                </div>
-            </div>
-        </footer>
-    </div>
-</body>
+    </section>
 
-</html>
+    <!-- CTA Section -->
+    <section class="py-20 px-4 md:px-10 bg-slate-950 text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/80 via-slate-950 to-slate-950 opacity-90"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif font-bold mb-4 leading-tight">
+                ¿Listo para encontrar su terreno en Pujilí?
+            </h2>
+            <p class="text-slate-300 text-base sm:text-lg mb-8 max-w-2xl mx-auto font-light">
+                Explore nuestro catálogo en línea con fotos reales, precios y simulador de cuotas mensuales fijas.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'pag_web:lotes' %}"
+                   class="px-8 py-4 rounded-xl bg-gradient-to-r from-gold-accent via-amber-500 to-yellow-500 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-extrabold text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">domain</span>
+                    <span>Ver Catálogo de Lotes</span>
+                </a>
+                <a href="{% url 'pag_web:contacto' %}"
+                   class="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">support_agent</span>
+                    <span>Contactar a un Asesor</span>
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
