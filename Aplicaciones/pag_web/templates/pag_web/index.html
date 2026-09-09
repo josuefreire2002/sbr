@@ -854,43 +854,28 @@
                         </div>
                     </div>
 
-                    <!-- 2. Abono Inicial / Entrada (Slider + Input bidireccional) -->
+                    <!-- 2. Abono Inicial / Entrada (Solo a través de números) -->
                     <div class="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
                         <div class="flex justify-between items-center mb-2">
                             <label for="sim-entrada-input" class="text-xs font-extrabold uppercase tracking-wider text-[#0A1F44] dark:text-slate-300 flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-[18px] text-emerald-500">savings</span>
-                                2. Abono Inicial / Entrada
+                                2. Abono Inicial / Entrada ($ USD)
                             </label>
-                            <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400" id="sim-entrada-pct-badge">20% del valor</span>
+                            <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-500/30" id="sim-entrada-pct-badge">
+                                20% del valor
+                            </span>
                         </div>
 
-                        <!-- Slider Interactivo Dorado -->
-                        <div class="mb-3">
-                            <input type="range" id="sim-entrada-slider" min="0" max="60" step="5" value="20"
-                                   class="gold-slider w-full cursor-pointer" />
-                            <div class="flex justify-between text-[10px] font-bold text-slate-400 mt-1">
-                                <span>0% ($0)</span>
-                                <span>10%</span>
-                                <span>20% (Recomendado)</span>
-                                <span>30%</span>
-                                <span>50%+</span>
-                            </div>
-                        </div>
-
-                        <!-- Input Numérico de Entrada -->
+                        <!-- Input Numérico de Entrada Exclusivo -->
                         <div class="relative">
-                            <span class="absolute left-4 top-3 text-lg font-bold text-emerald-600 dark:text-emerald-400">$</span>
+                            <span class="absolute left-4 top-3 text-xl font-bold text-emerald-600 dark:text-emerald-400">$</span>
                             <input type="number" id="sim-entrada-input" min="0" step="100" value="3000"
-                                   class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-lg font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-gold-accent transition-all" />
+                                   class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl pl-10 pr-4 py-3 text-2xl font-serif font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                                   placeholder="Ej: 3000" />
                         </div>
-
-                        <!-- Botones Rápidos de Porcentaje -->
-                        <div class="flex gap-2 mt-2">
-                            <button type="button" class="btn-preset-pct text-xs font-extrabold py-1.5 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white transition-colors" data-pct="10">10%</button>
-                            <button type="button" class="btn-preset-pct text-xs font-extrabold py-1.5 px-3 rounded-lg bg-emerald-600 text-white transition-colors" data-pct="20">20%</button>
-                            <button type="button" class="btn-preset-pct text-xs font-extrabold py-1.5 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white transition-colors" data-pct="30">30%</button>
-                            <button type="button" class="btn-preset-pct text-xs font-extrabold py-1.5 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white transition-colors" data-pct="40">40%</button>
-                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1.5">
+                            * Ingrese el monto en dólares que desea dar de entrada (puede ser $0 para financiamiento completo).
+                        </p>
                     </div>
 
                     <!-- 3. Plazo en Meses / Años -->
@@ -1354,7 +1339,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
     const precioInput = document.getElementById('sim-precio-input');
     const entradaInput = document.getElementById('sim-entrada-input');
-    const entradaSlider = document.getElementById('sim-entrada-slider');
     const entradaPctBadge = document.getElementById('sim-entrada-pct-badge');
     const plazoInput = document.getElementById('sim-plazo-input');
     const plazoBtns = document.querySelectorAll('.btn-plazo');
@@ -1556,58 +1540,40 @@ document.addEventListener('DOMContentLoaded', function() {
         btnEnviarWa.href = `https://wa.me/593998205377?text=${encodeURIComponent(mensaje)}`;
     }
 
-    // Sincronización Slider y Entrada
-    entradaSlider.addEventListener('input', function() {
-        const pct = parseInt(this.value);
-        const precio = parseFloat(precioInput.value) || 0;
-        const entradaCalculada = Math.round(precio * (pct / 100));
-        entradaInput.value = entradaCalculada;
-        entradaPctBadge.textContent = `${pct}% del valor`;
-        calcularSimulacion();
-    });
-
+    // Entrada directa numérica para abono inicial
     entradaInput.addEventListener('input', function() {
         const entrada = parseFloat(this.value) || 0;
         const precio = parseFloat(precioInput.value) || 1;
         const pct = Math.min(100, Math.round((entrada / precio) * 100));
-        entradaSlider.value = pct;
-        entradaPctBadge.textContent = `${pct}% del valor`;
+        if (entradaPctBadge) {
+            entradaPctBadge.textContent = `${pct}% del valor`;
+        }
         calcularSimulacion();
     });
 
     precioInput.addEventListener('input', function() {
         const precio = parseFloat(this.value) || 0;
-        const pct = parseInt(entradaSlider.value) || 20;
-        entradaInput.value = Math.round(precio * (pct / 100));
+        const entrada = parseFloat(entradaInput.value) || 0;
+        const pct = precio > 0 ? Math.min(100, Math.round((entrada / precio) * 100)) : 0;
+        if (entradaPctBadge) {
+            entradaPctBadge.textContent = `${pct}% del valor`;
+        }
         calcularSimulacion();
     });
 
     // Presets de Precio
     document.querySelectorAll('.btn-preset-precio').forEach(btn => {
         btn.addEventListener('click', function() {
-            precioInput.value = this.getAttribute('data-val');
-            const pct = parseInt(entradaSlider.value) || 20;
-            entradaInput.value = Math.round(parseFloat(this.getAttribute('data-val')) * (pct / 100));
-            calcularSimulacion();
-        });
-    });
-
-    // Presets de Porcentaje
-    document.querySelectorAll('.btn-preset-pct').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const pct = parseInt(this.getAttribute('data-pct'));
-            entradaSlider.value = pct;
-            const precio = parseFloat(precioInput.value) || 0;
-            entradaInput.value = Math.round(precio * (pct / 100));
-            entradaPctBadge.textContent = `${pct}% del valor`;
-            
-            document.querySelectorAll('.btn-preset-pct').forEach(b => {
-                b.classList.remove('bg-emerald-600', 'text-white');
-                b.classList.add('bg-slate-100', 'dark:bg-slate-800');
-            });
-            this.classList.add('bg-emerald-600', 'text-white');
-            this.classList.remove('bg-slate-100', 'dark:bg-slate-800');
-
+            const nuevoPrecio = parseFloat(this.getAttribute('data-val')) || 15000;
+            precioInput.value = nuevoPrecio;
+            const entradaActual = parseFloat(entradaInput.value) || 0;
+            if (entradaActual === 0 || entradaActual > nuevoPrecio) {
+                entradaInput.value = Math.round(nuevoPrecio * 0.20);
+            }
+            const pct = nuevoPrecio > 0 ? Math.round(((parseFloat(entradaInput.value) || 0) / nuevoPrecio) * 100) : 0;
+            if (entradaPctBadge) {
+                entradaPctBadge.textContent = `${pct}% del valor`;
+            }
             calcularSimulacion();
         });
     });
@@ -1674,8 +1640,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Calcular 20% de entrada sugerida
         const entradaSugerida = Math.round(precio * 0.20);
         entradaInput.value = entradaSugerida;
-        entradaSlider.value = 20;
-        entradaPctBadge.textContent = '20% del valor';
+        if (entradaPctBadge) {
+            entradaPctBadge.textContent = '20% del valor';
+        }
 
         loteSeleccionadoActual = `Lote #${loteNum} ${manzana ? '(Mz. ' + manzana + ')' : ''}`;
 
