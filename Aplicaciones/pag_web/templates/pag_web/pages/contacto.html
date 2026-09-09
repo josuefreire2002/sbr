@@ -1,102 +1,10 @@
-<!DOCTYPE html>
+{% extends 'pag_web/base_web.html' %}
+{% load static %}
 
-<html class="light" lang="es">
+{% block title %}Contacto - Ugsha Inmobiliaria{% endblock %}
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Inmobiliarias Ugsha - Luxury Real Estate</title>
-    <!-- Google Fonts: Manrope -->
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
-        rel="stylesheet" />
-    <!-- Material Symbols -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <!-- Theme Configuration -->
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#1173d4",
-                        "background-light": "#f6f7f8", // Very light grey/cream tone
-                        "background-dark": "#101922", // Deep charcoal/blue
-                        "accent-cream": "#F9F9F6",
-                        "accent-charcoal": "#2C333A",
-                    },
-                    fontFamily: {
-                        "display": ["Manrope", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-
-        /* Custom scrollbar for masonry if needed */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
-</head>
-
-<body
-    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased selection:bg-primary selection:text-white">
-    <!-- Top Navigation -->
-    <header
-        class="fixed top-0 left-0 w-full z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- Logo -->
-            <div class="flex items-center gap-3">
-                {% if config.logo %}
-                <img src="{{ config.logo.url }}" alt="Inmobiliarias Ugsha" class="h-10 w-auto object-contain">
-                {% else %}
-                <span class="material-symbols-outlined text-primary text-3xl">landscape</span>
-                {% endif %}
-                <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Inmobiliarias Ugsha</h1>
-            </div>
-            <!-- Desktop Menu -->
-            <nav class="hidden md:flex items-center gap-8">
-                <a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors"
-                    href="{% url 'pag_web:lotes' %}">Lotes</a>
-                <a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors"
-                    href="{% url 'pag_web:nosotros' %}">Nosotros</a>
-                <a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors"
-                    href="{% url 'pag_web:contacto' %}">Contacto</a>
-            </nav>
-            <!-- Mobile Menu Action -->
-            <button class="md:hidden p-2 text-slate-900 dark:text-white">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
-            <!-- CTA Button -->
-            <div class="hidden md:block">
-                <button
-                    class="bg-primary hover:bg-primary/90 text-white text-sm font-bold py-2.5 px-6 rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                    Solicitar Info
-                </button>
-            </div>
-        </div>
-    </header>
-    <!-- Main Content Wrapper -->
-    <main class="relative w-full overflow-hidden pt-20">
+{% block content %}
+    <div class="relative w-full overflow-hidden">
         <!-- Split Hero Section -->
         <section class="min-h-[calc(100vh-80px)] w-full flex flex-col lg:flex-row">
             <!-- Left: Imagery -->
@@ -128,56 +36,105 @@
                             Invierta en la Naturaleza. <br />
                             <span class="font-bold text-slate-800 dark:text-slate-100">Construya su Legado.</span>
                         </h1>
-                        <p class="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-                            Lotes exclusivos disponibles en ubicaciones privilegiadas. Asegure su santuario donde el
-                            lujo se encuentra con la naturaleza. Únase a la lista de espera VIP hoy.
+                        <p class="text-slate-600 dark:text-slate-400 text-base leading-relaxed mb-4">
+                            Lotes exclusivos disponibles en ubicaciones privilegiadas de Pujilí. Documentación en regla y financiamiento directo.
                         </p>
+                        <!-- Quick Direct Contact Pill -->
+                        <div class="flex flex-wrap gap-3 mb-6">
+                            <a href="tel:+593998205377" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold hover:bg-primary hover:text-white transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[16px] text-emerald-500">call</span>
+                                <span>Llamar: 0998205377</span>
+                            </a>
+                            <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20informaci%C3%B3n%20sobre%20los%20terrenos."
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-600 hover:text-white transition-all border border-emerald-500/20">
+                                <span class="material-symbols-outlined text-[16px]">chat</span>
+                                <span>WhatsApp Directo</span>
+                            </a>
+                        </div>
                     </div>
-                    <!-- Lead Capture Form -->
-                    <form
-                        class="flex flex-col gap-4 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-                        <div class="flex flex-col gap-1">
-                            <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400"
-                                for="name">Nombre Completo</label>
+                    <!-- Lead Capture Form (100% Funcional) -->
+                    <form method="post"
+                          action="{% url 'pag_web:contacto' %}"
+                          class="flex flex-col gap-4 bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-700">
+                        {% csrf_token %}
+                        <input type="hidden" name="origen" value="contacto">
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                                for="nombre_contacto">Nombre Completo *</label>
                             <div class="relative">
                                 <span
                                     class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">person</span>
                                 <input
-                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
-                                    id="name" placeholder="Juan Pérez" type="text" />
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
+                                    id="nombre_contacto" name="nombre" placeholder="Ej. Juan Pérez" type="text" required />
                             </div>
                         </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400"
-                                for="email">Correo Electrónico</label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">mail</span>
-                                <input
-                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
-                                    id="email" placeholder="juan@ejemplo.com" type="email" />
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                                    for="phone_contacto">Teléfono / Celular *</label>
+                                <div class="relative">
+                                    <span
+                                        class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">call</span>
+                                    <input
+                                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
+                                        id="phone_contacto" name="telefono" placeholder="099 820 5377" type="tel" required />
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                                    for="email_contacto">Correo Electrónico</label>
+                                <div class="relative">
+                                    <span
+                                        class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">mail</span>
+                                    <input
+                                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
+                                        id="email_contacto" name="email" placeholder="correo@ejemplo.com" type="email" />
+                                </div>
                             </div>
                         </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400"
-                                for="phone">Teléfono</label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">call</span>
-                                <input
-                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
-                                    id="phone" placeholder="+593 99 999 9999" type="tel" />
-                            </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                                for="mensaje_contacto">Mensaje o Pregunta</label>
+                            <textarea
+                                class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-sm"
+                                id="mensaje_contacto" name="mensaje" rows="3" placeholder="Hola, me gustaría agendar una visita y conocer planes de pago..."></textarea>
                         </div>
+
                         <button
-                            class="mt-2 w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 group"
-                            type="button">
-                            <span>Unirse a Lista VIP</span>
-                            <span
-                                class="material-symbols-outlined group-hover:translate-x-1 transition-transform text-sm">arrow_forward</span>
+                            class="w-full bg-gradient-to-r from-primary via-blue-800 to-primary-light hover:from-blue-700 hover:to-primary text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center gap-2 group cursor-pointer hover:scale-[1.01] active:scale-95"
+                            type="submit">
+                            <span>Enviar Solicitud de Información</span>
+                            <span class="material-symbols-outlined group-hover:translate-x-1.5 transition-transform text-[18px]">send</span>
                         </button>
-                        <p class="text-center text-xs text-slate-400 mt-2">
-                            Disponibilidad limitada. Respetamos su privacidad.
+
+                        <button
+                            id="btn-whatsapp-direct"
+                            type="button"
+                            onclick="enviarPorWhatsApp()"
+                            class="w-full py-3 px-4 rounded-xl border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px]">chat</span>
+                            <span>O Enviar Directamente por WhatsApp</span>
+                        </button>
+
+                        <script>
+                            function enviarPorWhatsApp() {
+                                const nombre = document.getElementById('nombre_contacto').value.trim() || 'Cliente interesado';
+                                const tel = document.getElementById('phone_contacto').value.trim();
+                                const msg = document.getElementById('mensaje_contacto').value.trim() || 'Deseo información sobre los lotes';
+                                const texto = encodeURIComponent(`Hola Ugsha Inmobiliaria, mi nombre es ${nombre} (${tel}). ${msg}`);
+                                window.open(`https://wa.me/593998205377?text=${texto}`, '_blank');
+                            }
+                        </script>
+
+                        <p class="text-center text-xs text-slate-400 mt-1 flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-[13px] text-emerald-500">lock</span>
+                            Sus datos se almacenan de forma segura en nuestro sistema interno.
                         </p>
                     </form>
                 </div>
@@ -385,63 +342,5 @@
                 </button>
             </div>
         </section>
-        <!-- Footer -->
-        <footer class="bg-background-dark text-slate-300 py-12 border-t border-slate-800">
-            <div class="max-w-[1440px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center gap-2 mb-4 text-white">
-                        <span class="material-symbols-outlined text-primary">landscape</span>
-                        <span class="text-xl font-bold">Inmobiliarias Ugsha</span>
-                    </div>
-                    <p class="max-w-sm text-sm text-slate-400">
-                        Conectándolo con los mejores paisajes naturales. Nos especializamos en lotes premium y
-                        desarrollo de terrenos para inversores exigentes.
-                    </p>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-wider">Enlaces Rápidos</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:lotes' %}">Lotes</a>
-                        </li>
-                        <li><a class="hover:text-primary transition-colors"
-                                href="{% url 'pag_web:nosotros' %}">Nosotros</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Inversionistas</a></li>
-                        <li><a class="hover:text-primary transition-colors"
-                                href="{% url 'pag_web:contacto' %}">Contacto</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-wider">Contacto</h4>
-                    <ul class="space-y-2 text-sm text-slate-400">
-                        <li class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-base">location_on</span>
-                            123 Green Valley Dr, Suite 400
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-base">phone</span>
-                            +593 99 999 9999
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-base">mail</span>
-                            info@ugsharealestate.com
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div
-                class="max-w-[1440px] mx-auto px-6 mt-12 pt-8 border-t border-slate-800 text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center">
-                <p>© 2024 Inmobiliarias Ugsha. Todos los derechos reservados.</p>
-                <div class="flex gap-4 mt-4 md:mt-0">
-                    <a class="hover:text-white" href="#">Política de Privacidad</a>
-                    <a class="hover:text-white" href="#">Términos de Servicio</a>
-                </div>
-            </div>
-        </footer>
-    </main>
-    <script>
-        // Simple script to toggle mobile menu visibility (optional interaction)
-        // Not adding JS logic as per instructions, but placeholder for structure
-    </script>
-</body>
-
-</html>
+    </div>
+{% endblock %}

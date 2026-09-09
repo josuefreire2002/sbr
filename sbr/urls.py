@@ -14,12 +14,10 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
 
     # Página Web Pública (Landing Page)
-    # Página Web Pública (Landing Page) - Ahora en /web/
-    path('web/', include('Aplicaciones.pag_web.urls')),
+    path('', include('Aplicaciones.pag_web.urls')),
     
     # Sistema de Gestión Interna (sbr_app) - Requiere autenticación
-    # Ahora es la página principal por defecto
-    path('', include('Aplicaciones.sbr_app.urls')), 
+    path('portal/', include('Aplicaciones.sbr_app.urls')), 
     path('gestor/', include('Aplicaciones.sbr_gestor.urls')), 
 ]
 

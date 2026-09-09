@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import Servicio, Testimonio, ContactoMensaje
 
 # Importamos el modelo Lote de sbr_app
@@ -80,7 +81,7 @@ def testimonios_view(request):
 
 def contacto_view(request):
     """
-    Página de contacto con formulario.
+    Página de contacto con formulario y recepción de leads.
     """
     context = get_context_base()
     
@@ -89,17 +90,37 @@ def contacto_view(request):
         email = request.POST.get('email', '').strip()
         telefono = request.POST.get('telefono', '').strip()
         mensaje = request.POST.get('mensaje', '').strip()
+        origen = request.POST.get('origen', 'contacto')
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', '')
         
-        if nombre and email and mensaje:
-            ContactoMensaje.objects.create(
+        if nombre and (email or telefono):
+            contacto = ContactoMensaje.objects.create(
                 nombre=nombre,
-                email=email,
+                email=email or 'no-indicado@ugshainmobiliarios.com',
                 telefono=telefono,
-                mensaje=mensaje
+                mensaje=mensaje or 'Interés general en terrenos y lotes.'
             )
-            messages.success(request, '¡Mensaje enviado correctamente! Nos pondremos en contacto pronto.')
+            success_msg = f'¡Muchas gracias {nombre}! Su consulta fue registrada exitosamente. Un asesor se comunicará al {telefono or email} a la brevedad posible.'
+            
+            if is_ajax:
+                return JsonResponse({
+                    'status': 'success',
+                    'message': success_msg,
+                    'lead_id': contacto.id
+                })
+            
+            messages.success(request, success_msg)
+            if origen == 'index':
+                return redirect('/#contact')
             return redirect('pag_web:contacto')
         else:
-            messages.error(request, 'Por favor complete todos los campos requeridos.')
+            error_msg = 'Por favor complete su nombre y al menos un método de contacto (teléfono o correo electrónico).'
+            if is_ajax:
+                return JsonResponse({'status': 'error', 'message': error_msg}, status=400)
+            
+            messages.error(request, error_msg)
+            if origen == 'index':
+                return redirect('/#contact')
+            return redirect('pag_web:contacto')
     
     return render(request, 'pag_web/pages/contacto.html', context)

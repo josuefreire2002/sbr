@@ -2,67 +2,389 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Lotes Disponibles - Ugsha Inmobiliarios{% endblock %}
+{% block title %}Lotes Disponibles - Ugsha Inmobiliaria{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<section class="py-5 bg-dark text-white" style="margin-top: 70px;">
-    <div class="container py-4">
-        <h1 class="fw-bold">Lotes Disponibles</h1>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'pag_web:index' %}" class="text-warning">Inicio</a></li>
-                <li class="breadcrumb-item active text-white">Lotes</li>
+<!-- Page Header with Architectural Pattern & Ambient Glow -->
+<section class="relative bg-slate-950 text-white pt-24 pb-20 px-4 md:px-10 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-primary/70 to-slate-950 opacity-95"></div>
+    <div class="absolute inset-0 bg-grid-subtle opacity-30"></div>
+    <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-gold-accent/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -left-10 top-0 w-80 h-80 bg-primary-light/15 rounded-full blur-3xl pointer-events-none"></div>
+    
+    <div class="relative max-w-[1280px] mx-auto z-10 text-center md:text-left">
+        <div class="inline-flex items-center gap-2 py-1 px-3.5 rounded-full bg-gold-accent/20 text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-4 border border-gold-accent/30 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-gold-accent animate-ping"></span>
+            Inventario Inmobiliario Oficial 2026
+        </div>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif font-bold mb-4 leading-tight">
+            Lotes y Terrenos en <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-gold-accent to-yellow-400">Pujilí</span>
+        </h1>
+        <p class="text-slate-300 text-base sm:text-lg max-w-2xl mb-8 font-light leading-relaxed">
+            Terrenos residenciales con escrituras individuales, servicios garantizados y nuestro exclusivo financiamiento directo. Seleccione un lote para calcular su cuota mensual en tiempo real.
+        </p>
+        
+        <!-- Breadcrumbs -->
+        <nav class="flex justify-center md:justify-start text-xs font-semibold text-slate-400">
+            <ol class="flex items-center space-x-2 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-800">
+                <li><a href="{% url 'pag_web:index' %}" class="hover:text-gold-accent transition-colors">Inicio</a></li>
+                <li><span class="text-slate-600">/</span></li>
+                <li class="text-white">Lotes Disponibles</li>
             </ol>
         </nav>
     </div>
 </section>
 
-<section class="section-padding">
-    <div class="container">
-        <div class="row g-4">
+<!-- Lots Grid Section -->
+<section class="py-16 px-4 md:px-10 bg-slate-50 dark:bg-slate-950 transition-colors bg-grid-subtle">
+    <div class="max-w-[1280px] mx-auto">
+        
+        <!-- Filter & Inventory Control Bar -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mr-2">Filtros Activos:</span>
+                <span class="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-md cursor-pointer hover:bg-primary-light transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                    Todos los Terrenos
+                </span>
+                <span class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 hover:border-gold-accent/50 hover:text-gold-accent shadow-sm cursor-pointer transition-all">
+                    Crédito Directo 0%
+                </span>
+                <span class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 hover:border-gold-accent/50 hover:text-gold-accent shadow-sm cursor-pointer transition-all">
+                    Escrituración Inmediata
+                </span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-semibold bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <span class="material-symbols-outlined text-[16px] text-emerald-500">verified</span>
+                <span>Inventario verificado: <strong class="text-slate-900 dark:text-white">{{ lotes|length }} lote(s) en línea</strong></span>
+            </div>
+        </div>
+
+        <!-- Balanced Dynamic Grid (Never empty or bare) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for lote in lotes %}
-            <div class="col-lg-4 col-md-6 fade-in">
-                <div class="property-card card-hover">
-                    <div class="position-relative">
-                        {% if lote.foto_lista %}
-                        <img src="{{ lote.foto_lista.url }}" class="card-img-top" alt="Lote {{ lote.numero_lote }}"
-                            style="height: 250px; object-fit: cover;">
-                        {% else %}
-                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
-                            style="height: 200px;">
-                            <i class="bi bi-geo-alt text-white" style="font-size: 4rem;"></i>
-                        </div>
-                        {% endif %}
-                        <span class="property-badge bg-success text-white">Disponible</span>
+            <!-- Dynamic Real Lot Card -->
+            <div class="group relative bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-200/80 dark:border-slate-700/80 hover:border-gold-accent/60 hover:-translate-y-2 flex flex-col">
+                <div class="relative aspect-[4/3] overflow-hidden bg-slate-200 dark:bg-slate-700">
+                    {% if lote.foto_lista %}
+                    <img class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                        src="{{ lote.foto_lista.url }}" alt="Lote {{ lote.numero_lote }}" />
+                    {% else %}
+                    <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-100 dark:bg-slate-800">
+                        <span class="material-symbols-outlined text-6xl group-hover:scale-110 transition-transform text-slate-300">landscape</span>
+                        <span class="text-xs font-semibold mt-2 uppercase tracking-wider text-slate-400">Foto en preparación</span>
                     </div>
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-2">Lote #{{ lote.numero_lote }}</h5>
-                        <p class="text-muted mb-3">
-                            <i class="bi bi-rulers me-1"></i>{{ lote.dimensiones }}
-                            {% if lote.manzana %}<span class="mx-2">|</span><i class="bi bi-grid-3x3 me-1"></i>Mz. {{
-                            lote.manzana }}{% endif %}
+                    {% endif %}
+
+                    <!-- Shimmer Availability Badge -->
+                    <div class="absolute top-4 left-4 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                        {{ lote.estado|default:"Disponible" }}
+                    </div>
+
+                    <!-- Simulator Pill Overlay Tag -->
+                    <div class="absolute top-4 right-4 bg-slate-950/85 backdrop-blur-md text-amber-300 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md border border-gold-accent/30 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px] text-gold-accent">calculate</span>
+                        Simulador
+                    </div>
+
+                    <div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent">
+                        <span class="text-[11px] font-extrabold text-amber-300 uppercase tracking-widest">Terreno Urbanizado</span>
+                        <p class="text-2xl font-serif font-bold text-white leading-tight">Lote #{{ lote.numero_lote }}</p>
+                        {% if lote.manzana %}
+                        <p class="text-slate-300 text-xs flex items-center gap-1 mt-0.5">
+                            <span class="material-symbols-outlined text-[15px]">grid_3x3</span>
+                            Manzana {{ lote.manzana }}
                         </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="price-tag">${{ lote.precio_contado|intcomma }}</span>
-                            <a href="{% url 'pag_web:lote_detalle' lote.id %}"
-                                class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                Ver más <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="p-6 flex flex-col flex-grow justify-between bg-white dark:bg-slate-800">
+                    <div class="flex justify-between items-center mb-5 pb-5 border-b border-slate-100 dark:border-slate-700/70">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block mb-0.5">Precio Contado</span>
+                            <span class="text-2xl font-serif font-bold text-primary dark:text-gold-accent">${{ lote.precio_contado|intcomma }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block mb-0.5">Dimensión</span>
+                            <span class="text-lg font-serif font-bold text-slate-800 dark:text-slate-100">{{ lote.dimensiones }}</span>
                         </div>
                     </div>
+
+                    <a href="{% url 'pag_web:lote_detalle' lote.id %}"
+                       class="w-full py-3.5 rounded-2xl border-2 border-primary/20 hover:border-transparent text-primary hover:text-white bg-slate-50 hover:bg-gradient-to-r hover:from-primary hover:to-primary-light dark:bg-slate-700/40 dark:hover:bg-primary font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-sm hover:shadow-lg">
+                        <span>Ver Ficha & Simular Cuotas</span>
+                        <span class="material-symbols-outlined text-[18px] group-hover/btn:translate-x-1.5 transition-transform duration-300">arrow_forward</span>
+                    </a>
                 </div>
             </div>
             {% empty %}
-            <div class="col-12 text-center py-5">
-                <i class="bi bi-geo-alt text-muted" style="font-size: 5rem;"></i>
-                <h4 class="mt-4 text-muted">Próximamente nuevos lotes</h4>
-                <p class="text-muted">Estamos trabajando en nuevos proyectos. ¡Contáctanos para más información!</p>
-                <a href="{% url 'pag_web:contacto' %}" class="btn btn-primary-custom text-white mt-3">
-                    <i class="bi bi-envelope me-2"></i>Contáctanos
+            <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm p-8">
+                <div class="w-24 h-24 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-6 animate-pulse">
+                    <span class="material-symbols-outlined text-5xl">landscape_2</span>
+                </div>
+                <h3 class="text-2xl font-serif font-bold text-slate-900 dark:text-white mb-2">Próximamente Nuevas Etapas</h3>
+                <p class="text-slate-500 dark:text-slate-400 max-w-md mb-8">Estamos preparando nuevas ubicaciones y manzanas exclusivas. Contáctenos hoy para acceder a precios de preventa.</p>
+                <a href="{% url 'pag_web:contacto' %}" class="bg-gradient-to-r from-gold-accent to-yellow-600 hover:from-yellow-500 hover:to-gold-accent text-slate-950 font-extrabold py-3.5 px-8 rounded-xl transition-all shadow-xl hover:shadow-gold-accent/30 hover:scale-105 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">mail</span>
+                    Contactar a un Asesor
                 </a>
             </div>
             {% endfor %}
+
+            <!-- COMPLEMENTARY CARD 1: Upcoming Phase Teaser (Prevents bare/empty holes) -->
+            <div class="group relative bg-gradient-to-br from-slate-900 via-slate-950 to-primary/90 text-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-800 hover:border-gold-accent/50 hover:-translate-y-2 flex flex-col justify-between p-7">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="py-1 px-3.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[15px]">event</span>
+                            Preventa 2026
+                        </span>
+                        <span class="text-xs text-slate-400 font-semibold">Cupos Limitados</span>
+                    </div>
+                    
+                    <span class="text-xs font-extrabold text-gold-accent uppercase tracking-widest">Próxima Etapa</span>
+                    <h3 class="text-2xl lg:text-3xl font-serif font-bold text-white mt-1 mb-3">
+                        Sector Bellavista II
+                    </h3>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6 font-light">
+                        Nueva lotización en el sector de mayor plusvalía de Pujilí. Terrenos desde 200m² hasta 500m² con 0% de interés en el primer año.
+                    </p>
+
+                    <ul class="space-y-2 text-xs text-slate-300 mb-8">
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
+                            Vías de acceso afirmadas
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
+                            Factibilidad de agua y luz eléctrica
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
+                            Entrada desde $1,500
+                        </li>
+                    </ul>
+                </div>
+
+                <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20anotarme%20a%20la%20preventa%20de%20Bellavista%20II."
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-gold-accent to-yellow-500 hover:from-yellow-400 hover:to-gold-accent text-slate-950 font-extrabold text-sm transition-all duration-300 shadow-lg hover:shadow-gold-accent/30 flex items-center justify-center gap-2 text-center">
+                    <span class="material-symbols-outlined text-[18px]">bookmark_add</span>
+                    <span>Reservar en Lista VIP Preventa</span>
+                </a>
+            </div>
+
+            <!-- COMPLEMENTARY CARD 2: Custom Search Concierge Card (Fills grid balance) -->
+            <div class="group relative bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-gold-accent hover:-translate-y-2 flex flex-col justify-between p-7">
+                <div>
+                    <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary dark:text-gold-accent flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm">
+                        <span class="material-symbols-outlined text-3xl">travel_explore</span>
+                    </div>
+                    
+                    <span class="text-xs font-extrabold text-primary dark:text-gold-accent uppercase tracking-widest">Servicio Personalizado</span>
+                    <h3 class="text-2xl font-serif font-bold text-slate-900 dark:text-white mt-1 mb-3">
+                        ¿Buscas una medida o sector específico?
+                    </h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 font-light">
+                        Contamos con terrenos en diferentes zonas de Pujilí y alrededores. Cuéntanos qué metraje necesitas y te buscaremos la opción perfecta según tu presupuesto.
+                    </p>
+
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 mb-6 text-xs text-slate-600 dark:text-slate-300 space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-gold-accent text-[16px]">verified_user</span>
+                            <span>Asesoría legal y notarial gratuita</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-gold-accent text-[16px]">directions_car</span>
+                            <span>Recorridos presenciales guiados</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{% url 'pag_web:contacto' %}"
+                   class="w-full py-3.5 px-4 rounded-2xl border-2 border-slate-800 dark:border-slate-200 text-slate-900 dark:text-white hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 font-extrabold text-sm transition-all duration-300 flex items-center justify-center gap-2 text-center">
+                    <span class="material-symbols-outlined text-[18px]">support_agent</span>
+                    <span>Solicitar Búsqueda a Medida</span>
+                </a>
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+<!-- SECTION 2: 4 TRUST PILLARS (ELIMINATES BLANK VOID WITH LUXURY VALUE) -->
+<section class="py-20 px-4 md:px-10 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 transition-colors">
+    <div class="max-w-[1280px] mx-auto">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="inline-block py-1 px-3 rounded-full bg-gold-accent/15 text-gold-accent font-extrabold text-xs uppercase tracking-widest mb-3 border border-gold-accent/25">
+                Garantía y Tranquilidad
+            </span>
+            <h2 class="text-3xl md:text-5xl font-serif font-bold text-slate-900 dark:text-white leading-tight">
+                ¿Por qué tu inversión está 100% segura con Ugsha?
+            </h2>
+            <p class="text-slate-600 dark:text-slate-400 mt-4 text-base font-light">
+                Comprar un terreno es la decisión de vida más importante. Respaldamos cada metro cuadrado con estándares notariales rigurosos.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Pillar 1 -->
+            <div class="group p-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-gold-accent/50 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-2xl">gavel</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Escrituras Individuales</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed font-light">
+                        Cero derechos y acciones. Cada lote cuenta con clave catastral independiente registrada en el Cantón Pujilí.
+                    </p>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-800 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <span>100% Garantizado</span>
+                    <span class="material-symbols-outlined text-[14px]">verified</span>
+                </div>
+            </div>
+
+            <!-- Pillar 2 -->
+            <div class="group p-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-gold-accent/50 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-2xl">water_drop</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Servicios Básicos</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed font-light">
+                        Proyección y factibilidad de agua potable, tendido eléctrico y accesos vehiculares afirmados listos para construir.
+                    </p>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-800 text-[11px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                    <span>Urbanización Segura</span>
+                    <span class="material-symbols-outlined text-[14px]">check</span>
+                </div>
+            </div>
+
+            <!-- Pillar 3 -->
+            <div class="group p-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-gold-accent/50 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-2xl">trending_up</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Alta Plusvalía</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed font-light">
+                        Ubicaciones estratégicas en zonas de rápida expansión que multiplican el valor de su dinero año tras año.
+                    </p>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-800 text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <span>Crecimiento Anual Estimado</span>
+                    <span class="material-symbols-outlined text-[14px]">insights</span>
+                </div>
+            </div>
+
+            <!-- Pillar 4 -->
+            <div class="group p-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-gold-accent/50 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-2xl">handshake</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Financiamiento Propio</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed font-light">
+                        Sin aprobación bancaria ni historial crediticio. Cuotas mensuales fijas adaptadas directamente a sus ingresos.
+                    </p>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-800 text-[11px] font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                    <span>Hasta 60 Meses Plazo</span>
+                    <span class="material-symbols-outlined text-[14px]">payments</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: FAQ ACCORDION (ENGAGING INTERACTIVE CONTENT) -->
+<section class="py-20 px-4 md:px-10 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 transition-colors">
+    <div class="max-w-[900px] mx-auto">
+        <div class="text-center mb-14">
+            <span class="text-xs font-extrabold uppercase tracking-widest text-gold-accent">Resolvemos tus Inquietudes</span>
+            <h2 class="text-3xl md:text-4xl font-serif font-bold text-slate-900 dark:text-white mt-1">
+                Preguntas Frecuentes sobre la Compra de Lotes
+            </h2>
+        </div>
+
+        <div class="space-y-4">
+            <!-- FAQ 1 -->
+            <details class="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-all duration-200 open:shadow-md open:border-gold-accent/50">
+                <summary class="flex justify-between items-center font-bold text-slate-900 dark:text-white cursor-pointer select-none text-base">
+                    <span>¿Cuáles son los requisitos para acceder al financiamiento directo?</span>
+                    <span class="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                </summary>
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-light">
+                    No solicitamos garantes ni historial crediticio bancario. Únicamente requerimos su copia de cédula de identidad, papeleta de votación y el valor acordado para la entrada inicial. El contrato de promesa de compraventa se suscribe de manera inmediata y transparente.
+                </div>
+            </details>
+
+            <!-- FAQ 2 -->
+            <details class="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-all duration-200 open:shadow-md open:border-gold-accent/50">
+                <summary class="flex justify-between items-center font-bold text-slate-900 dark:text-white cursor-pointer select-none text-base">
+                    <span>¿Las escrituras son individuales o en derechos y acciones?</span>
+                    <span class="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                </summary>
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-light">
+                    Todos nuestros terrenos se entregan con <strong>escrituras públicas individuales</strong> debidamente inscritas en el Registro de la Propiedad del Cantón Pujilí. Usted será el único dueño legítimo de su lote sin compartir derechos con terceros.
+                </div>
+            </details>
+
+            <!-- FAQ 3 -->
+            <details class="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-all duration-200 open:shadow-md open:border-gold-accent/50">
+                <summary class="flex justify-between items-center font-bold text-slate-900 dark:text-white cursor-pointer select-none text-base">
+                    <span>¿En cuánto tiempo puedo empezar a construir mi casa?</span>
+                    <span class="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                </summary>
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-light">
+                    Puede iniciar la posesión y trabajos preliminares de cerramiento o construcción inmediatamente tras la firma del contrato y abono de la entrada, coordinando previamente los planos con el departamento técnico del Municipio.
+                </div>
+            </details>
+
+            <!-- FAQ 4 -->
+            <details class="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 transition-all duration-200 open:shadow-md open:border-gold-accent/50">
+                <summary class="flex justify-between items-center font-bold text-slate-900 dark:text-white cursor-pointer select-none text-base">
+                    <span>¿Puedo adelantar cuotas o liquidar mi crédito antes de tiempo?</span>
+                    <span class="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                </summary>
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-light">
+                    Sí, totalmente. Usted puede abonar capital o cancelar la totalidad de su deuda en cualquier momento sin penalidad alguna, reduciendo inmediatamente los intereses futuros según la tabla de amortización.
+                </div>
+            </details>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: GUIDED TOUR CTA BANNER -->
+<section class="py-16 px-4 md:px-10 bg-slate-950 text-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-primary/80 via-slate-950 to-slate-950 opacity-90"></div>
+    <div class="max-w-[1280px] mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+        <div class="max-w-2xl">
+            <span class="text-xs font-bold uppercase tracking-widest text-amber-300">Recorridos en Terreno</span>
+            <h2 class="text-3xl md:text-4xl font-serif font-bold text-white mt-1">
+                ¿Desea conocer los lotes en persona este fin de semana?
+            </h2>
+            <p class="text-slate-300 mt-2 text-sm sm:text-base font-light">
+                Coordinamos una visita presencial guiada sin ningún compromiso. Le mostraremos los linderos, accesos y vistas panorámicas.
+            </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-4 flex-shrink-0">
+            <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20agendar%20una%20visita%20guiada%20a%20los%20lotes%20en%20Pujilí."
+               target="_blank"
+               rel="noopener noreferrer"
+               class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">calendar_today</span>
+                <span>Agendar Recorrido Gratuito</span>
+            </a>
+            <a href="{% url 'pag_web:contacto' %}"
+               class="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <span>Enviar Consulta</span>
+            </a>
         </div>
     </div>
 </section>
