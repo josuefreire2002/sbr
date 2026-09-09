@@ -203,10 +203,10 @@
                     <span>Simulador</span>
                 </a>
                 
-                <a href="{% url 'pag_web:nosotros' %}"
+                <a href="{% url 'pag_web:index' %}#sobre-nosotros"
                    class="px-3 xl:px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-primary dark:hover:text-gold-accent hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 flex items-center gap-1.5 group">
                     <span class="material-symbols-outlined text-[18px] text-slate-600 dark:text-slate-300 group-hover:text-primary dark:group-hover:text-gold-accent transition-colors">badge</span>
-                    <span>Nosotros</span>
+                    <span>Sobre Nosotros</span>
                 </a>
 
                 <a href="{% url 'pag_web:contacto' %}"
@@ -216,20 +216,14 @@
                 </a>
             </nav>
 
-            <!-- Actions Right (CTA Buttons) -->
+            <!-- Actions Right (CTA Contactar Asesor WhatsApp) -->
             <div class="hidden sm:flex items-center gap-3">
-                <a href="https://wa.me/593998205377?text=Hola,%20me%20gustaría%20agendar%20una%20visita%20a%20los%20terrenos."
+                <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20asesoría%20sobre%20los%20lotes%20disponibles."
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="hidden xl:inline-flex items-center gap-2 h-11 px-4 rounded-xl border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 font-bold text-xs uppercase tracking-wider transition-all duration-200">
+                   class="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95">
                     <span class="material-symbols-outlined text-[18px]">chat</span>
-                    <span>WhatsApp</span>
-                </a>
-
-                <a href="{% url 'dashboard' %}"
-                   class="relative group overflow-hidden flex items-center justify-center rounded-xl h-11 px-5 bg-gradient-to-r from-primary via-blue-800 to-primary-light hover:from-blue-700 hover:to-primary text-white text-sm font-bold shadow-lg hover:shadow-primary/30 hover:scale-105 active:scale-95 transition-all duration-300 gap-2 border border-blue-400/20">
-                    <span class="material-symbols-outlined text-[18px] group-hover:rotate-12 transition-transform">lock</span>
-                    <span>Portal Clientes</span>
+                    <span>Contactar Asesor</span>
                 </a>
             </div>
             
@@ -264,7 +258,7 @@
                     <span class="material-symbols-outlined text-primary dark:text-gold-accent">calculate</span>
                     <span>Simulador de Cuotas</span>
                 </a>
-                <a href="{% url 'pag_web:nosotros' %}"
+                <a href="{% url 'pag_web:index' %}#sobre-nosotros"
                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
                     <span class="material-symbols-outlined text-primary dark:text-gold-accent">badge</span>
                     <span>Sobre Nosotros</span>
@@ -276,15 +270,10 @@
                 </a>
 
                 <div class="pt-4 mt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-3">
-                    <a href="{% url 'dashboard' %}"
-                       class="w-full py-3.5 px-4 rounded-xl bg-primary hover:bg-primary-light text-white font-bold text-sm text-center shadow-md flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">lock</span>
-                        <span>Acceder al Portal de Clientes</span>
-                    </a>
-                    <a href="https://wa.me/593998205377"
+                    <a href="https://wa.me/593998205377?text=Hola,%20quisiera%20asesoría%20sobre%20los%20lotes%20disponibles."
                        target="_blank"
                        rel="noopener noreferrer"
-                       class="w-full py-3 px-4 rounded-xl border border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold text-sm text-center flex items-center justify-center gap-2">
+                       class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm text-center shadow-md flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">chat</span>
                         <span>Escribir por WhatsApp</span>
                     </a>
@@ -337,9 +326,8 @@
                     <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
                         <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:index' %}">Inicio</a></li>
                         <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:lotes' %}">Lotes Disponibles</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:nosotros' %}">Sobre Nosotros</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:index' %}#sobre-nosotros">Sobre Nosotros</a></li>
                         <li><a class="hover:text-primary transition-colors" href="{% url 'pag_web:contacto' %}">Contacto</a></li>
-                        <li><a class="hover:text-primary font-bold transition-colors" href="{% url 'dashboard' %}">Portal Interno (Acceso)</a></li>
                     </ul>
                 </div>
                 <div>
@@ -634,12 +622,20 @@
                             mobileMenu.classList.add('hidden');
                         }
                         simSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        // Add glow highlight to simulator card
-                        const card = simSection.querySelector('.lg\\:col-span-7');
-                        if (card) {
-                            card.classList.add('ring-4', 'ring-gold-accent/50');
-                            setTimeout(() => card.classList.remove('ring-4', 'ring-gold-accent/50'), 1500);
+                    }
+                });
+            });
+
+            // Smooth scroll handler for Sobre Nosotros links
+            document.querySelectorAll('a[href*="#sobre-nosotros"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const aboutSection = document.getElementById('sobre-nosotros');
+                    if (aboutSection) {
+                        e.preventDefault();
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
                         }
+                        aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 });
             });
