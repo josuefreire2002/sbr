@@ -53,28 +53,29 @@
                 </div>
 
                 <!-- Trust Stats Strip -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-14 pt-10 border-t border-white/15 w-full max-w-4xl text-white">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-6 mt-14 pt-10 border-t border-white/15 w-full max-w-4xl text-white">
                     <div class="flex flex-col items-center hover:scale-105 transition-transform">
-                        <span class="text-3xl lg:text-4xl font-serif font-bold text-gold-accent">15+</span>
-                        <span class="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">Años de Trayectoria</span>
+                        <span class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-gold-accent">15+</span>
+                        <span class="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Años de Trayectoria</span>
                     </div>
                     <div class="flex flex-col items-center hover:scale-105 transition-transform">
-                        <span class="text-3xl lg:text-4xl font-serif font-bold text-emerald-400">100%</span>
-                        <span class="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">Escrituras Inmediatas</span>
+                        <span class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-emerald-400">100%</span>
+                        <span class="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Escrituras Inmediatas</span>
                     </div>
                     <div class="flex flex-col items-center hover:scale-105 transition-transform">
-                        <span class="text-3xl lg:text-4xl font-serif font-bold text-amber-300">0%</span>
-                        <span class="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">Interés 1er Año</span>
+                        <span class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-amber-300">0%</span>
+                        <span class="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Interés 1er Año</span>
                     </div>
                     <div class="flex flex-col items-center hover:scale-105 transition-transform">
-                        <span class="text-3xl lg:text-4xl font-serif font-bold text-sky-400">+500</span>
-                        <span class="text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1">Propietarios Felices</span>
+                        <span class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-sky-400">+500</span>
+                        <span class="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-semibold mt-1 text-center">Propietarios Felices</span>
                     </div>
                 </div>
             </div>
             
             <!-- Floating Filter Bar with Glassmorphism & Hover Glow -->
-            <div class="absolute -bottom-14 left-0 right-0 z-20 px-4">
+            <!-- G-01 FIX: relative en mobile, absolute en md+ para evitar colisión con la sección siguiente -->
+            <div class="relative -mx-4 mt-6 md:absolute md:mt-0 md:-bottom-14 md:left-0 md:right-0 z-20 px-4">
                 <div class="max-w-[1050px] mx-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl p-5 md:p-6 flex flex-col md:flex-row gap-5 items-center justify-between border border-slate-200/80 dark:border-slate-700/80 hover:border-gold-accent/50 hover:shadow-gold-accent/10 transition-all duration-300">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                         <div class="flex flex-col gap-1.5">
@@ -124,7 +125,8 @@
         </div>
 
         <!-- FEATURED LOTS SECTION -->
-        <section class="pt-28 pb-20 px-4 md:px-10 bg-slate-50 dark:bg-slate-900 transition-colors" id="lots">
+        <!-- G-01 FIX: pt-8 en mobile (barra ya no es absolute), md:pt-28 para desktop -->
+        <section class="pt-8 md:pt-28 pb-20 px-4 md:px-10 bg-slate-50 dark:bg-slate-900 transition-colors" id="lots">
             <div class="max-w-[1280px] mx-auto">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
                     <div>
@@ -270,11 +272,11 @@
                                        placeholder="Ej: 15000">
                             </div>
                             <!-- Selector opcional de lote -->
-                            <select id="sim-lote-select" class="w-full bg-slate-900/90 border border-slate-700 text-slate-300 text-xs rounded-xl px-3.5 py-2.5 focus:border-gold-accent outline-none cursor-pointer">
-                                <option value="custom" data-precio="15000">✍️ Ingresar monto manual libre</option>
+                            <select id="sim-lote-select" class="w-full bg-slate-900/90 border-2 border-slate-700 text-slate-300 text-xs rounded-xl px-3.5 py-2.5 focus:border-gold-accent focus-visible:ring-2 focus-visible:ring-gold-accent/40 outline-none cursor-pointer transition-all">
+                                <option value="custom" data-precio="15000">-- Ingresar monto manual libre</option>
                                 {% for l in lotes_simulador %}
                                 <option value="{{ l.id }}" data-precio="{{ l.precio_contado|stringformat:'f' }}" data-lote="{{ l.numero_lote }}" data-mz="{{ l.manzana }}">
-                                    🏡 Lote {{ l.numero_lote }} (Manzana {{ l.manzana }}) — ${{ l.precio_contado|intcomma }} ({{ l.dimensiones }})
+                                    Lote {{ l.numero_lote }} (Mz. {{ l.manzana }}) — ${{ l.precio_contado|intcomma }} ({{ l.dimensiones }})
                                 </option>
                                 {% endfor %}
                             </select>
@@ -317,8 +319,9 @@
                                     Fecha de Pago
                                 </label>
                                 <div class="relative">
+                                    <!-- G-06 FIX: min-w-0 + appearance-none para Safari iOS -->
                                     <input type="date" id="sim-fecha-pago"
-                                           class="w-full bg-slate-900 border-2 border-slate-700 focus:border-amber-400 text-slate-200 font-mono font-bold text-sm rounded-2xl px-4 py-3 outline-none transition-all shadow-inner cursor-pointer">
+                                           class="w-full min-w-0 bg-slate-900 border-2 border-slate-700 focus:border-amber-400 focus-visible:ring-2 focus-visible:ring-amber-400/40 text-slate-200 font-mono font-bold text-sm rounded-2xl px-4 py-3 outline-none transition-all shadow-inner cursor-pointer appearance-none">
                                 </div>
                             </div>
                         </div>
